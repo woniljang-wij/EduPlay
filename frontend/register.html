@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký - EduPlay</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/auth.css">
+</head>
+
+<body>
+
+<a href="index.html" class="back-home-btn group">
+    <div class="flex items-center gap-2 px-5 py-2.5 bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl text-white font-bold shadow-xl transition-all group-hover:bg-white/40 group-hover:-translate-x-1">
+        ← Trang chủ
+    </div>
+</a>
+
+<div class="auth-bg-decoration top-[-10%] left-[-10%]"></div>
+<div class="auth-bg-decoration bottom-[-10%] right-[-10%]" style="animation-delay: -4s;"></div>
+
+<div class="auth-card flex flex-col md:flex-row max-w-5xl w-full mx-4 rounded-[2.5rem] overflow-hidden">
+
+    <!-- LEFT -->
+    <div class="hidden md:flex md:w-5/12 bg-gradient-to-br from-indigo-600 to-purple-700 p-12 text-white flex-col justify-between">
+        <div>
+            <h1 class="text-3xl font-extrabold mb-4">🎓 EduPlay</h1>
+            <p class="text-indigo-100">Gia nhập cộng đồng giáo dục trò chơi lớn nhất Việt Nam ngay hôm nay.</p>
+        </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="w-full md:w-7/12 p-8 md:p-16 bg-white/90">
+
+        <div class="mb-10">
+            <h2 class="text-3xl font-extrabold text-slate-800">Tạo tài khoản</h2>
+        </div>
+
+        <!-- FORM -->
+        <form id="registerForm" class="space-y-4">
+
+            <div class="grid grid-cols-2 gap-4">
+                <input id="firstName" type="text" class="auth-input" placeholder="Họ" required>
+                <input id="lastName" type="text" class="auth-input" placeholder="Tên" required>
+            </div>
+
+            <input id="username" type="email" class="auth-input" placeholder="Email" required>
+
+            <input id="password" type="password" class="auth-input" placeholder="Mật khẩu" required>
+
+            <button id="registerBtn" type="submit" class="btn-auth w-full text-lg">
+                Đăng ký tham gia
+            </button>
+
+        </form>
+
+        <div class="mt-10 text-center">
+            <p>Bạn đã có tài khoản?
+                <a href="login.html" class="text-indigo-600 font-bold">Đăng nhập</a>
+            </p>
+        </div>
+
+    </div>
+</div>
+
+<script src="js/register.js"></script>
+
+</body>
+</html>

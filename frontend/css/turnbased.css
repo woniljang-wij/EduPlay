@@ -1,0 +1,146 @@
+/* ===== BACKGROUND ===== */
+.turnbased-bg {
+  min-height: 100vh;
+  display: flex;
+  background: linear-gradient(135deg, #22c55e, #10b981);
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+  width: 260px;
+  background: rgba(255,255,255,0.9);
+  backdrop-filter: blur(10px);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.sidebar h2 {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.menu button {
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.menu button:hover {
+  background: #f1f5f9;
+}
+
+/* active */
+.menu .active {
+  background: linear-gradient(to right, #3b82f6, #8b5cf6);
+  color: white;
+  font-weight: bold;
+}
+
+/* usage box */
+.usage {
+  background: #dcfce7;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+/* upgrade */
+.upgrade {
+  background: #ef4444;
+  color: white;
+  font-weight: bold;
+}
+
+/* ===== MAIN ===== */
+.main {
+  flex: 1;
+  padding: 30px;
+}
+
+.container-box {
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  height: 100%;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+/* header */
+.header h1 {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.header p {
+  color: #6b7280;
+}
+
+/* notice */
+.notice {
+  margin-top: 20px;
+  padding: 12px;
+  border: 1px solid #facc15;
+  background: #fefce8;
+  color: #92400e;
+  border-radius: 10px;
+}
+
+/* ===== EMPTY STATE ===== */
+.empty {
+  margin-top: 40px;
+  height: 400px;
+  background: #f8fafc;
+  border-radius: 16px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty .icon {
+  font-size: 60px;
+  margin-bottom: 10px;
+}
+
+.empty h3 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.empty p {
+  color: #6b7280;
+  margin-bottom: 15px;
+}
+
+/* button */
+.btn-create {
+  background: #22c55e;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-create:hover {
+  background: #16a34a;
+}
+
+/* ===== EFFECT NHẸ CHO UI ===== */
+.menu button:active,
+.btn-create:active {
+  transform: scale(0.95);
+}

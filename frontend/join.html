@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EduPlay - Vào phòng chơi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/join.css">
+</head>
+
+<body>
+  <div class="bg-decor" style="top: 10%; left: 15%;">🚀</div>
+  <div class="bg-decor" style="top: 70%; right: 10%; animation-delay: -2s;">🧩</div>
+  <div class="bg-decor" style="top: 20%; right: 20%; animation-delay: -4s;">⚡</div>
+
+  <div class="join-card">
+    <div class="icon">🎮</div>
+    <h1 class="title">EduPlay</h1>
+    <p class="subtitle">Nhập mã phòng từ giáo viên</p>
+
+    <div class="code-inputs" id="codeInputs">
+      <input maxlength="1" class="code-box" type="text" autocomplete="off" />
+      <input maxlength="1" class="code-box" type="text" autocomplete="off" />
+      <input maxlength="1" class="code-box" type="text" autocomplete="off" />
+      <input maxlength="1" class="code-box" type="text" autocomplete="off" />
+      <input maxlength="1" class="code-box" type="text" autocomplete="off" />
+      <input maxlength="1" class="code-box" type="text" autocomplete="off" />
+    </div>
+
+    <button id="joinBtn" disabled>
+       SẴN SÀNG CHƯA?
+    </button>
+
+    <p class="note">💡 Nhập đủ 6 ký tự để mở khóa</p>
+  </div>
+
+  <script src="js/join.js"></script>
+</body>
+</html>

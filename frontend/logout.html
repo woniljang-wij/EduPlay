@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Đăng xuất - EduPlay</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="stylesheet" href="css/auth.css">
+</head>
+
+<body>
+
+  <!-- hiệu ứng nền -->
+  <div class="auth-bg-decoration top-[-10%] left-[-10%]"></div>
+  <div class="auth-bg-decoration bottom-[-10%] right-[-10%]" style="animation-delay: -4s;"></div>
+
+  <!-- BACK -->
+  <a href="index.html" class="back-home">
+    ← Trang chủ
+  </a>
+
+  <div class="auth-card max-w-[450px] w-full mx-4 rounded-[2.5rem] p-10 text-center">
+
+    <div class="logout-icon">🚪</div>
+
+    <h2 class="logout-title">
+      Bạn muốn đăng xuất?
+    </h2>
+
+    <p class="logout-desc">
+      Bạn sẽ cần đăng nhập lại để tiếp tục sử dụng hệ thống.
+    </p>
+
+    <!-- buttons -->
+    <div class="logout-actions">
+      <button onclick="cancelLogout()" class="btn-cancel">
+        Hủy
+      </button>
+
+      <button onclick="confirmLogout()" class="btn-logout">
+        Đăng xuất
+      </button>
+    </div>
+
+  </div>
+
+  <!-- JS -->
+  <script src="js/logout.js"></script>
+
+</body>
+</html>

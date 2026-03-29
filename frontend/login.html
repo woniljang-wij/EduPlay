@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - EduPlay</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/auth.css">
+</head>
+
+<body>
+
+<!-- BACK -->
+<a href="index.html" class="back-home-btn group">
+    <div class="flex items-center gap-2 px-5 py-2.5 bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl text-white font-bold shadow-xl transition-all group-hover:bg-white/40 group-hover:-translate-x-1">
+        ← Trang chủ
+    </div>
+</a>
+
+<div class="auth-bg-decoration top-[-10%] left-[-10%]"></div>
+<div class="auth-bg-decoration bottom-[-10%] right-[-10%]" style="animation-delay: -4s;"></div>
+
+<div class="auth-card max-w-[450px] w-full mx-4 rounded-[2.5rem] overflow-hidden bg-white/90 p-8 md:p-12">
+
+    <!-- HEADER -->
+    <div class="text-center mb-10">
+        <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-3xl shadow-lg shadow-indigo-200 mb-6 rotate-3">
+            <span class="text-4xl">🎓</span>
+        </div>
+
+        <h2 class="text-3xl font-black text-slate-800 tracking-tight">
+            Mừng bạn trở lại!
+        </h2>
+
+        <p class="text-slate-500 mt-2 font-medium">
+            Cùng chinh phục kiến thức hôm nay nào
+        </p>
+    </div>
+
+    <!-- FORM -->
+    <form id="loginForm" class="space-y-5">
+
+        <!-- USERNAME -->
+        <div class="space-y-1">
+            <label class="text-xs font-bold text-slate-500 ml-1 uppercase">
+                Tên đăng nhập / Email
+            </label>
+
+            <div class="relative">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">👤</span>
+
+                <input id="username" type="text"
+                    class="auth-input pl-12"
+                    placeholder="username hoặc email..."
+                    required>
+            </div>
+        </div>
+
+        <!-- PASSWORD -->
+        <div class="space-y-1">
+            <div class="flex justify-between items-center px-1">
+                <label class="text-xs font-bold text-slate-500 uppercase">
+                    Mật khẩu
+                </label>
+
+                <a href="#" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition">
+                    Quên mật khẩu?
+                </a>
+            </div>
+
+            <div class="relative">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">🔒</span>
+
+                <input id="password" type="password"
+                    class="auth-input pl-12"
+                    placeholder="••••••••"
+                    required>
+            </div>
+        </div>
+
+        <!-- BUTTON -->
+        <div class="pt-4">
+            <button id="loginBtn" type="submit"
+                class="btn-auth w-full text-lg shadow-xl">
+                Đăng nhập ngay
+            </button>
+        </div>
+
+    </form>
+
+    <!-- FOOTER -->
+    <div class="mt-10 text-center border-t border-slate-100 pt-8">
+        <p class="text-slate-600">
+            Bạn là thành viên mới?
+            <a href="register.html" class="text-indigo-600 font-bold hover:underline">
+                Tạo tài khoản
+            </a>
+        </p>
+    </div>
+
+</div>
+
+<!-- JS -->
+<script src="js/login.js"></script>
+
+</body>
+</html>
