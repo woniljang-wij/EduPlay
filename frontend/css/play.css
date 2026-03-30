@@ -18,34 +18,96 @@ body {
   box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
 
-/* dice */
-.dice {
-  width: 80px;
-  height: 80px;
-  background: white;
-  border-radius: 16px;
+/* ===== DICE 3D ===== */
+
+/* perspective */
+.dice-wrapper {
+  perspective: 1000px;
+}
+
+/* khối xúc xắc */
+.dice3d {
+  width: 70px;
+  height: 70px;
+  position: relative;
+
+  transform-style: preserve-3d;
+  will-change: transform;
+ transition: transform 0.7s cubic-bezier(.25,.8,.25,1);
+
+  margin: 0 auto 20px;
+
+  box-shadow: 0 15px 25px rgba(0,0,0,0.2);
+}
+
+/* ===== FACE ===== */
+
+.face {
+  position: absolute;
+  width: 70px;
+  height: 70px;
+
+  background: white; /* ✅ nền trắng */
+  border-radius: 14px;
+
   display: flex;
-  align-items: center;
   justify-content: center;
-  font-size: 30px;
-  box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-  margin: 20px auto;
+  align-items: center;
+  outline: 1px solid transparent;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+  backface-visibility: hidden;
 }
 
-/* button */
-.btn-roll {
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-  color: white;
-  padding: 12px 20px;
-  border-radius: 12px;
-  font-weight: bold;
-  transition: 0.3s;
+/* ===== DOT ===== */
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  position: absolute;
+
+  background: #2563eb; /* 🔵 mặc định xanh */
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.4);
 }
 
-.btn-roll:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+/* 🔴 chấm đỏ */
+.dot.red {
+  background: #ef4444;
 }
+
+/* ===== POSITION DOT ===== */
+
+.center { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+
+.tl { top: 15%; left: 15%; }
+.tr { top: 15%; right: 15%; }
+.bl { bottom: 15%; left: 15%; }
+.br { bottom: 15%; right: 15%; }
+
+.ml { top: 50%; left: 15%; transform: translateY(-50%); }
+.mr { top: 50%; right: 15%; transform: translateY(-50%); }
+
+/* ===== 6 MẶT ===== */
+
+.front  { transform: rotateY(0deg) translateZ(35px); }     /* 1 */
+.back   { transform: rotateY(180deg) translateZ(35px); }   /* 6 */
+.right  { transform: rotateY(90deg) translateZ(35px); }    /* 3 */
+.left   { transform: rotateY(-90deg) translateZ(35px); }   /* 4 */
+.top    { transform: rotateX(90deg) translateZ(35px); }    /* 5 */
+.bottom { transform: rotateX(-90deg) translateZ(35px); }   /* 2 */
+
+/* ===== ANIMATION ===== */
+
+.dice-rolling {
+  animation: spinDice 0.4s linear infinite;
+}
+
+@keyframes spinDice {
+  0%   { transform: rotateX(0deg) rotateY(0deg); }
+  100% { transform: rotateX(360deg) rotateY(360deg); }
+}
+
+/* ===== BOARD ===== */
 
 #board {
   background: url('../assets/images/map.png') center/cover no-repeat;
@@ -53,4 +115,10 @@ body {
 
 #playerLayer div {
   transform: translate(-50%, -50%);
+}
+
+/* ===== VICTORY ===== */
+
+#victoryScreen {
+  transition: opacity 1s ease;
 }

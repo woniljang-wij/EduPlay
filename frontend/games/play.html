@@ -1,101 +1,172 @@
 <!doctype html>
 <html lang="vi">
-<head>
-  <meta charset="UTF-8" />
-  <title>Chơi Game</title>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Chơi Game</title>
 
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="../css/play.css" />
-</head>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../css/play.css" />
+  </head>
 
-<body class="bg-gradient-to-r from-green-400 to-emerald-500 min-h-screen p-6">
+  <body class="bg-gradient-to-r from-green-400 to-emerald-500 min-h-screen p-6">
+    <div class="max-w-6xl mx-auto bg-white rounded-3xl shadow-xl p-6">
+      <!-- HEADER -->
+      <h1 class="text-2xl font-bold mb-4">🎮 Turnbased</h1>
 
-<div class="max-w-6xl mx-auto bg-white rounded-3xl shadow-xl p-6">
+      <!-- INFO -->
+      <div id="gameInfo" class="mb-6"></div>
 
-  <!-- HEADER -->
-  <h1 class="text-2xl font-bold mb-4">🎮 Game đang chạy</h1>
-
-  <!-- INFO -->
-  <div id="gameInfo" class="mb-6"></div>
-
-  <!-- LAYOUT -->
-  <div class="grid grid-cols-3 gap-6">
-
-    <!-- MAP -->
-    <div class="col-span-2">
-      
-      <div class="relative w-full aspect-[16/9]">
-
+      <!-- LAYOUT -->
+      <div class="grid grid-cols-3 gap-6">
         <!-- MAP -->
-        <img 
-          src="../assets/images/map.png"
-          class="absolute inset-0 w-full h-full object-cover rounded-2xl shadow-lg select-none pointer-events-none"
-        />
+        <div class="col-span-2">
+          <div class="relative w-full aspect-[16/9]">
+            <!-- MAP -->
+            <img
+              src="../assets/images/map.png"
+              class="absolute inset-0 w-full h-full object-cover rounded-2xl shadow-lg select-none pointer-events-none"
+            />
 
-        <!-- CELLS -->
-        <div id="cellLayer" class="absolute inset-0 w-full h-full pointer-events-none"></div>
+            <!-- CELLS -->
+            <div
+              id="cellLayer"
+              class="absolute inset-0 w-full h-full pointer-events-none"
+            ></div>
 
-        <!-- PLAYERS -->
-        <div id="playerLayer" class="absolute inset-0 w-full h-full pointer-events-none"></div>
-
-      </div>
-
-    </div>
-
-    <!-- SIDE PANEL -->
-    <div class="flex flex-col gap-4">
-
-      <!-- DICE -->
-      <div class="bg-gray-100 p-6 rounded-2xl text-center shadow">
-        <div id="dice" class="text-5xl mb-4">🎲</div>
-
-        <button onclick="rollDice()"
-          class="bg-green-500 hover:bg-green-600 text-white px-5 py-3 rounded-xl w-full transition font-semibold shadow">
-          🎲 Tung xúc xắc
-        </button>
-      </div>
-
-      <!-- PLAYER LIST -->
-      <div id="playerList"
-        class="bg-gray-100 p-4 rounded-2xl shadow text-sm">
-      </div>
-
-      <!-- 🎵 MUSIC -->
-      <div class="bg-gray-100 p-4 rounded-2xl shadow">
-
-        <p class="mb-2 font-semibold">🎵 Nhạc nền:</p>
-
-        <div class="flex gap-2 flex-wrap" id="musicList">
-
-          <button class="music-btn px-3 py-1 rounded-full border"
-            data-src="../assets/sounds/bai1.mp3">Bài 1</button>
-
-          <button class="music-btn px-3 py-1 rounded-full border"
-            data-src="../assets/sounds/bai2.mp3">Bài 2</button>
-
-          <button class="music-btn px-3 py-1 rounded-full border"
-            data-src="../assets/sounds/bai3.mp3">Bài 3</button>
-
-          <button class="music-btn px-3 py-1 rounded-full border"
-            data-src="../assets/sounds/bai4.mp3">Bài 4</button>
-
-          <button class="music-btn px-3 py-1 rounded-full border"
-            data-src="../assets/sounds/bai5.mp3">Bài 5</button>
-
+            <!-- PLAYERS -->
+            <div
+              id="playerLayer"
+              class="absolute inset-0 w-full h-full pointer-events-none"
+            ></div>
+          </div>
         </div>
 
-        <!-- AUDIO -->
-        <audio id="bgMusic" loop></audio>
+<!-- SIDE PANEL -->
+<div class="flex flex-col gap-4">
+
+  <!-- DICE -->
+  <div class="bg-gray-100 p-6 rounded-2xl text-center shadow">
+    
+    <!-- DICE WRAPPER -->
+    <div class="dice-wrapper flex justify-center mb-4">
+      <div id="dice3D" class="dice3d">
+
+        <!-- 1 -->
+        <div class="face front">
+          <span class="dot center red"></span>
+        </div>
+
+        <!-- 6 -->
+        <div class="face back">
+          <span class="dot tl"></span>
+          <span class="dot tr"></span>
+          <span class="dot bl"></span>
+          <span class="dot br"></span>
+          <span class="dot ml"></span>
+          <span class="dot mr"></span>
+        </div>
+
+        <!-- 3 -->
+        <div class="face right">
+          <span class="dot tl"></span>
+          <span class="dot center"></span>
+          <span class="dot br"></span>
+        </div>
+
+        <!-- 4 -->
+        <div class="face left">
+          <span class="dot tl red"></span>
+          <span class="dot tr red"></span>
+          <span class="dot bl red"></span>
+          <span class="dot br red"></span>
+        </div>
+
+        <!-- 5 -->
+        <div class="face top">
+          <span class="dot tl"></span>
+          <span class="dot tr"></span>
+          <span class="dot center"></span>
+          <span class="dot bl"></span>
+          <span class="dot br"></span>
+        </div>
+
+        <!-- 2 -->
+        <div class="face bottom">
+          <span class="dot tl"></span>
+          <span class="dot br"></span>
+        </div>
 
       </div>
-
     </div>
+
+    <!-- BUTTON -->
+    <button
+      id="rollBtn"
+      onclick="rollDice()"
+      class="bg-green-500 hover:bg-green-600 text-white px-5 py-3 rounded-xl w-full transition font-semibold shadow disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      🎲 Tung xúc xắc
+    </button>
+  </div>
+
+  <!-- PLAYER LIST -->
+  <div
+    id="playerList"
+    class="bg-gray-100 p-4 rounded-2xl shadow text-sm"
+  ></div>
+
+  <!-- 🎵 MUSIC -->
+  <div class="bg-gray-100 p-4 rounded-2xl shadow">
+    <p class="mb-2 font-semibold">🎵 Nhạc nền:</p>
+
+    <div class="flex gap-2 flex-wrap" id="musicList">
+      <button class="music-btn px-3 py-1 rounded-full border" data-src="../assets/sounds/bai1.mp3">Bài 1</button>
+      <button class="music-btn px-3 py-1 rounded-full border" data-src="../assets/sounds/bai2.mp3">Bài 2</button>
+      <button class="music-btn px-3 py-1 rounded-full border" data-src="../assets/sounds/bai3.mp3">Bài 3</button>
+      <button class="music-btn px-3 py-1 rounded-full border" data-src="../assets/sounds/bai4.mp3">Bài 4</button>
+      <button class="music-btn px-3 py-1 rounded-full border" data-src="../assets/sounds/bai5.mp3">Bài 5</button>
+    </div>
+
+    <audio id="bgMusic" loop></audio>
+  </div>
+
+  <!-- 🎮 CONTROL -->
+<div class="bg-gray-100 p-4 rounded-2xl shadow flex flex-col gap-2">
+
+  <!-- HÀNG 1 -->
+  <div class="flex gap-2">
+
+    <!-- 🔊 SOUND -->
+    <button
+      onclick="toggleSound()"
+      id="soundBtn"
+      class="w-12 flex items-center justify-center border rounded-lg hover:bg-gray-200 transition"
+    >
+      🔊
+    </button>
+
+    <!-- 🖥️ FULLSCREEN -->
+    <button
+      onclick="toggleFullscreen()"
+      class="flex-1 border rounded-lg px-3 py-2 hover:bg-gray-200 transition"
+    >
+      ⛶ Toàn màn hình
+    </button>
 
   </div>
 
+  <!-- HÀNG 2 -->
+  <button
+    onclick="goHome()"
+    class="border rounded-lg px-3 py-2 hover:bg-gray-200 transition text-blue-500"
+  >
+    ← Thoát
+  </button>
+
 </div>
 
-<script src="../js/games/play.js" defer></script>
+</div>
 
-</body>
+    <script src="../js/games/play.js" defer></script>
+  </body>
 </html>

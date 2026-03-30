@@ -3,20 +3,22 @@ const params = new URLSearchParams(window.location.search);
 const id = Number(params.get("id"));
 
 const games = JSON.parse(localStorage.getItem("games")) || [];
-const game = games.find(g => g.id === id);
+const game = games.find((g) => g.id === id);
 
 const gameInfo = document.getElementById("gameInfo");
 const dice = document.getElementById("dice");
 const playerList = document.getElementById("playerList");
 const playerLayer = document.getElementById("playerLayer");
 const cellLayer = document.getElementById("cellLayer");
-
+const diceFaces = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+const rollBtn = document.getElementById("rollBtn");
+let isRolling = false;
 // ===== STATE =====
 let positions = [];
 let currentPlayer = 0;
 
 // 🔥 ICON PLAYER
-const playerIcons = ["🧍", "🐸", "🐱", "🐶", "🦊", "🐼", "🐵", "🐯"]
+const playerIcons = ["🧍", "🐸", "🐱", "🐶", "🦊", "🐼", "🐵", "🐯"];
 
 const path = [];
 
@@ -25,12 +27,11 @@ const rows = 5;
 
 for (let row = 0; row < rows; row++) {
   for (let col = 0; col < cols; col++) {
-
     let realCol = row % 2 === 0 ? col : cols - 1 - col;
 
     path.push({
       col: realCol,
-      row: row
+      row: row,
     });
   }
 }
@@ -71,7 +72,6 @@ function renderCells() {
   const cellHeight = rect.height / rows;
 
   path.forEach((p, index) => {
-
     const x = p.col * cellWidth + cellWidth / 2;
     const y = p.row * cellHeight + cellHeight / 2;
 
@@ -84,8 +84,8 @@ function renderCells() {
       text-sm font-bold shadow
     `;
 
-    cell.style.left = (x - 24) + "px";
-    cell.style.top  = (y - 24) + "px";
+    cell.style.left = x - 24 + "px";
+    cell.style.top = y - 24 + "px";
 
     // 🚩 START & 🏁 END
     if (index === 0) {
@@ -123,9 +123,9 @@ function renderPlayersOnMap() {
     el.className = "absolute text-2xl transition-all duration-300";
 
     // tránh chồng
-    el.style.left = (x - 12 + i * 10) + "px";
-    el.style.top  = (y - 12 + i * 5) + "px";
-    
+    el.style.left = x - 12 + i * 10 + "px";
+    el.style.top = y - 12 + i * 5 + "px";
+
     el.innerText = playerIcons[i];
 
     playerLayer.appendChild(el);
@@ -134,7 +134,9 @@ function renderPlayersOnMap() {
 
 // ===== PLAYER LIST =====
 function renderPlayers() {
-  playerList.innerHTML = game.players.map((p, i) => `
+  playerList.innerHTML = game.players
+    .map(
+      (p, i) => `
     <div class="
       p-2 rounded-xl mb-2 flex justify-between
       ${i === currentPlayer ? "bg-green-200 font-bold" : "bg-white"}
@@ -142,53 +144,84 @@ function renderPlayers() {
       <span>${playerIcons[i]} ${p}</span>
       <span>Ô ${positions[i]}</span>
     </div>
-  `).join("");
+  `,
+    )
+    .join("");
 }
 
 // ===== ROLL =====
 function rollDice() {
+
+  const rollBtn = document.getElementById("rollBtn");
+  const dice = document.getElementById("dice3D");
+
+  rollBtn.disabled = true;
+  rollBtn.innerText = "⏳ Đang tung...";
+
+  dice.classList.add("dice-rolling");
+
   let roll = Math.floor(Math.random() * 6) + 1;
 
-  let count = 0;
-  const interval = setInterval(() => {
-    dice.innerText = Math.floor(Math.random() * 6) + 1;
-    count++;
+  setTimeout(() => {
 
-    if (count > 10) {
-      clearInterval(interval);
-      dice.innerText = roll;
-      movePlayer(roll);
-    }
-  }, 80);
+    dice.classList.remove("dice-rolling");
+
+    dice.offsetHeight;
+
+    const rotations = {
+      1: "rotateX(0deg) rotateY(0deg)",
+      2: "rotateX(180deg) rotateY(0deg)",
+      3: "rotateX(0deg) rotateY(-90deg)",
+      4: "rotateX(0deg) rotateY(90deg)",
+      5: "rotateX(-90deg) rotateY(0deg)",
+      6: "rotateX(90deg) rotateY(0deg)"
+    };
+
+    dice.style.transform = rotations[roll];
+
+    movePlayer(roll);
+
+  }, 1000);
 }
 
 // ===== MOVE =====
 function movePlayer(steps) {
+
   let pos = positions[currentPlayer];
 
-  const moveInterval = setInterval(() => {
+  const pathLength = path.length;
 
-    pos++;
-    if (pos >= path.length) pos = path.length - 1;
+  let moveInterval = setInterval(() => {
 
-    positions[currentPlayer] = pos;
-
-    renderPlayersOnMap();
-
-    steps--;
-
-    if (steps === 0) {
+    if (steps <= 0) {
       clearInterval(moveInterval);
       afterMove();
+      return;
     }
+
+    if (pos < pathLength - 1) {
+      pos++;
+      positions[currentPlayer] = pos;
+      renderPlayersOnMap();
+    }
+
+    steps--;
 
   }, 250);
 }
 
 // ===== AFTER =====
 function afterMove() {
+
+  const rollBtn = document.getElementById("rollBtn");
+
+  // nếu thắng
   if (positions[currentPlayer] >= path.length - 1) {
-    alert(`🏆 ${game.players[currentPlayer]} tới đích ⭐`);
+    showVictory(game.players[currentPlayer]);
+
+    rollBtn.disabled = false;
+    rollBtn.innerText = "🎲 Tung xúc xắc";
+
     return;
   }
 
@@ -196,6 +229,9 @@ function afterMove() {
 
   updateInfo();
   renderPlayers();
+
+  rollBtn.disabled = false;
+  rollBtn.innerText = "🎲 Tung xúc xắc";
 }
 
 // ===== RESIZE =====
@@ -217,7 +253,7 @@ if (game && game.music) {
 function updateMusicUI() {
   const currentFile = music.src.split("/").pop();
 
-  musicButtons.forEach(btn => {
+  musicButtons.forEach((btn) => {
     const btnFile = btn.dataset.src.split("/").pop();
 
     if (btnFile === currentFile) {
@@ -230,9 +266,8 @@ function updateMusicUI() {
 
 setTimeout(updateMusicUI, 100);
 
-musicButtons.forEach(btn => {
+musicButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
-
     music.src = btn.dataset.src;
     music.play();
 
@@ -241,7 +276,55 @@ musicButtons.forEach(btn => {
 });
 
 music.play().catch(() => {
-  document.body.addEventListener("click", () => {
-    music.play().catch(() => {});
-  }, { once: true });
+  document.body.addEventListener(
+    "click",
+    () => {
+      music.play().catch(() => {});
+    },
+    { once: true },
+  );
 });
+
+function showVictory(playerName) {
+  const screen = document.getElementById("victoryScreen");
+  const video = document.getElementById("victoryVideo");
+
+  screen.classList.remove("hidden");
+
+  video.currentTime = 0;
+  video.play();
+
+  video.onended = () => {
+    screen.style.opacity = "0";
+
+    setTimeout(() => {
+      screen.classList.add("hidden");
+      screen.style.opacity = "1";
+    }, 1000);
+  };
+}
+
+function toggleSound() {
+  const music = document.getElementById("bgMusic");
+  const btn = document.getElementById("soundBtn");
+
+  music.muted = !music.muted;
+
+  if (music.muted) {
+    btn.innerText = "🔇";
+  } else {
+    btn.innerText = "🔊";
+  }
+}
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen();
+  } else {
+    document.exitFullscreen();
+  }
+}
+
+function goHome() {
+  window.location.href = "/frontend/games/turnbased.html";
+}
