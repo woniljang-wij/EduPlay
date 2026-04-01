@@ -219,27 +219,50 @@
 
 </section>
 
-    <!-- FOOTER -->
-    <footer class="bg-slate-900 text-gray-400 py-12 px-6">
-      <div
-        class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center"
-      >
-        <div class="mb-6 md:mb-0">
-          <h2 class="text-2xl font-bold text-white mb-2">🎓 EduPlay</h2>
-          <p class="text-sm">Học tập sáng tạo, kết nối tương lai.</p>
-        </div>
+<footer class="footer relative overflow-hidden">
+  <!-- Background overlay -->
+  <div class="footer-overlay"></div>
 
-        <div class="flex space-x-6">
-          <a href="#" class="hover:text-white">Điều khoản</a>
-          <a href="#" class="hover:text-white">Bảo mật</a>
-          <a href="#" class="hover:text-white">Liên hệ</a>
-        </div>
-      </div>
+  <!-- Nội dung -->
+  <div class="relative z-10 max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-3 gap-10">
 
-      <div class="mt-10 pt-8 border-t border-slate-800 text-center text-sm">
-        <p>© 2026 EduPlay - Đồ án tốt nghiệp xuất sắc</p>
+    <!-- Logo -->
+    <div>
+      <h2 class="text-3xl font-extrabold text-white mb-3">🎓 EduPlay</h2>
+      <p class="text-gray-300">
+        Học tập sáng tạo, kết nối tương lai. Biến việc học thành trò chơi hấp dẫn!
+      </p>
+    </div>
+
+    <!-- Links -->
+    <div>
+      <h3 class="text-white font-bold mb-4">Khám phá</h3>
+      <ul class="space-y-2">
+        <li><a href="#" class="footer-link">Điều khoản</a></li>
+        <li><a href="#" class="footer-link">Bảo mật</a></li>
+        <li><a href="#" class="footer-link">Liên hệ</a></li>
+      </ul>
+    </div>
+
+    <!-- Newsletter -->
+    <div>
+      <h3 class="text-white font-bold mb-4">Nhận cập nhật</h3>
+      <div class="flex gap-2">
+        <input type="email" placeholder="Nhập email..."
+          class="newsletter-input flex-1 px-4 py-2 rounded-xl text-white outline-none" />
+        <button class="subscribe-btn px-4 py-2 rounded-xl font-bold">
+          🚀
+        </button>
       </div>
-    </footer>
+    </div>
+
+  </div>
+
+  <!-- Bottom -->
+  <div class="relative z-10 text-center text-gray-400 border-t border-white/10 py-6">
+    © 2026 EduPlay - Đồ án tốt nghiệp xuất sắc
+  </div>
+</footer>
 
     <script src="js/main.js"></script>
   </body>

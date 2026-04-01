@@ -162,11 +162,83 @@
   >
     ← Thoát
   </button>
-
 </div>
 
+<!-- 🎬 VICTORY VIDEO -->
+<div id="victoryScreen"
+  class="fixed inset-0 bg-black hidden z-[9999] transition-opacity duration-500">
+
+  <video id="victoryVideo"
+    class="w-full h-full object-cover"
+    muted playsinline>
+    <source src="../assets/videos/VT.mp4" type="video/mp4" />
+  </video>
 </div>
 
-    <script src="../js/games/play.js" defer></script>
-  </body>
+<!-- 🏆 RESULT POPUP (LUÔN TỒN TẠI, CHỜ SẴN) -->
+<div id="victoryPopup"
+  class="fixed inset-0 flex items-center justify-center z-[9998]
+         bg-slate-900/40 backdrop-blur-xl
+         opacity-0 pointer-events-none
+         transition-all duration-500">
+
+  <div id="victoryBox"
+    class="victory-card relative overflow-hidden
+           bg-white/90 p-10 text-center
+           shadow-[0_20px_50px_rgba(0,0,0,0.3)]
+           w-[500px] max-w-[90%]
+           mx-auto rounded-[2rem]
+           border border-white/50">
+
+    <!-- glow nền -->
+    <div class="absolute -top-24 -left-24 w-48 h-48 bg-yellow-400/20 rounded-full blur-3xl"></div>
+    <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-orange-400/20 rounded-full blur-3xl"></div>
+
+    <div class="relative z-10">
+
+      <!-- icon -->
+      <div class="trophy-wrapper mb-6">
+        <span id="winnerIcon" class="text-7xl block trophy-icon">🏆</span>
+        <div class="confetti-burst"></div>
+      </div>
+
+      <!-- title -->
+      <h2 id="winnerText"
+        class="text-4xl font-black
+               bg-gradient-to-r from-yellow-600 via-orange-500 to-yellow-600
+               bg-clip-text text-transparent
+               mb-2 uppercase tracking-tight">
+        Chiến Thắng!
+      </h2>
+
+      <!-- desc -->
+      <p class="mb-8 text-gray-500 font-medium text-lg italic">
+        Chúc mừng bạn đã chinh phục đỉnh cao!
+      </p>
+
+      <!-- buttons -->
+      <div class="flex justify-center gap-4 flex-wrap">
+        <button onclick="goHome()"
+          class="btn-secondary px-8 py-3 rounded-2xl font-bold transition-all duration-300">
+          QUAY LẠI
+        </button>
+
+        <button onclick="restartGame()"
+          class="btn-primary px-8 py-3
+                 bg-gradient-to-r from-orange-500 to-yellow-500
+                 text-white rounded-2xl font-bold
+                 shadow-lg shadow-orange-200
+                 transition-all duration-300">
+          CHƠI LẠI
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- SCRIPT -->
+<script src="../js/games/play.js" defer></script>
+</body>
 </html>

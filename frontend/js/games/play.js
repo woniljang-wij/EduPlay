@@ -23,16 +23,19 @@ const playerIcons = ["🧍", "🐸", "🐱", "🐶", "🦊", "🐼", "🐵", "�
 const path = [];
 
 const cols = 10;
-const rows = 5;
+const rows = 1;
 
 for (let row = 0; row < rows; row++) {
-  for (let col = 0; col < cols; col++) {
-    let realCol = row % 2 === 0 ? col : cols - 1 - col;
-
-    path.push({
-      col: realCol,
-      row: row,
-    });
+  if (row % 2 === 0) {
+    // đi từ trái sang phải
+    for (let col = 0; col < cols; col++) {
+      path.push({ col, row });
+    }
+  } else {
+    // đi từ phải sang trái
+    for (let col = cols - 1; col >= 0; col--) {
+      path.push({ col, row });
+    }
   }
 }
 
@@ -216,14 +219,12 @@ function afterMove() {
   const rollBtn = document.getElementById("rollBtn");
 
   // nếu thắng
-  if (positions[currentPlayer] >= path.length - 1) {
-    showVictory(game.players[currentPlayer]);
+if (positions[currentPlayer] >= path.length - 1) {
+  showVictory(game.players[currentPlayer], currentPlayer);
 
-    rollBtn.disabled = false;
-    rollBtn.innerText = "🎲 Tung xúc xắc";
-
-    return;
-  }
+  rollBtn.disabled = true; // ❗ khóa luôn
+  return;
+}
 
   currentPlayer = (currentPlayer + 1) % game.players.length;
 
@@ -285,22 +286,51 @@ music.play().catch(() => {
   );
 });
 
-function showVictory(playerName) {
+function showVictory(playerName, playerIndex) {
   const screen = document.getElementById("victoryScreen");
   const video = document.getElementById("victoryVideo");
+  const popup = document.getElementById("victoryPopup");
+  const winnerText = document.getElementById("winnerText");
+  const box = document.getElementById("victoryBox");
+  const winnerIcon = document.getElementById("winnerIcon");
+
+  winnerText.innerText = playerName + " chiến thắng!";
+
+  // 🎯 lấy icon đúng
+  if (winnerIcon) {
+    winnerIcon.innerText = playerIcons[playerIndex];
+  }
+
+  document.body.classList.add("modal-open");
+
+  popup.classList.remove("hidden");
+  popup.classList.add("opacity-0");
+  popup.classList.add("pointer-events-none");
 
   screen.classList.remove("hidden");
+  screen.style.opacity = "1";
 
   video.currentTime = 0;
-  video.play();
+
+  video.play().catch(() => {
+    document.body.addEventListener("click", () => video.play(), { once: true });
+  });
 
   video.onended = () => {
+    popup.classList.remove("opacity-0");
+    popup.classList.remove("pointer-events-none");
+
+    box.classList.remove("victory-card");
+    void box.offsetWidth;
+    box.classList.add("victory-card");
+
+    screen.style.transition = "opacity 0.6s ease";
     screen.style.opacity = "0";
 
     setTimeout(() => {
       screen.classList.add("hidden");
       screen.style.opacity = "1";
-    }, 1000);
+    }, 600);
   };
 }
 
@@ -325,6 +355,12 @@ function toggleFullscreen() {
   }
 }
 
+function restartGame() {
+  document.body.classList.remove("modal-open");
+  location.reload();
+}
+
 function goHome() {
+  document.body.classList.remove("modal-open");
   window.location.href = "/frontend/games/turnbased.html";
 }

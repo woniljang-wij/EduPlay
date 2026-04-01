@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="../css/turnbased.css" />
   </head>
 
-  <body class="bg-gradient-to-r from-green-400 to-emerald-500 min-h-screen flex">
+  <body class="min-h-screen flex">
     
     <!-- SIDEBAR -->
     <aside class="w-72 bg-white/80 backdrop-blur p-6 flex flex-col justify-between">
@@ -46,31 +46,19 @@
     <main class="flex-1 p-6">
 
       <!-- LIST PAGE -->
-      <div id="page-list">
-        <div class="bg-white rounded-3xl p-8 shadow-lg h-full">
+<div id="page-list">
+  <div class="bg-white rounded-3xl p-8 shadow-lg h-full">
 
-          <div class="mb-6">
-            <h1 class="text-2xl font-bold mb-2">🎲 Bài chơi của tôi</h1>
-            <p class="text-gray-500">Quản lý các bài Game theo Lượt đã tạo</p>
-          </div>
-
-          <div class="border border-yellow-400 bg-yellow-50 text-yellow-700 px-4 py-3 rounded-xl mb-6">
-            Ghim bài để luôn truy cập được kể cả khi hết hạn (0/5 đã ghim)
-          </div>
-
-          <div class="flex flex-col items-center justify-center h-[400px] bg-gray-50 rounded-2xl">
-            <div class="text-6xl mb-4">🎲</div>
-            <h3 class="text-lg font-semibold mb-2">Chưa có bài chơi nào</h3>
-            <p class="text-gray-500 mb-4">Tạo bài đầu tiên để bắt đầu!</p>
-
-            <button onclick="goCreate()"
-              class="bg-green-500 text-white px-6 py-3 rounded-xl hover:bg-green-600">
-              ➕ Tạo bài đầu tiên
-            </button>
-          </div>
-
-        </div>
+    <div class="mb-6 flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold mb-1">🎲 Bài chơi của tôi</h1>
+        <p class="text-gray-500 text-sm">Quản lý các bài Game theo Lượt đã tạo</p>
       </div>
+    </div>
+    <div id="gameList"></div>
+
+  </div>
+</div>
 
       <!-- CREATE PAGE -->
       <div id="page-create" class="hidden">
@@ -155,6 +143,71 @@
       </div>
 
     </main>
+
+    <!-- ===== MODAL GIAO ===== -->
+<div id="assignModal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50">
+
+  <div class="bg-white rounded-2xl w-[420px] p-6 shadow-xl animate-fadeIn">
+
+    <!-- HEADER -->
+    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+      📋 Giao bài tập
+    </h2>
+
+    <!-- GAME INFO -->
+    <div class="bg-gray-100 rounded-xl p-4 flex items-center gap-3 mb-4">
+      <div class="text-2xl">🎲</div>
+      <div>
+        <p id="assignTitle" class="font-semibold">Tên game</p>
+        <span class="text-sm text-teal-600 bg-teal-100 px-2 py-1 rounded-full">
+          Game Theo Lượt
+        </span>
+      </div>
+    </div>
+
+    <!-- NOTE -->
+    <div class="bg-blue-100 text-sm p-3 rounded-xl mb-4 text-gray-700">
+      <b>Lưu ý: Trò chơi này dành cho các học sinh chơi chung trên một thiết bị duy nhất (máy tính/máy tính bảng của nhóm), chứ không phải mỗi em một thiết bị.
+    </div>
+
+    <!-- INPUT -->
+    <input
+      id="assignName"
+      placeholder="Tên gợi nhớ"
+      class="w-full p-3 border rounded-xl mb-2"
+    />
+
+    <p class="text-xs text-gray-400 mb-4">
+      Học sinh sẽ không thấy tên này
+    </p>
+
+    <!-- RADIO -->
+    <div class="mb-5">
+      <p class="text-sm mb-2">Thời hạn:</p>
+
+      <div class="flex gap-4 text-sm">
+        <label><input type="radio" name="time" checked> 1 ngày</label>
+        <label><input type="radio" name="time"> 3 ngày</label>
+        <label><input type="radio" name="time"> 7 ngày</label>
+        <label><input type="radio" name="time"> 30 ngày</label>
+      </div>
+    </div>
+
+    <!-- ACTION -->
+    <div class="flex justify-end gap-3">
+      <button onclick="closeAssign()"
+        class="px-4 py-2 text-gray-500 hover:underline">
+        HỦY
+      </button>
+
+      <button
+        class="px-4 py-2 rounded-xl bg-purple-500 text-white opacity-70 cursor-not-allowed">
+        TẠO BÀI TẬP
+      </button>
+    </div>
+
+  </div>
+</div>
 
     <script src="../js/games/turnbased.js" defer></script>
   </body>
