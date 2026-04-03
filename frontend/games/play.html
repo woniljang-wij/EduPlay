@@ -10,11 +10,9 @@
 
   <body class="bg-gradient-to-r from-green-400 to-emerald-500 min-h-screen p-6">
     <div class="max-w-6xl mx-auto bg-white rounded-3xl shadow-xl p-6">
-      <!-- HEADER -->
-      <h1 class="text-2xl font-bold mb-4">🎮 Turnbased</h1>
 
       <!-- INFO -->
-      <div id="gameInfo" class="mb-6"></div>
+      <div id="gameInfo" class="mb-6 game-info-card"></div>
 
       <!-- LAYOUT -->
       <div class="grid grid-cols-3 gap-6">
@@ -109,12 +107,6 @@
     </button>
   </div>
 
-  <!-- PLAYER LIST -->
-  <div
-    id="playerList"
-    class="bg-gray-100 p-4 rounded-2xl shadow text-sm"
-  ></div>
-
   <!-- 🎵 MUSIC -->
   <div class="bg-gray-100 p-4 rounded-2xl shadow">
     <p class="mb-2 font-semibold">🎵 Nhạc nền:</p>
@@ -164,23 +156,21 @@
   </button>
 </div>
 
-<!-- 🎬 VICTORY VIDEO -->
+<!-- 🎬 VICTORY VIDEO FULL SCREEN -->
 <div id="victoryScreen"
-  class="fixed inset-0 bg-black hidden z-[9999] transition-opacity duration-500">
+  class="fixed inset-0 bg-black hidden z-[9999]">
 
   <video id="victoryVideo"
     class="w-full h-full object-cover"
     muted playsinline>
-    <source src="../assets/videos/VT.mp4" type="video/mp4" />
   </video>
+
 </div>
 
-<!-- 🏆 RESULT POPUP (LUÔN TỒN TẠI, CHỜ SẴN) -->
+
+<!-- 🏆 RESULT POPUP -->
 <div id="victoryPopup"
-  class="fixed inset-0 flex items-center justify-center z-[9998]
-         bg-slate-900/40 backdrop-blur-xl
-         opacity-0 pointer-events-none
-         transition-all duration-500">
+  class="fixed inset-0 flex items-center justify-center hidden z-[10000] bg-slate-900/40 backdrop-blur-xl">
 
   <div id="victoryBox"
     class="victory-card relative overflow-hidden
@@ -218,6 +208,7 @@
 
       <!-- buttons -->
       <div class="flex justify-center gap-4 flex-wrap">
+
         <button onclick="goHome()"
           class="btn-secondary px-8 py-3 rounded-2xl font-bold transition-all duration-300">
           QUAY LẠI
@@ -231,11 +222,24 @@
                  transition-all duration-300">
           CHƠI LẠI
         </button>
+
       </div>
 
     </div>
   </div>
 </div>
+</div>
+
+<div id="questionPopup"
+  class="fixed inset-0 hidden items-center justify-center bg-black/40 z-50">
+
+  <div class="bg-white p-6 rounded-2xl w-[400px]">
+
+    <h2 id="qTitle" class="font-bold mb-4"></h2>
+
+    <div id="answers" class="space-y-2"></div>
+
+  </div>
 </div>
 
 <!-- SCRIPT -->

@@ -1,13 +1,39 @@
 // ===== LOAD GAME =====
+let isGameOver = false;
+
+const victoryVideos = [
+  "../assets/videos/Dolia.mp4",
+  "../assets/videos/Lauriel.mp4",
+  "../assets/videos/Edras.mp4",
+  "../assets/videos/DoliaNKRD.mp4",
+  "../assets/videos/Billow.mp4",
+  "../assets/videos/Baron.mp4",
+  "../assets/videos/Victory.mp4",
+];
+
+let lastVideo = -1;
+
+function getRandomVideo() {
+  let index;
+
+  do {
+    index = Math.floor(Math.random() * victoryVideos.length);
+  } while (index === lastVideo);
+
+  lastVideo = index;
+  return victoryVideos[index];
+}
+
 const params = new URLSearchParams(window.location.search);
 const id = Number(params.get("id"));
-
 const games = JSON.parse(localStorage.getItem("games")) || [];
-const game = games.find((g) => g.id === id);
 
+const game = games.find((g) => g.id === id);
 const gameInfo = document.getElementById("gameInfo");
+let obstacleCells = [];
+let questions = [];
+
 const dice = document.getElementById("dice");
-const playerList = document.getElementById("playerList");
 const playerLayer = document.getElementById("playerLayer");
 const cellLayer = document.getElementById("cellLayer");
 const diceFaces = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
@@ -17,8 +43,7 @@ let isRolling = false;
 let positions = [];
 let currentPlayer = 0;
 
-// 🔥 ICON PLAYER
-const playerIcons = ["🧍", "🐸", "🐱", "🐶", "🦊", "🐼", "🐵", "🐯"];
+const playerIcons = ["🐸", "🐱", "🐶", "🦊", "🐼", "🐵", "🐯"];
 
 const path = [];
 
@@ -43,9 +68,12 @@ for (let row = 0; row < rows; row++) {
 if (game) {
   positions = new Array(game.players.length).fill(0);
 
+  // 🔥 load dữ liệu
+  obstacleCells = game.obstacleCells || [];
+  questions = game.questions || [];
+
   updateInfo();
   renderCells();
-  renderPlayers();
   renderPlayersOnMap();
 } else {
   gameInfo.innerHTML = "Không tìm thấy game ❌";
@@ -53,13 +81,26 @@ if (game) {
 
 // ===== INFO =====
 function updateInfo() {
+  const playersHTML = game.players
+    .map((p, i) => {
+      return `
+        <div class="player-badge ${i === currentPlayer ? "player-active" : ""}">
+          ${playerIcons[i]} ${p}
+        </div>
+      `;
+    })
+    .join("");
+
   gameInfo.innerHTML = `
-    <h2 class="text-xl font-bold mb-2">${game.title}</h2>
-    <p class="mb-1">👥 ${game.players.join(", ")}</p>
-    <p>🚧 ${game.obstacles} chướng ngại</p>
-    <p class="mt-2 font-semibold text-blue-600">
-      👉 Lượt: ${game.players[currentPlayer]}
-    </p>
+    <div class="game-title">🎮 ${game.title}</div>
+
+    <div class="player-row">
+      ${playersHTML}
+    </div>
+
+    <div class="game-meta">
+      <span>🚧 ${game.obstacles} chướng ngại</span>
+    </div>
   `;
 }
 
@@ -85,17 +126,40 @@ function renderCells() {
       bg-white/80 border rounded-xl
       flex items-center justify-center
       text-sm font-bold shadow
+      transition-all duration-300
+      hover:scale-110
     `;
 
     cell.style.left = x - 24 + "px";
     cell.style.top = y - 24 + "px";
 
-    // 🚩 START & 🏁 END
+    // 🚩 START
     if (index === 0) {
       cell.innerText = "🚩";
-    } else if (index === path.length - 1) {
+      cell.style.background = "rgba(34,197,94,0.3)";
+    }
+
+    // 🏁 END
+    else if (index === path.length - 1) {
       cell.innerText = "🏁";
-    } else {
+      cell.style.background = "rgba(251,191,36,0.3)";
+    }
+
+    // 💀 OBSTACLE
+    else if (obstacleCells.includes(index)) {
+      cell.innerText = "💀";
+
+      // 🔥 hiệu ứng nâng cấp mạnh
+      cell.style.background = "rgba(255,0,0,0.25)";
+      cell.style.boxShadow = "0 0 12px rgba(255,0,0,0.7)";
+      cell.style.border = "1px solid rgba(255,0,0,0.7)";
+
+      // animation pulse
+      cell.style.animation = "obstaclePulse 1.2s infinite";
+    }
+
+    // 🔢 NORMAL
+    else {
       cell.innerText = index;
     }
 
@@ -135,25 +199,9 @@ function renderPlayersOnMap() {
   });
 }
 
-// ===== PLAYER LIST =====
-function renderPlayers() {
-  playerList.innerHTML = game.players
-    .map(
-      (p, i) => `
-    <div class="
-      p-2 rounded-xl mb-2 flex justify-between
-      ${i === currentPlayer ? "bg-green-200 font-bold" : "bg-white"}
-    ">
-      <span>${playerIcons[i]} ${p}</span>
-      <span>Ô ${positions[i]}</span>
-    </div>
-  `,
-    )
-    .join("");
-}
-
 // ===== ROLL =====
 function rollDice() {
+  if (isGameOver) return;
 
   const rollBtn = document.getElementById("rollBtn");
   const dice = document.getElementById("dice3D");
@@ -166,35 +214,36 @@ function rollDice() {
   let roll = Math.floor(Math.random() * 6) + 1;
 
   setTimeout(() => {
-
     dice.classList.remove("dice-rolling");
 
     dice.offsetHeight;
 
     const rotations = {
       1: "rotateX(0deg) rotateY(0deg)",
-      2: "rotateX(180deg) rotateY(0deg)",
+      2: "rotateX(90deg) rotateY(0deg)",
       3: "rotateX(0deg) rotateY(-90deg)",
       4: "rotateX(0deg) rotateY(90deg)",
       5: "rotateX(-90deg) rotateY(0deg)",
-      6: "rotateX(90deg) rotateY(0deg)"
+      6: "rotateX(180deg) rotateY(0deg)",
     };
-
     dice.style.transform = rotations[roll];
 
     movePlayer(roll);
-
   }, 1000);
 }
 
 // ===== MOVE =====
 function movePlayer(steps) {
+  if (isGameOver) return;
 
   let pos = positions[currentPlayer];
-
   const pathLength = path.length;
 
   let moveInterval = setInterval(() => {
+    if (isGameOver) {
+      clearInterval(moveInterval);
+      return;
+    }
 
     if (steps <= 0) {
       clearInterval(moveInterval);
@@ -209,27 +258,35 @@ function movePlayer(steps) {
     }
 
     steps--;
-
   }, 250);
 }
 
 // ===== AFTER =====
 function afterMove() {
-
   const rollBtn = document.getElementById("rollBtn");
 
-  // nếu thắng
-if (positions[currentPlayer] >= path.length - 1) {
-  showVictory(game.players[currentPlayer], currentPlayer);
+  // 🎯 nếu thắng
+  if (positions[currentPlayer] >= path.length - 1) {
+    isGameOver = true;
+    showVictory(game.players[currentPlayer], currentPlayer);
+    rollBtn.disabled = true;
+    return;
+  }
 
-  rollBtn.disabled = true; // ❗ khóa luôn
-  return;
-}
+  const pos = positions[currentPlayer];
+
+  if (obstacleCells.includes(pos)) {
+    showQuestion();
+
+    rollBtn.disabled = false;
+    rollBtn.innerText = "🎲 Tung xúc xắc";
+
+    return;
+  }
 
   currentPlayer = (currentPlayer + 1) % game.players.length;
 
   updateInfo();
-  renderPlayers();
 
   rollBtn.disabled = false;
   rollBtn.innerText = "🎲 Tung xúc xắc";
@@ -287,6 +344,13 @@ music.play().catch(() => {
 });
 
 function showVictory(playerName, playerIndex) {
+  if (
+    isGameOver &&
+    document.getElementById("victoryScreen").classList.contains("hidden") ===
+      false
+  )
+    return;
+
   const screen = document.getElementById("victoryScreen");
   const video = document.getElementById("victoryVideo");
   const popup = document.getElementById("victoryPopup");
@@ -294,36 +358,42 @@ function showVictory(playerName, playerIndex) {
   const box = document.getElementById("victoryBox");
   const winnerIcon = document.getElementById("winnerIcon");
 
+  // 🎯 nội dung
   winnerText.innerText = playerName + " chiến thắng!";
-
-  // 🎯 lấy icon đúng
   if (winnerIcon) {
     winnerIcon.innerText = playerIcons[playerIndex];
   }
 
   document.body.classList.add("modal-open");
 
-  popup.classList.remove("hidden");
-  popup.classList.add("opacity-0");
-  popup.classList.add("pointer-events-none");
+  // 🎲 random video
+  const randomVideo = getRandomVideo();
 
+  video.pause();
+  video.src = randomVideo;
+  video.currentTime = 0;
+
+  // 🎬 hiện video
   screen.classList.remove("hidden");
   screen.style.opacity = "1";
-
-  video.currentTime = 0;
 
   video.play().catch(() => {
     document.body.addEventListener("click", () => video.play(), { once: true });
   });
 
-  video.onended = () => {
-    popup.classList.remove("opacity-0");
-    popup.classList.remove("pointer-events-none");
+  // ❗ reset event
+  video.onended = null;
 
+  video.onended = () => {
+    // 🏆 hiện popup
+    popup.classList.remove("hidden");
+
+    // animation
     box.classList.remove("victory-card");
     void box.offsetWidth;
     box.classList.add("victory-card");
 
+    // fade video
     screen.style.transition = "opacity 0.6s ease";
     screen.style.opacity = "0";
 
@@ -353,6 +423,65 @@ function toggleFullscreen() {
   } else {
     document.exitFullscreen();
   }
+}
+
+function showQuestion() {
+  if (questions.length === 0) {
+    alert("Chưa có câu hỏi!");
+    nextTurn();
+    return;
+  }
+
+  const q = questions[Math.floor(Math.random() * questions.length)];
+
+  const popup = document.getElementById("questionPopup");
+  const title = document.getElementById("qTitle");
+  const answersDiv = document.getElementById("answers");
+
+  title.innerText = q.question;
+  answersDiv.innerHTML = "";
+
+  q.answers.forEach((ans, i) => {
+    const btn = document.createElement("button");
+
+    btn.className =
+      "w-full border px-3 py-2 rounded hover:bg-gray-100 text-left";
+
+    btn.innerText = ans;
+
+    btn.onclick = () => handleAnswer(i, q.correct);
+
+    answersDiv.appendChild(btn);
+  });
+
+  popup.classList.remove("hidden");
+  popup.classList.add("flex");
+}
+
+function handleAnswer(selected, correct) {
+  const popup = document.getElementById("questionPopup");
+
+  popup.classList.add("hidden");
+  popup.classList.remove("flex");
+
+  if (selected === correct) {
+    alert("✅ Đúng! Đi thêm lượt");
+    // giữ lượt
+  } else {
+    alert("❌ Sai! Mất lượt");
+    nextTurn();
+  }
+}
+
+function nextTurn() {
+  const rollBtn = document.getElementById("rollBtn");
+
+  currentPlayer = (currentPlayer + 1) % game.players.length;
+
+  updateInfo();
+
+  rollBtn.disabled = false;
+  rollBtn.innerText = "🎲 Tung xúc xắc";
 }
 
 function restartGame() {

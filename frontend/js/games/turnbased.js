@@ -1,4 +1,8 @@
 // ===== NAVIGATION =====
+function goIndex() {
+  window.location.href = "../index.html";
+}
+
 let editingId = null;
 
 function goCreate() {
@@ -121,6 +125,19 @@ window.onpopstate = () => {
   else goHome();
 };
 
+// ===== GENERATE OBSTACLE =====
+function generateObstacles(count, maxCell = 48) {
+  let arr = [];
+
+  while (arr.length < count) {
+    let r = Math.floor(Math.random() * (maxCell - 2)) + 1;
+
+    if (!arr.includes(r)) arr.push(r);
+  }
+
+  return arr;
+}
+
 // ===== SAVE GAME =====
 function saveGame() {
   const titleInput = document.querySelector("#page-create input");
@@ -131,7 +148,7 @@ function saveGame() {
     players.push(input.value || "Người chơi");
   });
 
-  const obstacles = document.getElementById("slider").value;
+  const obstacles = parseInt(document.getElementById("slider").value);
 
   const activeBtn = document.querySelector(".music-btn.bg-green-500");
   const selectedMusicFinal = activeBtn
@@ -151,6 +168,8 @@ function saveGame() {
         players,
         obstacles,
         music: selectedMusicFinal,
+        questions: tempQuestions,
+        obstacleCells: generateObstacles(obstacles)
       };
     }
 
@@ -166,6 +185,8 @@ function saveGame() {
       players,
       obstacles,
       music: selectedMusicFinal,
+      questions: tempQuestions,
+      obstacleCells: generateObstacles(obstacles)
     };
 
     games.push(newGame);
@@ -184,7 +205,6 @@ function renderGames() {
 
   let games = JSON.parse(localStorage.getItem("games")) || [];
 
-  // ✅ GRID LAYOUT
   container.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6";
 
   // ===== EMPTY =====
@@ -216,11 +236,11 @@ function renderGames() {
       <!-- TAG -->
       <div class="flex gap-2 mb-4 text-sm">
         <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
-          ${game.players.length} người chơi
+          🧙 ${game.players.length} người chơi
         </span>
 
         <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full">
-          1 câu hỏi
+          🧠 ${game.questions?.length || 0} câu hỏi
         </span>
       </div>
 
@@ -272,22 +292,17 @@ function editGame(id) {
 
   if (!game) return;
 
-  // lưu trạng thái đang edit
   editingId = id;
 
-  // chuyển sang page create
   goCreate();
 
-  // fill dữ liệu vào form
   document.querySelector("input[placeholder='Tiêu đề bài chơi']").value =
     game.title;
 
   document.getElementById("playerCount").value = game.players.length;
 
-  // render lại input player
-  renderPlayerInputs(game.players.length);
+  renderPlayers(game.players.length);
 
-  // gán tên player
   setTimeout(() => {
     const inputs = document.querySelectorAll("#playerInputs input");
     inputs.forEach((input, index) => {
@@ -295,9 +310,11 @@ function editGame(id) {
     });
   }, 50);
 
-  // slider
   document.getElementById("slider").value = game.obstacles;
   document.getElementById("value").innerText = game.obstacles;
+
+  tempQuestions = game.questions || [];
+  updateQuestionCount();
 }
 
 function openAssign(gameId) {
@@ -317,6 +334,56 @@ function closeAssign() {
   const modal = document.getElementById("assignModal");
   modal.classList.add("hidden");
   modal.classList.remove("flex");
+}
+
+// ===== QUESTION SYSTEM =====
+
+let tempQuestions = [];
+
+function openQuestionModal() {
+  document.getElementById("questionModal").classList.remove("hidden");
+  document.getElementById("questionModal").classList.add("flex");
+}
+
+function closeQuestionModal() {
+  document.getElementById("questionModal").classList.add("hidden");
+  document.getElementById("questionModal").classList.remove("flex");
+}
+
+function addQuestion() {
+  const text = document.getElementById("qText").value;
+  const answers = Array.from(document.querySelectorAll(".answer")).map(
+    (i) => i.value,
+  );
+
+  const correct = parseInt(document.getElementById("qCorrect").value);
+
+  if (!text || answers.some((a) => !a)) {
+    alert("Nhập đầy đủ!");
+    return;
+  }
+
+  const q = {
+    question: text,
+    answers,
+    correct,
+  };
+
+  tempQuestions.push(q);
+
+  updateQuestionCount();
+  closeQuestionModal();
+
+  // reset input
+  document.getElementById("qText").value = "";
+  document.querySelectorAll(".answer").forEach((i) => (i.value = ""));
+}
+
+function updateQuestionCount() {
+  const el = document.getElementById("questionCount");
+  if (el) {
+    el.innerText = `Câu hỏi (${tempQuestions.length})`;
+  }
 }
 
 // ===== PLAY =====
