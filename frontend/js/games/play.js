@@ -4,6 +4,7 @@ let isGameOver = false;
 const victoryVideos = [
   "../assets/videos/Dolia.mp4",
   "../assets/videos/Lauriel.mp4",
+  "../assets/videos/DoliaHGN.mp4",
   "../assets/videos/Edras.mp4",
   "../assets/videos/DoliaNKRD.mp4",
   "../assets/videos/Billow.mp4",
@@ -39,6 +40,7 @@ const cellLayer = document.getElementById("cellLayer");
 const diceFaces = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
 const rollBtn = document.getElementById("rollBtn");
 let isRolling = false;
+
 // ===== STATE =====
 let positions = [];
 let currentPlayer = 0;
@@ -48,7 +50,7 @@ const playerIcons = ["🐸", "🐱", "🐶", "🦊", "🐼", "🐵", "🐯"];
 const path = [];
 
 const cols = 10;
-const rows = 1;
+const rows = 2;
 
 for (let row = 0; row < rows; row++) {
   if (row % 2 === 0) {
@@ -84,7 +86,16 @@ function updateInfo() {
   const playersHTML = game.players
     .map((p, i) => {
       return `
-        <div class="player-badge ${i === currentPlayer ? "player-active" : ""}">
+        <div class="
+  px-4 py-2 rounded-full
+  font-semibold text-sm
+  transition-all duration-300
+  ${
+    i === currentPlayer
+      ? "bg-green-500 text-white shadow-lg scale-110"
+      : "bg-gray-200 text-gray-700"
+  }
+">
           ${playerIcons[i]} ${p}
         </div>
       `;
@@ -122,13 +133,19 @@ function renderCells() {
     const cell = document.createElement("div");
 
     cell.className = `
-      absolute w-12 h-12
-      bg-white/80 border rounded-xl
-      flex items-center justify-center
-      text-sm font-bold shadow
-      transition-all duration-300
-      hover:scale-110
-    `;
+  absolute w-12 h-12
+  flex items-center justify-center
+  text-sm font-bold
+  rounded-2xl
+  backdrop-blur-md
+  bg-white/70
+  border border-white/40
+  shadow-lg
+  transition-all duration-300
+  hover:scale-125 hover:shadow-xl
+`;
+
+    cell.style.boxShadow = "0 4px 15px rgba(0,0,0,0.2)";
 
     cell.style.left = x - 24 + "px";
     cell.style.top = y - 24 + "px";
@@ -201,7 +218,13 @@ function renderPlayersOnMap() {
 
 // ===== ROLL =====
 function rollDice() {
-  if (isGameOver) return;
+  if (isGameOver || isRolling) return;
+
+  isRolling = true;
+
+  const diceSound = document.getElementById("diceSound");
+  diceSound.currentTime = 0;
+  diceSound.play().catch(() => {});
 
   const rollBtn = document.getElementById("rollBtn");
   const dice = document.getElementById("dice3D");
@@ -209,27 +232,75 @@ function rollDice() {
   rollBtn.disabled = true;
   rollBtn.innerText = "⏳ Đang tung...";
 
-  dice.classList.add("dice-rolling");
-
+  // 🎲 random kết quả
   let roll = Math.floor(Math.random() * 6) + 1;
 
+  // 💥 reset animation
+  dice.style.transition = "none";
+
+  // 🔥 random quay nhiều vòng (fake physics)
+  const randomX = 360 * (3 + Math.floor(Math.random() * 3));
+  const randomY = 360 * (3 + Math.floor(Math.random() * 3));
+
+  dice.style.transform = `rotateX(${randomX}deg) rotateY(${randomY}deg)`;
+
+  // 💫 force reflow
+  dice.offsetHeight;
+
+  // 🚀 easing mượt khi dừng
+  dice.style.transition = "transform 0.7s cubic-bezier(0.22, 1, 0.36, 1)";
+
+  // 🎯 mặt cuối
+  const finalRotation = {
+    1: "rotateX(0deg) rotateY(0deg)",
+    2: "rotateX(90deg) rotateY(0deg)",
+    3: "rotateX(0deg) rotateY(-90deg)",
+    4: "rotateX(0deg) rotateY(90deg)",
+    5: "rotateX(-90deg) rotateY(0deg)",
+    6: "rotateX(180deg) rotateY(0deg)",
+  };
+
+  // ⏳ delay để nhìn như đang quay
   setTimeout(() => {
-    dice.classList.remove("dice-rolling");
+    dice.style.transform = finalRotation[roll];
+  }, 100);
 
-    dice.offsetHeight;
-
-    const rotations = {
-      1: "rotateX(0deg) rotateY(0deg)",
-      2: "rotateX(90deg) rotateY(0deg)",
-      3: "rotateX(0deg) rotateY(-90deg)",
-      4: "rotateX(0deg) rotateY(90deg)",
-      5: "rotateX(-90deg) rotateY(0deg)",
-      6: "rotateX(180deg) rotateY(0deg)",
-    };
-    dice.style.transform = rotations[roll];
-
+  // 🎬 kết thúc
+  setTimeout(() => {
+    isRolling = false;
     movePlayer(roll);
-  }, 1000);
+  }, 800);
+}
+
+function createTrailEffect(pos) {
+  const rect = playerLayer.getBoundingClientRect();
+  const p = path[pos];
+  if (!p) return;
+
+  const x = (p.col + 0.5) * (rect.width / 10);
+  const y = (p.row + 0.5) * (rect.height / 5);
+
+  const trail = document.createElement("div");
+
+  trail.className = "trail";
+
+  trail.style.left = x + "px";
+  trail.style.top = y + "px";
+
+  playerLayer.appendChild(trail);
+
+  setTimeout(() => trail.remove(), 500);
+}
+
+function zoomEffect() {
+  const map = document.querySelector(".relative");
+
+  map.style.transform = "scale(1.1)";
+  map.style.transition = "transform 0.3s";
+
+  setTimeout(() => {
+    map.style.transform = "scale(1)";
+  }, 300);
 }
 
 // ===== MOVE =====
@@ -255,6 +326,7 @@ function movePlayer(steps) {
       pos++;
       positions[currentPlayer] = pos;
       renderPlayersOnMap();
+      createTrailEffect(pos);
     }
 
     steps--;
@@ -276,10 +348,10 @@ function afterMove() {
   const pos = positions[currentPlayer];
 
   if (obstacleCells.includes(pos)) {
-    showQuestion();
+    zoomEffect();
+    setTimeout(() => showQuestion(), 300);
 
-    rollBtn.disabled = false;
-    rollBtn.innerText = "🎲 Tung xúc xắc";
+    rollBtn.disabled = true;
 
     return;
   }
@@ -426,8 +498,8 @@ function toggleFullscreen() {
 }
 
 function showQuestion() {
-  if (questions.length === 0) {
-    alert("Chưa có câu hỏi!");
+  if (!questions || questions.length === 0) {
+    showToast("⚠️ Chưa có câu hỏi!", "error");
     nextTurn();
     return;
   }
@@ -444,12 +516,34 @@ function showQuestion() {
   q.answers.forEach((ans, i) => {
     const btn = document.createElement("button");
 
-    btn.className =
-      "w-full border px-3 py-2 rounded hover:bg-gray-100 text-left";
+    const labels = ["A", "B", "C", "D"];
 
-    btn.innerText = ans;
+    btn.className = `
+  answer-card flex items-center gap-3
+`;
 
-    btn.onclick = () => handleAnswer(i, q.correct);
+    btn.innerHTML = `
+  <div class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 font-bold">
+    ${labels[i]}
+  </div>
+  <span>${ans}</span>
+`;
+
+    btn.onclick = () => {
+      const buttons = answersDiv.querySelectorAll("button");
+
+      // ❌ disable click
+      buttons.forEach((b) => (b.style.pointerEvents = "none"));
+
+      if (i === q.correct) {
+        btn.classList.add("answer-correct");
+      } else {
+        btn.classList.add("answer-wrong");
+        buttons[q.correct].classList.add("answer-correct");
+      }
+
+      setTimeout(() => handleAnswer(i, q.correct), 800);
+    };
 
     answersDiv.appendChild(btn);
   });
@@ -461,16 +555,116 @@ function showQuestion() {
 function handleAnswer(selected, correct) {
   const popup = document.getElementById("questionPopup");
 
-  popup.classList.add("hidden");
-  popup.classList.remove("flex");
+  const isCorrect = selected === correct;
 
-  if (selected === correct) {
-    alert("✅ Đúng! Đi thêm lượt");
-    // giữ lượt
+  const correctSound = document.getElementById("correctSound");
+  const wrongSound = document.getElementById("wrongSound");
+
+  // 🔊 PLAY SOUND
+  if (isCorrect) {
+    correctSound.currentTime = 0;
+    correctSound.play().catch(() => {});
+    launchConfettiBurst();
   } else {
-    alert("❌ Sai! Mất lượt");
-    nextTurn();
+    wrongSound.currentTime = 0;
+    wrongSound.play().catch(() => {});
   }
+
+  // 🎨 overlay kết quả
+  const result = document.createElement("div");
+
+  result.className = `
+    absolute inset-0 flex items-center justify-center
+    bg-black/40 backdrop-blur-sm z-50
+  `;
+
+  const boxClass = isCorrect ? "correct-popup" : "wrong-popup";
+
+  result.innerHTML = `
+    <div class="bg-white p-6 rounded-2xl w-[320px] text-center shadow-xl animate-fadeIn ${boxClass}">
+
+      <div class="text-5xl mb-3">
+        ${isCorrect ? "🎉" : "💀"}
+      </div>
+
+      <h2 class="text-2xl font-bold mb-2 ${
+        isCorrect ? "text-green-500" : "text-red-500"
+      }">
+        ${isCorrect ? "Chính xác!" : "Sai rồi!"}
+      </h2>
+
+      <p class="text-gray-500 mb-2">
+        ${isCorrect ? "Bạn được đi tiếp!" : "Bạn bị mất lượt!"}
+      </p>
+
+    </div>
+  `;
+
+  popup.appendChild(result);
+
+  // 💥 RUNG KHI SAI
+  if (!isCorrect) {
+    document.body.classList.add("shake");
+    flashRed();
+    setTimeout(() => document.body.classList.remove("shake"), 300);
+  }
+
+  // ⏳ delay
+  setTimeout(() => {
+    result.remove();
+
+    popup.classList.add("hidden");
+    popup.classList.remove("flex");
+
+    if (isCorrect) {
+      const rollBtn = document.getElementById("rollBtn");
+      rollBtn.disabled = false;
+      rollBtn.innerText = "🎲 Tung xúc xắc";
+    } else {
+      nextTurn();
+    }
+  }, 1200);
+}
+
+function launchConfettiBurst() {
+  const centerX = window.innerWidth / 2;
+  const centerY = window.innerHeight / 2;
+
+  for (let i = 0; i < 40; i++) {
+    const piece = document.createElement("div");
+    piece.className = "confetti-pro";
+
+    // vị trí xuất phát (giữa)
+    piece.style.left = centerX + "px";
+    piece.style.top = centerY + "px";
+
+    // hướng bay
+    const angle = Math.random() * 2 * Math.PI;
+    const velocity = 6 + Math.random() * 6;
+
+    const dx = Math.cos(angle) * velocity;
+    const dy = Math.sin(angle) * velocity;
+
+    piece.style.setProperty("--dx", dx);
+    piece.style.setProperty("--dy", dy);
+
+    // màu random
+    piece.style.background = `hsl(${Math.random() * 360},100%,50%)`;
+
+    document.body.appendChild(piece);
+
+    setTimeout(() => piece.remove(), 1200);
+  }
+}
+
+function flashRed() {
+  const flash = document.createElement("div");
+
+  flash.className = "flash";
+
+  document.body.appendChild(flash);
+
+  setTimeout(() => flash.remove(), 300);
 }
 
 function nextTurn() {
@@ -482,6 +676,29 @@ function nextTurn() {
 
   rollBtn.disabled = false;
   rollBtn.innerText = "🎲 Tung xúc xắc";
+}
+
+function showToast(message, type = "success") {
+  const toast = document.getElementById("toast");
+
+  toast.innerText = message;
+
+  toast.className = `
+    fixed top-5 right-5 z-[9999]
+    px-5 py-3 rounded-xl shadow-lg text-white font-semibold
+    transition-all duration-500 ease-out
+    translate-x-full opacity-0
+  `;
+
+  toast.classList.add(type === "error" ? "bg-red-500" : "bg-green-500");
+
+  setTimeout(() => {
+    toast.classList.remove("translate-x-full", "opacity-0");
+  }, 50);
+
+  setTimeout(() => {
+    toast.classList.add("translate-x-full", "opacity-0");
+  }, 2500);
 }
 
 function restartGame() {

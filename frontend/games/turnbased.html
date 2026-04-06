@@ -9,7 +9,7 @@
 
   <body class="min-h-screen flex">
     
-<aside class="w-72 bg-white/80 backdrop-blur p-6 flex flex-col justify-between">
+<aside class="w-72 bg-white/60 backdrop-blur-xl p-6 flex flex-col justify-between border-r border-white/30 shadow-xl">
   <div>
     <h2 class="text-xl font-bold mb-6">Game Theo Lượt</h2>
 
@@ -94,9 +94,9 @@
           <!-- slider -->
           <div class="mb-6">
             <label class="block mb-2">
-              Số chướng ngại vật mỗi đường: <b id="value">4</b>
+              Số chướng ngại vật mỗi đường: <b id="value">1</b>
             </label>
-            <input type="range" min="1" max="10" value="4" id="slider" class="w-full">
+            <input type="range" min="1" max="30" value="1" id="slider" class="w-full">
           </div>
 
           <!-- music -->
@@ -127,15 +127,16 @@
             <button class="bg-green-500 text-white px-4 py-2 rounded-xl">
               📚 Lấy từ Kho câu hỏi
             </button>
-           <button onclick="openQuestionModal()"
+           <button onclick="openQuestionManager()"
                    class="border px-4 py-2 rounded-xl">
                ✏️ Nhập thủ công
           </button>
           </div>
 
-          <div class="bg-gray-50 rounded-xl p-6 text-center text-gray-500 mb-6">
-            Chưa có câu hỏi nào
-          </div>
+         <div id="questionPreview"
+              class="bg-gray-50 rounded-xl p-6 text-center text-gray-500 mb-6">
+          Chưa có câu hỏi nào
+         </div>
 
           <!-- action -->
           <div class="flex justify-end gap-3">
@@ -172,9 +173,10 @@
         HỦY
       </button>
 
-      <button class="px-4 py-2 bg-purple-500 text-white rounded">
-        TẠO
-      </button>
+<button onclick="createAssign()"
+  class="px-4 py-2 bg-purple-500 text-white rounded">
+  TẠO
+</button>
     </div>
 
   </div>
@@ -182,44 +184,74 @@
 
 
 <!-- ===== QUESTION MODAL ===== -->
-<div id="questionModal"
+<div id="questionManager"
   class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50">
 
-  <div class="bg-white rounded-2xl w-[500px] p-6 shadow-xl">
+  <div class="bg-white rounded-2xl w-[800px] max-w-[95%] p-6">
 
-    <h2 class="text-xl font-bold mb-4">✏️ Nhập câu hỏi</h2>
+    <h2 class="text-xl font-bold mb-4">✏️ Nhập câu hỏi thủ công</h2>
 
-    <!-- câu hỏi -->
-    <input id="qText"
-      placeholder="Nhập câu hỏi..."
-      class="w-full p-3 border rounded-xl mb-4">
+    <!-- COUNT -->
+    <p class="mb-2">Câu hỏi (<span id="questionCount2">0</span>)</p>
 
-    <!-- answers -->
-    <div class="grid grid-cols-2 gap-3 mb-4">
-      <input class="answer p-2 border rounded" placeholder="Đáp án A">
-      <input class="answer p-2 border rounded" placeholder="Đáp án B">
-      <input class="answer p-2 border rounded" placeholder="Đáp án C">
-      <input class="answer p-2 border rounded" placeholder="Đáp án D">
+    <!-- LIST -->
+    <div id="questionList" class="space-y-3 max-h-[400px] overflow-y-auto">
+      <p class="text-gray-400 text-center">Chưa có câu hỏi nào</p>
     </div>
 
-    <!-- correct -->
-    <select id="qCorrect" class="w-full p-2 border rounded mb-4">
-      <option value="0">Đáp án A đúng</option>
-      <option value="1">Đáp án B đúng</option>
-      <option value="2">Đáp án C đúng</option>
-      <option value="3">Đáp án D đúng</option>
+    <!-- ADD -->
+    <div class="text-center mt-4">
+      <button onclick="addQuestionForm()"
+        class="border px-4 py-2 rounded-lg text-blue-600">
+        ➕ THÊM CÂU HỎI
+      </button>
+    </div>
+
+    <!-- ACTION -->
+    <div class="flex justify-end gap-3 mt-6">
+      <button onclick="closeQuestionManager()">Hủy</button>
+
+      <button onclick="saveAllQuestions()"
+        class="bg-purple-500 text-white px-4 py-2 rounded-lg">
+        Lưu
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<div id="toast"
+  class="fixed top-5 right-5 hidden z-[9999] px-5 py-3 rounded-xl shadow-lg text-white font-semibold transition-all duration-300">
+</div>
+
+ <div id="editQuestionModal"
+  class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50">
+
+  <div class="bg-white rounded-2xl w-[600px] p-6">
+
+    <h2 class="text-lg font-bold mb-4">✏️ Sửa câu hỏi</h2>
+
+    <input id="editQuestionText" class="w-full mb-3 border p-2 rounded" />
+
+    <div class="grid grid-cols-2 gap-2 mb-3">
+      <input id="editA" class="border p-2 rounded" />
+      <input id="editB" class="border p-2 rounded" />
+      <input id="editC" class="border p-2 rounded" />
+      <input id="editD" class="border p-2 rounded" />
+    </div>
+
+    <select id="editCorrect" class="border p-2 w-full mb-4">
+      <option value="0">A đúng</option>
+      <option value="1">B đúng</option>
+      <option value="2">C đúng</option>
+      <option value="3">D đúng</option>
     </select>
 
-    <!-- buttons -->
-    <div class="flex justify-end gap-2">
-      <button onclick="closeQuestionModal()"
-        class="px-4 py-2 border rounded">
-        Hủy
-      </button>
-
-      <button onclick="addQuestion()"
-        class="px-4 py-2 bg-green-500 text-white rounded">
-        Lưu câu hỏi
+    <div class="flex justify-end gap-3">
+      <button onclick="closeEdit()">Hủy</button>
+      <button onclick="saveEdit()"
+        class="bg-purple-500 text-white px-4 py-2 rounded">
+        Lưu
       </button>
     </div>
 

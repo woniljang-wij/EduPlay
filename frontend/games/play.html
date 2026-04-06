@@ -43,7 +43,7 @@
 <div class="flex flex-col gap-4">
 
   <!-- DICE -->
-  <div class="bg-gray-100 p-6 rounded-2xl text-center shadow">
+  <div class="bg-white/70 backdrop-blur p-6 rounded-2xl text-center shadow-xl border border-white/40">
     
     <!-- DICE WRAPPER -->
     <div class="dice-wrapper flex justify-center mb-4">
@@ -101,7 +101,12 @@
     <button
       id="rollBtn"
       onclick="rollDice()"
-      class="bg-green-500 hover:bg-green-600 text-white px-5 py-3 rounded-xl w-full transition font-semibold shadow disabled:opacity-50 disabled:cursor-not-allowed"
+      class="bg-gradient-to-r from-green-400 to-emerald-500 
+text-white px-5 py-3 rounded-xl w-full 
+font-semibold shadow-lg 
+transition-all duration-300 
+hover:scale-105 hover:shadow-xl 
+active:scale-95"
     >
       🎲 Tung xúc xắc
     </button>
@@ -231,17 +236,32 @@
 </div>
 
 <div id="questionPopup"
-  class="fixed inset-0 hidden items-center justify-center bg-black/40 z-50">
+  class="fixed inset-0 hidden items-center justify-center z-[9999] bg-black/40 backdrop-blur">
 
-  <div class="bg-white p-6 rounded-2xl w-[400px]">
+  <div class="w-[500px] max-w-[90%] rounded-3xl overflow-hidden shadow-2xl animate-fadeIn">
 
-    <h2 id="qTitle" class="font-bold mb-4"></h2>
+    <!-- HEADER -->
+    <div class="bg-gradient-to-r from-green-400 to-emerald-500 text-white p-4 flex items-center gap-2">
+      <span class="text-xl">❓</span>
+      <h2 class="font-bold text-lg">Câu hỏi chướng ngại vật</h2>
+    </div>
 
-    <div id="answers" class="space-y-2"></div>
+    <!-- BODY -->
+    <div class="bg-white p-6">
 
+      <p id="qTitle"
+        class="text-lg font-semibold mb-6 text-gray-800 leading-relaxed">
+      </p>
+
+      <div id="answers" class="space-y-3"></div>
+
+    </div>
   </div>
 </div>
 
+<audio id="correctSound" src="../assets/sounds/correct.mp3"></audio>
+<audio id="wrongSound" src="../assets/sounds/wrong.mp3"></audio>
+<audio id="diceSound" src="../assets/sounds/dice.mp3"></audio>
 <!-- SCRIPT -->
 <script src="../js/games/play.js" defer></script>
 </body>

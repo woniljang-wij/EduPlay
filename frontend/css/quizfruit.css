@@ -1,0 +1,31 @@
+body {
+  font-family: 'Segoe UI', sans-serif;
+
+  background: url("../assets/images/bg_quizfruit.png") center/cover no-repeat fixed;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  backdrop-filter: blur(2px);
+  z-index: -1;
+}
+
+.speed-btn {
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 2px solid #ddd;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.speed-btn:hover {
+  transform: scale(1.05);
+}
+
+.active-speed {
+  background: #22c55e;
+  color: white;
+}

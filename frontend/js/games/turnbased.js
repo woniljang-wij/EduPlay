@@ -157,44 +157,45 @@ function saveGame() {
 
   let games = JSON.parse(localStorage.getItem("games")) || [];
 
-  // ===== EDIT MODE =====
-  if (editingId) {
-    const index = games.findIndex((g) => g.id === editingId);
+// ===== EDIT MODE =====
+if (editingId) {
+  const index = games.findIndex((g) => g.id === editingId);
 
-    if (index !== -1) {
-      games[index] = {
-        ...games[index],
-        title,
-        players,
-        obstacles,
-        music: selectedMusicFinal,
-        questions: tempQuestions,
-        obstacleCells: generateObstacles(obstacles)
-      };
-    }
-
-    editingId = null;
-    alert("Cập nhật thành công!");
-  }
-
-  // ===== CREATE MODE =====
-  else {
-    const newGame = {
-      id: Date.now(),
+  if (index !== -1) {
+    games[index] = {
+      ...games[index],
       title,
       players,
       obstacles,
       music: selectedMusicFinal,
       questions: tempQuestions,
-      obstacleCells: generateObstacles(obstacles)
+      obstacleCells: generateObstacles(obstacles),
     };
-
-    games.push(newGame);
-    alert("Lưu thành công!");
   }
 
-  localStorage.setItem("games", JSON.stringify(games));
+  editingId = null;
+  showToast("✅ Cập nhật thành công!");
+}
 
+// ===== CREATE MODE =====
+else {
+  const newGame = {
+    id: Date.now(),
+    title,
+    players,
+    obstacles,
+    music: selectedMusicFinal,
+    questions: tempQuestions,
+    obstacleCells: generateObstacles(obstacles),
+  };
+
+  games.push(newGame);
+  showToast("🎉 Lưu thành công!");
+}
+
+  localStorage.setItem("games", JSON.stringify(games));
+  tempQuestions = [];
+  updateQuestionCount();
   goHome();
   renderGames();
 }
@@ -225,7 +226,7 @@ function renderGames() {
   games.forEach((game) => {
     html += `
   <div class="w-80">
-    <div class="bg-white rounded-2xl p-5 shadow border">
+    <div class="bg-white/80 backdrop-blur rounded-2xl p-5 shadow-lg border border-white/40 hover:scale-105 transition">
 
       <!-- HEADER -->
       <div class="flex justify-between items-start mb-3">
@@ -315,6 +316,7 @@ function editGame(id) {
 
   tempQuestions = game.questions || [];
   updateQuestionCount();
+  renderQuestionPreview();
 }
 
 function openAssign(gameId) {
@@ -337,46 +339,142 @@ function closeAssign() {
 }
 
 // ===== QUESTION SYSTEM =====
-
 let tempQuestions = [];
+function openQuestionManager() {
+  const modal = document.getElementById("questionManager");
 
-function openQuestionModal() {
-  document.getElementById("questionModal").classList.remove("hidden");
-  document.getElementById("questionModal").classList.add("flex");
-}
+  modal.classList.remove("hidden");
+  modal.classList.add("flex");
 
-function closeQuestionModal() {
-  document.getElementById("questionModal").classList.add("hidden");
-  document.getElementById("questionModal").classList.remove("flex");
-}
+  const list = document.getElementById("questionList");
 
-function addQuestion() {
-  const text = document.getElementById("qText").value;
-  const answers = Array.from(document.querySelectorAll(".answer")).map(
-    (i) => i.value,
-  );
+  if (tempQuestions.length === 0) {
+    list.innerHTML = `<p class="text-gray-400 text-center">Chưa có câu hỏi nào</p>`;
+  } else {
+    list.innerHTML = "";
 
-  const correct = parseInt(document.getElementById("qCorrect").value);
+    tempQuestions.forEach((q, i) => {
+      list.innerHTML += `
+    <div class="border p-4 rounded-xl bg-gray-50 shadow-sm">
 
-  if (!text || answers.some((a) => !a)) {
-    alert("Nhập đầy đủ!");
-    return;
+      <div class="flex justify-between mb-2">
+        <p class="text-sm font-semibold">Câu ${i + 1}</p>
+
+        <button onclick="this.closest('div').remove(); updateQuestionCount2(); refreshQuestionIndex()"
+          class="text-red-500">🗑</button>
+      </div>
+
+      <input value="${q.question}"
+        class="w-full mb-2 border p-2 rounded" />
+
+      <div class="grid grid-cols-2 gap-2">
+        <input value="${q.answers[0]}" class="border p-2 rounded" />
+        <input value="${q.answers[1]}" class="border p-2 rounded" />
+        <input value="${q.answers[2]}" class="border p-2 rounded" />
+        <input value="${q.answers[3]}" class="border p-2 rounded" />
+      </div>
+
+      <select class="mt-2 border p-2 rounded w-full">
+        <option value="0" ${q.correct == 0 ? "selected" : ""}>A đúng</option>
+        <option value="1" ${q.correct == 1 ? "selected" : ""}>B đúng</option>
+        <option value="2" ${q.correct == 2 ? "selected" : ""}>C đúng</option>
+        <option value="3" ${q.correct == 3 ? "selected" : ""}>D đúng</option>
+      </select>
+
+    </div>
+  `;
+    });
   }
 
-  const q = {
-    question: text,
-    answers,
-    correct,
-  };
+  updateQuestionCount2();
+}
 
-  tempQuestions.push(q);
+function closeQuestionManager() {
+  const modal = document.getElementById("questionManager");
+  modal.classList.add("hidden");
+  modal.classList.remove("flex");
+}
 
+function addQuestionForm() {
+  const list = document.getElementById("questionList");
+
+  if (list.innerText.includes("Chưa có câu hỏi")) {
+    list.innerHTML = "";
+  }
+
+  const index = document.querySelectorAll("#questionList > div").length + 1;
+
+  list.innerHTML += `
+    <div class="border p-4 rounded-xl bg-gray-50 shadow-sm relative">
+
+      <!-- HEADER -->
+      <div class="flex justify-between items-center mb-2">
+        <p class="font-semibold text-sm text-gray-600">Câu ${index}</p>
+
+        <!-- 🗑 XÓA -->
+      <button onclick="this.closest('div').remove(); updateQuestionCount2(); refreshQuestionIndex()"
+          class="text-red-500 text-sm hover:scale-110 transition">
+          🗑
+      </button>
+      </div>
+
+      <!-- QUESTION -->
+      <input placeholder="Nhập câu hỏi..."
+        class="w-full mb-3 border p-2 rounded-lg focus:ring-2 focus:ring-blue-300 outline-none" />
+
+      <!-- ANSWERS -->
+      <div class="grid grid-cols-2 gap-2 mb-2">
+        <input placeholder="Đáp án A" class="border p-2 rounded-lg" />
+        <input placeholder="Đáp án B" class="border p-2 rounded-lg" />
+        <input placeholder="Đáp án C" class="border p-2 rounded-lg" />
+        <input placeholder="Đáp án D" class="border p-2 rounded-lg" />
+      </div>
+
+      <!-- CORRECT -->
+      <select class="mt-2 border p-2 rounded-lg w-full bg-white">
+        <option value="0">✅ A đúng</option>
+        <option value="1">✅ B đúng</option>
+        <option value="2">✅ C đúng</option>
+        <option value="3">✅ D đúng</option>
+      </select>
+
+    </div>
+  `;
+
+  updateQuestionCount2();
+}
+
+function saveAllQuestions() {
+  const items = document.querySelectorAll("#questionList > div");
+
+  tempQuestions = [];
+
+  items.forEach((item) => {
+    const inputs = item.querySelectorAll("input");
+    const select = item.querySelector("select");
+
+    if (!inputs[0].value.trim()) return;
+
+    tempQuestions.push({
+      question: inputs[0].value,
+      answers: [
+        inputs[1].value,
+        inputs[2].value,
+        inputs[3].value,
+        inputs[4].value,
+      ],
+      correct: parseInt(select.value),
+    });
+  });
+
+  closeQuestionManager();
   updateQuestionCount();
-  closeQuestionModal();
+  renderQuestionPreview();
+}
 
-  // reset input
-  document.getElementById("qText").value = "";
-  document.querySelectorAll(".answer").forEach((i) => (i.value = ""));
+function updateQuestionCount2() {
+  const count = document.querySelectorAll("#questionList > div").length;
+  document.getElementById("questionCount2").innerText = count;
 }
 
 function updateQuestionCount() {
@@ -384,6 +482,326 @@ function updateQuestionCount() {
   if (el) {
     el.innerText = `Câu hỏi (${tempQuestions.length})`;
   }
+}
+
+function renderQuestionPreview() {
+  const box = document.getElementById("questionPreview");
+  if (!box) return;
+
+  if (tempQuestions.length === 0) {
+    box.innerHTML = `
+      <div class="text-gray-400 text-center py-6">
+        Chưa có câu hỏi nào
+      </div>
+    `;
+    return;
+  }
+
+  let html = `
+    <div class="bg-white rounded-xl border overflow-hidden">
+      <div class="bg-gray-100 px-4 py-2 font-semibold">
+        Danh sách câu hỏi
+      </div>
+  `;
+
+  tempQuestions.forEach((q, i) => {
+    html += `
+      <div class="px-4 py-3 border-t flex items-center justify-between hover:bg-gray-50 transition group">
+
+        <!-- LEFT -->
+        <div class="flex-1">
+
+          <div class="font-medium mb-1">
+            ${i + 1}. ${q.question}
+          </div>
+
+          <div class="text-sm text-gray-500 flex gap-2 flex-wrap">
+            ${q.answers.map((a, idx) => `
+              <span class="
+                px-2 py-1 rounded-md
+                ${idx === q.correct 
+                  ? "bg-green-100 text-green-700 font-semibold"
+                  : "bg-gray-100"}
+              ">
+                ${String.fromCharCode(65 + idx)}: ${a}
+                ${idx === q.correct ? "✔" : ""}
+              </span>
+            `).join("")}
+          </div>
+
+        </div>
+
+        <!-- RIGHT ACTION -->
+        <div class="flex items-center gap-2 ml-4">
+
+          <!-- ⬆ -->
+          <button onclick="moveQuestion(${i}, -1)"
+            class="px-2 py-1 border rounded text-gray-600 hover:bg-gray-200">
+            ⬆
+          </button>
+
+          <!-- ⬇ -->
+          <button onclick="moveQuestion(${i}, 1)"
+            class="px-2 py-1 border rounded text-gray-600 hover:bg-gray-200">
+            ⬇
+          </button>
+
+          <!-- EDIT -->
+          <button onclick="editQuestion(${i})"
+            class="px-2 py-1 border rounded text-blue-500 hover:bg-blue-50">
+            ✏️
+          </button>
+
+          <!-- DELETE -->
+          <button onclick="deleteQuestion(${i})"
+            class="px-2 py-1 border rounded text-red-500 hover:bg-red-50">
+            🗑
+          </button>
+
+        </div>
+
+      </div>
+    `;
+  });
+
+  html += `</div>`;
+  box.innerHTML = html;
+}
+
+function renderQuestionPreview() {
+  const box = document.getElementById("questionPreview");
+  if (!box) return;
+
+  if (tempQuestions.length === 0) {
+    box.innerHTML = `
+      <div class="text-gray-400 text-center py-6">
+        Chưa có câu hỏi nào
+      </div>
+    `;
+    return;
+  }
+
+  let html = `
+    <div class="bg-white rounded-xl border overflow-hidden">
+      <div class="bg-gray-100 px-4 py-2 font-semibold">
+        Danh sách câu hỏi
+      </div>
+  `;
+
+  tempQuestions.forEach((q, i) => {
+    html += `
+      <div class="px-4 py-3 border-t flex items-center justify-between hover:bg-gray-50 transition group">
+
+        <!-- LEFT -->
+        <div class="flex-1">
+
+          <div class="font-medium mb-1">
+            ${i + 1}. ${q.question}
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 text-sm">
+         ${q.answers.map((a, idx) => `
+  <div class="
+    p-3 rounded-lg border
+    flex items-start gap-2
+    min-h-[60px]
+    ${idx === q.correct 
+      ? "bg-green-100 border-green-400 text-green-700 font-semibold"
+      : "bg-gray-50"}
+  ">
+    <span class="font-semibold">
+      ${String.fromCharCode(65 + idx)}.
+    </span>
+
+    <span class="flex-1 break-words">
+      ${a}
+    </span>
+
+    ${idx === q.correct ? "✔" : ""}
+  </div>
+`).join("")}
+          </div>
+
+        </div>
+
+        <!-- RIGHT ACTION -->
+        <div class="flex items-center gap-2 ml-4">
+
+          <!-- ⬆ -->
+          <button onclick="moveQuestion(${i}, -1)"
+            class="px-2 py-1 border rounded text-gray-600 hover:bg-gray-200">
+            ⬆
+          </button>
+
+          <!-- ⬇ -->
+          <button onclick="moveQuestion(${i}, 1)"
+            class="px-2 py-1 border rounded text-gray-600 hover:bg-gray-200">
+            ⬇
+          </button>
+
+          <!-- EDIT -->
+          <button onclick="editQuestion(${i})"
+            class="px-2 py-1 border rounded text-blue-500 hover:bg-blue-50">
+            ✏️
+          </button>
+
+          <!-- DELETE -->
+          <button onclick="deleteQuestion(${i})"
+            class="px-2 py-1 border rounded text-red-500 hover:bg-red-50">
+            🗑
+          </button>
+
+        </div>
+
+      </div>
+    `;
+  });
+
+  html += `</div>`;
+  box.innerHTML = html;
+}
+
+function moveQuestion(index, direction) {
+  const newIndex = index + direction;
+
+  if (newIndex < 0 || newIndex >= tempQuestions.length) return;
+
+  // swap
+  [tempQuestions[index], tempQuestions[newIndex]] =
+    [tempQuestions[newIndex], tempQuestions[index]];
+
+  renderQuestionPreview();
+  updateQuestionCount();
+}
+
+function refreshQuestionIndex() {
+  const items = document.querySelectorAll("#questionList > div");
+
+  items.forEach((item, i) => {
+    item.querySelector("p").innerText = "Câu " + (i + 1);
+  });
+}
+
+function createAssign() {
+  const name = document.getElementById("assignName").value;
+  const title = document.getElementById("assignTitle").innerText;
+
+  if (!name.trim()) {
+    showToast("⚠️ Nhập tên trước đã!", "error");
+    return;
+  }
+
+  let assigns = JSON.parse(localStorage.getItem("assigns")) || [];
+
+  assigns.push({
+    id: Date.now(),
+    title,
+    name,
+  });
+
+  localStorage.setItem("assigns", JSON.stringify(assigns));
+
+  showToast("🎉 Giao bài thành công!");
+
+  closeAssign();
+}
+
+function showToast(message, type = "success") {
+  const toast = document.getElementById("toast");
+
+  toast.innerText = message;
+
+  toast.className = `
+    fixed top-5 right-5 z-[9999]
+    px-5 py-3 rounded-xl shadow-lg text-white font-semibold
+    transition-all duration-500 ease-out
+    translate-x-full opacity-0
+  `;
+
+  toast.classList.add(type === "error" ? "bg-red-500" : "bg-green-500");
+
+  // hiện
+  setTimeout(() => {
+    toast.classList.remove("translate-x-full", "opacity-0");
+  }, 50);
+
+  setTimeout(() => {
+    toast.classList.add("translate-x-full", "opacity-0");
+  }, 2500);
+}
+
+let editingQuestionIndex = null;
+
+function editQuestion(index) {
+  const q = tempQuestions[index];
+  if (!q) return;
+
+  editingQuestionIndex = index;
+
+  document.getElementById("editQuestionText").value = q.question || "";
+  document.getElementById("editA").value = q.answers?.[0] || "";
+  document.getElementById("editB").value = q.answers?.[1] || "";
+  document.getElementById("editC").value = q.answers?.[2] || "";
+  document.getElementById("editD").value = q.answers?.[3] || "";
+  document.getElementById("editCorrect").value = q.correct ?? 0;
+
+  const modal = document.getElementById("editQuestionModal");
+  modal.classList.remove("hidden");
+  modal.classList.add("flex");
+}
+
+function saveEdit() {
+  const question = document.getElementById("editQuestionText").value;
+  const a = document.getElementById("editA").value;
+  const b = document.getElementById("editB").value;
+  const c = document.getElementById("editC").value;
+  const d = document.getElementById("editD").value;
+  const correct = parseInt(document.getElementById("editCorrect").value);
+
+  if (!question.trim()) {
+    showToast("⚠️ Nhập câu hỏi!", "error");
+    return;
+  }
+
+  tempQuestions[editingQuestionIndex] = {
+    question,
+    answers: [a, b, c, d],
+    correct,
+  };
+
+  renderQuestionPreview();
+  updateQuestionCount();
+
+  showToast("✏️ Đã cập nhật câu hỏi");
+  closeEdit();
+}
+
+function closeEdit() {
+  const modal = document.getElementById("editQuestionModal");
+  modal.classList.add("hidden");
+  modal.classList.remove("flex");
+
+  editingQuestionIndex = null;
+}
+
+function deleteQuestion(index) {
+  const rows = document.querySelectorAll("#questionPreview .border-t");
+
+  if (rows[index]) {
+    rows[index].classList.add("opacity-0", "translate-x-10", "transition");
+
+    setTimeout(() => {
+      tempQuestions.splice(index, 1);
+      renderQuestionPreview();
+      updateQuestionCount();
+    }, 200);
+  } else {
+    tempQuestions.splice(index, 1);
+    renderQuestionPreview();
+    updateQuestionCount();
+  }
+
+  showToast("🗑 Đã xóa câu hỏi " + (index + 1));
 }
 
 // ===== PLAY =====
