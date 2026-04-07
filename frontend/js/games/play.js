@@ -27,6 +27,13 @@ function getRandomVideo() {
 
 const params = new URLSearchParams(window.location.search);
 const id = Number(params.get("id"));
+const autoPlay = params.get("autoplay");
+if (autoPlay) {
+  setTimeout(() => {
+    startGameMusic();
+  }, 300);
+}
+
 const games = JSON.parse(localStorage.getItem("games")) || [];
 
 const game = games.find((g) => g.id === id);
@@ -50,7 +57,7 @@ const playerIcons = ["🐸", "🐱", "🐶", "🦊", "🐼", "🐵", "🐯"];
 const path = [];
 
 const cols = 10;
-const rows = 2;
+const rows = 1;
 
 for (let row = 0; row < rows; row++) {
   if (row % 2 === 0) {
@@ -405,15 +412,18 @@ musicButtons.forEach((btn) => {
   });
 });
 
-music.play().catch(() => {
-  document.body.addEventListener(
-    "click",
-    () => {
-      music.play().catch(() => {});
-    },
-    { once: true },
-  );
-});
+function startGameMusic() {
+  const music = document.getElementById("bgMusic");
+
+  music.muted = true;
+
+  music.play().then(() => {
+    setTimeout(() => {
+      music.muted = false;
+      music.volume = 0.5;
+    }, 200);
+  }).catch(() => {});
+}
 
 function showVictory(playerName, playerIndex) {
   if (

@@ -9,7 +9,7 @@
 
   <body class="min-h-screen flex">
     
-<aside class="w-72 bg-white/60 backdrop-blur-xl p-6 flex flex-col justify-between border-r border-white/30 shadow-xl">
+  <aside class="w-72 bg-white/60 backdrop-blur-xl p-6 flex flex-col justify-between border-r border-white/30 shadow-xl">
   <div>
     <h2 class="text-xl font-bold mb-6">Game Theo Lượt</h2>
 
@@ -80,17 +80,17 @@
           <!-- player count -->
           <div class="mb-4">
             <label class="text-sm text-gray-500">Số người chơi</label>
-<!-- player count -->
-<div class="mb-4">
-  <select id="playerCount" class="w-full p-3 border rounded-xl mt-1">
-    <option value="2">2 người chơi</option>
-    <option value="3">3 người chơi</option>
-    <option value="4">4 người chơi</option>
-  </select>
-</div>
+          <!-- player count -->
+          <div class="mb-4">
+          <select id="playerCount" class="w-full p-3 border rounded-xl mt-1">
+            <option value="2">2 người chơi</option>
+            <option value="3">3 người chơi</option>
+            <option value="4">4 người chơi</option>
+          </select>
+          </div>
 
-<!-- players -->
-<div id="playerInputs" class="flex gap-3 mb-4"></div>
+         <!-- players -->
+         <div id="playerInputs" class="flex gap-3 mb-4"></div>
           <!-- slider -->
           <div class="mb-6">
             <label class="block mb-2">
@@ -98,11 +98,11 @@
             </label>
             <input type="range" min="1" max="30" value="1" id="slider" class="w-full">
           </div>
-
+          
           <!-- music -->
           <div class="mb-6">
             <p class="mb-2">🎵 Nhạc nền mặc định</p>
-<div class="flex gap-2" id="musicSelect">
+          <div class="flex gap-2" id="musicSelect">
   <button class="music-btn px-4 py-2 border rounded-full"
     data-src="../assets/sounds/bai1.mp3">Bài 1</button>
 
@@ -256,6 +256,17 @@
     </div>
 
   </div>
+</div>
+  
+  <!-- 🎬 INTRO VIDEO -->
+<div id="introScreen"
+  class="fixed inset-0 bg-black hidden items-center justify-center z-[99999]">
+
+  <video id="introVideo"
+    class="w-full h-full object-cover"
+    playsinline>
+  </video>
+
 </div>
 
     <script src="../js/games/turnbased.js" defer></script>

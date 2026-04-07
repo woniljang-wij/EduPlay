@@ -5,11 +5,52 @@ function goIndex() {
 
 let editingId = null;
 
-function goCreate() {
-  history.pushState({}, "", "/frontend/games/turnbased.html?mode=edit");
+function goCreate(isEdit = false) {
+  if (!isEdit) {
+    history.pushState({}, "", "/frontend/games/turnbased.html?mode=create");
+  }
+
   document.getElementById("page-list").classList.add("hidden");
   document.getElementById("page-create").classList.remove("hidden");
+
   setActive("create");
+
+  // 🔥 chỉ reset khi tạo mới
+  if (!isEdit) {
+    editingId = null;
+    tempQuestions = [];
+
+    const titleInput = document.querySelector("input[placeholder='Tiêu đề bài chơi']");
+    if (titleInput) titleInput.value = "";
+
+    const playerCount = document.getElementById("playerCount");
+    if (playerCount) {
+      playerCount.value = 2;
+      renderPlayers(2);
+    }
+
+    const slider = document.getElementById("slider");
+    const value = document.getElementById("value");
+    if (slider && value) {
+      slider.value = 1;
+      value.innerText = 1;
+    }
+
+    // reset music
+    const firstBtn = document.querySelector(".music-btn");
+    if (firstBtn) {
+      selectedMusic = firstBtn.dataset.src;
+
+      document.querySelectorAll(".music-btn").forEach(b =>
+        b.classList.remove("bg-green-500", "text-white")
+      );
+
+      firstBtn.classList.add("bg-green-500", "text-white");
+    }
+  }
+
+  updateQuestionCount();
+  renderQuestionPreview();
 }
 
 function goHome() {
@@ -157,13 +198,30 @@ function saveGame() {
 
   let games = JSON.parse(localStorage.getItem("games")) || [];
 
-// ===== EDIT MODE =====
-if (editingId) {
-  const index = games.findIndex((g) => g.id === editingId);
+  // ===== EDIT MODE =====
+  if (editingId) {
+    const index = games.findIndex((g) => g.id === editingId);
 
-  if (index !== -1) {
-    games[index] = {
-      ...games[index],
+    if (index !== -1) {
+      games[index] = {
+        ...games[index],
+        title,
+        players,
+        obstacles,
+        music: selectedMusicFinal,
+        questions: tempQuestions,
+        obstacleCells: generateObstacles(obstacles),
+      };
+    }
+
+    editingId = null;
+    showToast("✅ Cập nhật thành công!");
+  }
+
+  // ===== CREATE MODE =====
+  else {
+    const newGame = {
+      id: Date.now(),
       title,
       players,
       obstacles,
@@ -171,27 +229,10 @@ if (editingId) {
       questions: tempQuestions,
       obstacleCells: generateObstacles(obstacles),
     };
+
+    games.push(newGame);
+    showToast("🎉 Lưu thành công!");
   }
-
-  editingId = null;
-  showToast("✅ Cập nhật thành công!");
-}
-
-// ===== CREATE MODE =====
-else {
-  const newGame = {
-    id: Date.now(),
-    title,
-    players,
-    obstacles,
-    music: selectedMusicFinal,
-    questions: tempQuestions,
-    obstacleCells: generateObstacles(obstacles),
-  };
-
-  games.push(newGame);
-  showToast("🎉 Lưu thành công!");
-}
 
   localStorage.setItem("games", JSON.stringify(games));
   tempQuestions = [];
@@ -295,13 +336,15 @@ function editGame(id) {
 
   editingId = id;
 
-  goCreate();
+  goCreate(true);
+  history.pushState({}, "", `/frontend/games/turnbased.html?mode=edit&id=${id}`);
 
+  // ===== TITLE =====
   document.querySelector("input[placeholder='Tiêu đề bài chơi']").value =
     game.title;
 
+  // ===== PLAYER =====
   document.getElementById("playerCount").value = game.players.length;
-
   renderPlayers(game.players.length);
 
   setTimeout(() => {
@@ -311,12 +354,27 @@ function editGame(id) {
     });
   }, 50);
 
+  // ===== OBSTACLE =====
   document.getElementById("slider").value = game.obstacles;
   document.getElementById("value").innerText = game.obstacles;
 
+  // ===== QUESTIONS =====
   tempQuestions = game.questions || [];
   updateQuestionCount();
   renderQuestionPreview();
+
+  // ===== MUSIC =====
+  selectedMusic = game.music;
+
+  const musicBtns = document.querySelectorAll(".music-btn");
+
+  musicBtns.forEach((btn) => {
+    btn.classList.remove("bg-green-500", "text-white");
+
+    if (btn.dataset.src === selectedMusic) {
+      btn.classList.add("bg-green-500", "text-white");
+    }
+  });
 }
 
 function openAssign(gameId) {
@@ -515,99 +573,19 @@ function renderQuestionPreview() {
             ${i + 1}. ${q.question}
           </div>
 
-          <div class="text-sm text-gray-500 flex gap-2 flex-wrap">
-            ${q.answers.map((a, idx) => `
-              <span class="
-                px-2 py-1 rounded-md
-                ${idx === q.correct 
-                  ? "bg-green-100 text-green-700 font-semibold"
-                  : "bg-gray-100"}
-              ">
-                ${String.fromCharCode(65 + idx)}: ${a}
-                ${idx === q.correct ? "✔" : ""}
-              </span>
-            `).join("")}
-          </div>
-
-        </div>
-
-        <!-- RIGHT ACTION -->
-        <div class="flex items-center gap-2 ml-4">
-
-          <!-- ⬆ -->
-          <button onclick="moveQuestion(${i}, -1)"
-            class="px-2 py-1 border rounded text-gray-600 hover:bg-gray-200">
-            ⬆
-          </button>
-
-          <!-- ⬇ -->
-          <button onclick="moveQuestion(${i}, 1)"
-            class="px-2 py-1 border rounded text-gray-600 hover:bg-gray-200">
-            ⬇
-          </button>
-
-          <!-- EDIT -->
-          <button onclick="editQuestion(${i})"
-            class="px-2 py-1 border rounded text-blue-500 hover:bg-blue-50">
-            ✏️
-          </button>
-
-          <!-- DELETE -->
-          <button onclick="deleteQuestion(${i})"
-            class="px-2 py-1 border rounded text-red-500 hover:bg-red-50">
-            🗑
-          </button>
-
-        </div>
-
-      </div>
-    `;
-  });
-
-  html += `</div>`;
-  box.innerHTML = html;
-}
-
-function renderQuestionPreview() {
-  const box = document.getElementById("questionPreview");
-  if (!box) return;
-
-  if (tempQuestions.length === 0) {
-    box.innerHTML = `
-      <div class="text-gray-400 text-center py-6">
-        Chưa có câu hỏi nào
-      </div>
-    `;
-    return;
-  }
-
-  let html = `
-    <div class="bg-white rounded-xl border overflow-hidden">
-      <div class="bg-gray-100 px-4 py-2 font-semibold">
-        Danh sách câu hỏi
-      </div>
-  `;
-
-  tempQuestions.forEach((q, i) => {
-    html += `
-      <div class="px-4 py-3 border-t flex items-center justify-between hover:bg-gray-50 transition group">
-
-        <!-- LEFT -->
-        <div class="flex-1">
-
-          <div class="font-medium mb-1">
-            ${i + 1}. ${q.question}
-          </div>
-
           <div class="grid grid-cols-2 gap-3 text-sm">
-         ${q.answers.map((a, idx) => `
+         ${q.answers
+           .map(
+             (a, idx) => `
   <div class="
     p-3 rounded-lg border
     flex items-start gap-2
     min-h-[60px]
-    ${idx === q.correct 
-      ? "bg-green-100 border-green-400 text-green-700 font-semibold"
-      : "bg-gray-50"}
+    ${
+      idx === q.correct
+        ? "bg-green-100 border-green-400 text-green-700 font-semibold"
+        : "bg-gray-50"
+    }
   ">
     <span class="font-semibold">
       ${String.fromCharCode(65 + idx)}.
@@ -619,7 +597,9 @@ function renderQuestionPreview() {
 
     ${idx === q.correct ? "✔" : ""}
   </div>
-`).join("")}
+`,
+           )
+           .join("")}
           </div>
 
         </div>
@@ -667,8 +647,10 @@ function moveQuestion(index, direction) {
   if (newIndex < 0 || newIndex >= tempQuestions.length) return;
 
   // swap
-  [tempQuestions[index], tempQuestions[newIndex]] =
-    [tempQuestions[newIndex], tempQuestions[index]];
+  [tempQuestions[index], tempQuestions[newIndex]] = [
+    tempQuestions[newIndex],
+    tempQuestions[index],
+  ];
 
   renderQuestionPreview();
   updateQuestionCount();
@@ -806,9 +788,31 @@ function deleteQuestion(index) {
 
 // ===== PLAY =====
 function playGame(id) {
-  window.location.href = `/frontend/games/play.html?id=${id}`;
-}
+  const screen = document.getElementById("introScreen");
+  const video = document.getElementById("introVideo");
 
+  screen.classList.remove("hidden");
+  screen.classList.add("flex");
+
+  video.src = "../assets/videos/Intro.mp4";
+  video.currentTime = 0;
+
+  video.play().catch(() => {
+    document.body.addEventListener("click", () => video.play(), { once: true });
+  });
+
+  // 🎬 END VIDEO → CHUYỂN TRANG THẬT
+  video.onended = () => {
+    window.location.href = `/frontend/games/play.html?id=${id}&autoplay=1`;
+  };
+
+  screen.onclick = () => {
+    video.pause();
+    video.currentTime = 0;
+
+    window.location.href = `/frontend/games/play.html?id=${id}&autoplay=1`;
+  };
+}
 // ===== DELETE =====
 function deleteGame(id) {
   let games = JSON.parse(localStorage.getItem("games")) || [];
