@@ -6,18 +6,63 @@ let selectedSpeed = "medium";
 let tempQuestions = [];
 let editingId = null;
 
+function setActive(type) {
+  const home = document.getElementById("btn-home");
+  const create = document.getElementById("btn-create");
+
+  home.classList.remove(
+    "bg-gradient-to-r",
+    "from-blue-500",
+    "to-purple-500",
+    "text-white"
+  );
+
+  create.classList.remove(
+    "bg-gradient-to-r",
+    "from-blue-500",
+    "to-purple-500",
+    "text-white"
+  );
+
+  if (type === "home") {
+    home.classList.add(
+      "bg-gradient-to-r",
+      "from-blue-500",
+      "to-purple-500",
+      "text-white"
+    );
+  } else {
+    create.classList.add(
+      "bg-gradient-to-r",
+      "from-blue-500",
+      "to-purple-500",
+      "text-white"
+    );
+  }
+}
+
 // NAV
 function goCreate() {
   document.getElementById("page-list").classList.add("hidden");
   document.getElementById("page-create").classList.remove("hidden");
+
+  setActive("create");
+
+  // FIX
+  if (!editingId) {
+    tempQuestions = [];
+    document.getElementById("questionPreview").innerHTML = "Chưa có câu hỏi nào";
+    document.getElementById("questionCount").innerText = "Câu hỏi (0)";
+  }
 }
 
 function goHome() {
   document.getElementById("page-create").classList.add("hidden");
   document.getElementById("page-list").classList.remove("hidden");
+
+  setActive("home");
   renderGames();
 }
-
 // SPEED
 document.querySelectorAll(".speed-btn").forEach(btn => {
   btn.addEventListener("click", () => {
@@ -39,21 +84,44 @@ function saveGame() {
 
   let games = JSON.parse(localStorage.getItem("fruitGames")) || [];
 
-  const newGame = {
-    id: Date.now(),
-    title,
-    time,
-    speed: selectedSpeed,
-    hideCamera,
-    noCamera,
-    questions: tempQuestions
-  };
+  // ===== EDIT MODE =====
+  if (editingId) {
+    const index = games.findIndex(g => g.id === editingId);
 
-  games.push(newGame);
+    if (index !== -1) {
+      games[index] = {
+        ...games[index],
+        title,
+        time,
+        speed: selectedSpeed,
+        hideCamera,
+        noCamera,
+        questions: tempQuestions
+      };
+    }
+
+    editingId = null;
+    showToast("✅ Cập nhật thành công!");
+  }
+
+  // ===== CREATE MODE =====
+  else {
+    const newGame = {
+      id: Date.now(),
+      title,
+      time,
+      speed: selectedSpeed,
+      hideCamera,
+      noCamera,
+      questions: tempQuestions
+    };
+
+    games.push(newGame);
+    showToast("🎉 Lưu thành công!");
+  }
 
   localStorage.setItem("fruitGames", JSON.stringify(games));
 
-  showToast("🎉 Lưu thành công!");
   goHome();
 }
 
@@ -62,30 +130,169 @@ function renderGames() {
   const container = document.getElementById("gameList");
   let games = JSON.parse(localStorage.getItem("fruitGames")) || [];
 
+  container.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6";
+
   if (games.length === 0) {
-    container.innerHTML = "Chưa có bài";
+    container.innerHTML = `
+      <div class="col-span-full text-center py-20">
+        <h2 class="text-xl font-semibold mb-4">Chưa có bài học nào</h2>
+        <button onclick="goCreate()" 
+          class="bg-green-500 text-white px-5 py-2 rounded-xl">
+          ➕ Tạo bài đầu tiên
+        </button>
+      </div>
+    `;
     return;
   }
 
-  container.innerHTML = games.map(g => `
-    <div class="p-4 border rounded-xl mb-3">
-      <h3 class="font-bold">${g.title}</h3>
-      <p>${g.questions.length} câu hỏi</p>
+container.innerHTML = games.map(g => `
+     <div class="w-80">
+     <div class="card bg-white/80 backdrop-blur rounded-2xl p-5 shadow-lg border border-white/40 relative">
+
+      <span class="absolute top-3 right-3 text-lg">🍉</span>
+
+      <h3 class="font-bold text-lg mb-3">${g.title}</h3>
+
+      <div class="flex gap-2 mb-4 text-sm">
+        <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full">
+          🧠 ${g.questions.length} câu
+        </span>
+
+        <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
+          ⏱ ${g.time}s
+        </span>
+
+        <span class="bg-red-100 text-red-600 px-3 py-1 rounded-full">
+          🚀 ${g.speed || "medium"}
+        </span>
+      </div>
+
+      <!-- BUTTON -->
+      <div class="flex gap-3 mb-4">
+
+        <button onclick="playGame(${g.id})"
+          class="play-btn flex-1 py-3 rounded-xl font-semibold shadow-lg relative overflow-hidden">
+          ▶ Chơi
+        </button>
+
+        <button onclick="assignGame(${g.id})"
+          class="px-4 py-2 border rounded-xl text-purple-600 hover:bg-purple-50">
+          📋 Giao
+        </button>
+
+      </div>
+
+      <!-- ACTION -->
+      <div class="flex gap-5 text-sm font-medium">
+
+        <button onclick="editGame(${g.id})"
+          class="text-orange-500 hover:underline">
+          ✏️ Sửa
+        </button>
+
+        <button onclick="shareGame(${g.id})"
+          class="text-blue-500 hover:underline">
+          🔗 Chia sẻ GV
+        </button>
+
+        <button onclick="deleteGame(${g.id})"
+          class="text-red-500 hover:underline">
+          🗑 Xóa bài
+        </button>
+
+      </div>
+
     </div>
-  `).join("");
+  </div>
+`).join("");
+}
+
+// ===== PLAY =====
+function playGame(id) {
+  window.location.href = `play_quizfruit.html?id=${id}`;
+}
+
+// ===== ASSIGN =====
+function assignGame(id) {
+  showToast("📋 Giao bài " + id);
+}
+
+// ===== SHARE =====
+function shareGame(id) {
+  showToast("🔗 Đã copy link chia sẻ (fake 😆)");
+}
+
+// ===== DELETE =====
+function deleteGame(id) {
+  if (!confirm("Bạn chắc chắn muốn xóa bài này?")) return;
+
+  let games = JSON.parse(localStorage.getItem("fruitGames")) || [];
+  games = games.filter(g => g.id !== id);
+
+  localStorage.setItem("fruitGames", JSON.stringify(games));
+
+  showToast("🗑 Đã xóa bài!");
+  renderGames();
+}
+
+// ===== EDIT =====
+function editGame(id) {
+  let games = JSON.parse(localStorage.getItem("fruitGames")) || [];
+  const game = games.find(g => g.id === id);
+
+  if (!game) return;
+
+  editingId = id;
+
+  // chuyển sang create page
+  goCreate();
+
+  // fill lại dữ liệu
+  document.getElementById("title").value = game.title;
+  document.getElementById("time").value = game.time;
+  document.getElementById("hideCamera").checked = game.hideCamera;
+  document.getElementById("noCamera").checked = game.noCamera;
+
+  selectedSpeed = game.speed;
+
+  // highlight speed
+  document.querySelectorAll(".speed-btn")
+    .forEach(b => {
+      b.classList.remove("active-speed");
+      if (b.dataset.speed === game.speed) {
+        b.classList.add("active-speed");
+      }
+    });
+
+  tempQuestions = game.questions || [];
+
+  showToast("✏️ Đang sửa bài...");
 }
 
 // TOAST
-function showToast(msg) {
+function showToast(message, type = "success") {
   const toast = document.getElementById("toast");
 
-  toast.innerText = msg;
+  toast.innerText = message;
+
   toast.className = `
-    fixed top-5 right-5 bg-green-500 text-white
-    px-5 py-3 rounded-xl shadow-lg
-    transition-all duration-500
+    fixed top-5 right-5 z-[9999]
+    px-5 py-3 rounded-xl shadow-lg text-white font-semibold
+    transition-all duration-500 ease-out
+    translate-x-full opacity-0
   `;
 
-  setTimeout(() => toast.style.opacity = 1, 50);
-  setTimeout(() => toast.style.opacity = 0, 2000);
+  toast.classList.add(type === "error" ? "bg-red-500" : "bg-green-500");
+
+  setTimeout(() => {
+    toast.classList.remove("translate-x-full", "opacity-0");
+  }, 50);
+
+  setTimeout(() => {
+    toast.classList.add("translate-x-full", "opacity-0");
+  }, 2500);
 }
+
+window.onload = () => {
+  goHome();
+};

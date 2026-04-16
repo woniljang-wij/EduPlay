@@ -1,113 +1,169 @@
 <!doctype html>
 <html lang="vi">
-<head>
-  <meta charset="UTF-8" />
-  <title>Chém Hoa Quả</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="../css/quizfruit.css" />
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Chém Hoa Quả</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../css/quizfruit.css" />
+  </head>
 
-<body class="min-h-screen flex">
+  <body class="min-h-screen flex">
+    <!-- SIDEBAR -->
+    <aside
+      class="w-72 bg-white/60 backdrop-blur-xl p-6 flex flex-col justify-between border-r border-white/30 shadow-xl"
+    >
+      <div>
+        <h2 class="text-xl font-bold mb-6">🍉 Chém Hoa Quả</h2>
 
-<!-- SIDEBAR -->
-<aside class="w-72 bg-white/60 backdrop-blur-xl p-6 flex flex-col justify-between border-r shadow-xl">
-  <div>
-    <h2 class="text-xl font-bold mb-6">🍉 Chém Hoa Quả</h2>
+        <div class="space-y-3">
+          <button
+            onclick="goIndex()"
+            class="w-full text-left px-4 py-3 rounded-xl transition-all duration-300 hover:scale-105 hover:bg-white/40"
+          >
+            🏠 Trang chủ
+          </button>
 
-    <div class="space-y-3">
-      <button onclick="goIndex()" class="w-full text-left px-4 py-3 rounded-xl bg-gray-100">
-        🏠 Trang chủ
-      </button>
+          <button
+            id="btn-home"
+            onclick="goHome()"
+            class="nav-btn w-full text-left px-4 py-3 rounded-xl font-semibold"
+          >
+            📚 Bài của tôi
+          </button>
 
-      <button id="btn-home" onclick="goHome()" class="w-full text-left px-4 py-3 rounded-xl">
-        📚 Bài của tôi
-      </button>
+          <button
+            id="btn-create"
+            onclick="goCreate()"
+            class="nav-btn w-full text-left px-4 py-3 rounded-xl"
+          >
+            ➕ Tạo bài mới
+          </button>
 
-      <button id="btn-create" onclick="goCreate()" class="w-full text-left px-4 py-3 rounded-xl">
-        ➕ Tạo bài mới
-      </button>
-    </div>
-  </div>
-</aside>
+          <div class="px-4 py-3 bg-green-100 rounded-xl text-sm">
+            Đã dùng 0/5 bài
+          </div>
 
-<!-- MAIN -->
-<main class="flex-1 p-6">
+          <button
+            class="w-full px-4 py-3 rounded-xl bg-red-500 text-white font-semibold"
+          >
+            ⭐ Nâng cấp Lẻ
+          </button>
 
-<!-- LIST -->
-<div id="page-list">
-  <div class="bg-white rounded-3xl p-8 shadow-lg h-full">
-    <h1 class="text-2xl font-bold mb-4">🍉 Bài học của tôi</h1>
-    <div id="gameList"></div>
-  </div>
-</div>
-
-<!-- CREATE -->
-<div id="page-create" class="hidden">
-  <div class="bg-white rounded-3xl p-8 shadow-lg h-full">
-
-    <h1 class="text-2xl font-bold mb-4 text-green-600">
-      🍉 Tạo bài chém hoa quả
-    </h1>
-
-    <!-- TITLE -->
-    <input id="title" class="w-full p-3 border rounded-xl mb-4"
-      placeholder="Tên bài học">
-
-    <!-- TIME -->
-    <div class="mb-4">
-      <label class="text-sm text-gray-500">⏱ Thời gian mỗi câu</label>
-      <input id="time" type="number"
-        class="w-full p-3 border rounded-xl mt-1"
-        value="25">
-    </div>
-
-    <!-- SPEED -->
-    <div class="mb-4">
-      <p class="text-sm text-gray-500 mb-2">🍉 Tốc độ</p>
-
-      <div class="flex gap-3">
-        <button class="speed-btn" data-speed="fast">🚀 Nhanh</button>
-        <button class="speed-btn" data-speed="medium">⚡ Trung bình</button>
-        <button class="speed-btn" data-speed="slow">🐢 Chậm</button>
+          <button class="w-full px-4 py-3 rounded-xl bg-gray-100">
+            🐛 Báo lỗi
+          </button>
+        </div>
       </div>
-    </div>
+    </aside>
 
-    <!-- OPTION -->
-    <div class="mb-4 space-y-2">
-      <label><input type="checkbox" id="hideCamera"> Ẩn camera</label><br>
-      <label><input type="checkbox" id="noCamera"> Không dùng camera</label>
-    </div>
+    <!-- MAIN -->
+    <main class="flex-1 p-6">
+      <!-- LIST -->
+      <div id="page-list">
+        <div class="bg-white rounded-3xl p-8 shadow-lg h-full">
+          <div class="mb-6">
+            <h1 class="text-2xl font-bold mb-1">🍉 Bài học của tôi</h1>
+            <p class="text-gray-500 text-sm">
+              Quản lý các bài Chém Hoa Quả đã tạo
+            </p>
+          </div>
+          <div id="gameList"></div>
+        </div>
+      </div>
 
-    <!-- QUESTION -->
-    <h3 id="questionCount" class="font-semibold mb-2">Câu hỏi (0)</h3>
+      <!-- CREATE -->
+      <div id="page-create" class="hidden">
+        <div class="bg-white rounded-3xl p-8 shadow-lg h-full">
+          <h1 class="text-2xl font-bold mb-4 text-green-600">
+            🍉 Tạo bài chém hoa quả
+          </h1>
 
-    <div class="flex gap-3 mb-4">
-      <button onclick="openQuestionManager()" class="border px-4 py-2 rounded-xl">
-        ✏️ Nhập câu hỏi
-      </button>
-    </div>
+          <!-- TITLE -->
+          <input
+            id="title"
+            class="w-full p-3 border rounded-xl mb-4"
+            placeholder="Tên bài học"
+          />
 
-    <div id="questionPreview"
-      class="bg-gray-50 rounded-xl p-6 text-center text-gray-500 mb-6">
-      Chưa có câu hỏi nào
-    </div>
+          <!-- TIME -->
+          <div class="mb-4">
+            <label class="text-sm text-gray-500">⏱ Thời gian mỗi câu</label>
+            <input
+              id="time"
+              type="number"
+              class="w-full p-3 border rounded-xl mt-1"
+              value="25"
+            />
+          </div>
 
-    <!-- ACTION -->
-    <div class="flex justify-end gap-3">
-      <button onclick="goHome()" class="px-4 py-2 border rounded-xl">HỦY</button>
-      <button onclick="saveGame()" class="bg-green-500 text-white px-5 py-2 rounded-xl">
-        LƯU
-      </button>
-    </div>
+          <!-- SPEED -->
+          <div class="mb-4">
+            <p class="text-sm text-gray-500 mb-2">🍉 Tốc độ</p>
 
-  </div>
-</div>
+            <div class="flex gap-3">
+              <button class="speed-btn ui-btn" data-speed="fast">
+                🚀 Nhanh
+              </button>
+              <button class="speed-btn ui-btn" data-speed="medium">
+                ⚡ Trung bình
+              </button>
+              <button class="speed-btn ui-btn" data-speed="slow">
+                🐢 Chậm
+              </button>
+            </div>
+          </div>
 
-</main>
+          <!-- OPTION -->
+          <div class="mb-4 space-y-2">
+            <label><input type="checkbox" id="hideCamera" /> Ẩn camera</label
+            ><br />
+            <label
+              ><input type="checkbox" id="noCamera" /> Không dùng camera</label
+            >
+          </div>
 
-<!-- TOAST -->
-<div id="toast"></div>
+          <!-- QUESTION -->
+          <h3 id="questionCount" class="font-semibold mb-2">Câu hỏi (0)</h3>
 
-<script src="../js/games/quizfruit.js"></script>
-</body>
+          <div class="flex gap-3 mb-4">
+            <button
+              onclick="openQuestionManager()"
+              class="border px-4 py-2 rounded-xl"
+            >
+              ✏️ Nhập câu hỏi
+            </button>
+          </div>
+
+          <div
+            id="questionPreview"
+            class="bg-gray-50 rounded-xl p-6 text-center text-gray-500 mb-6"
+          >
+            Chưa có câu hỏi nào
+          </div>
+
+          <!-- ACTION -->
+          <div class="flex justify-end gap-3">
+            <button
+              onclick="goHome()"
+              class="btn-secondary px-4 py-2 rounded-xl"
+            >
+              HỦY
+            </button>
+
+            <button
+              onclick="saveGame()"
+              class="btn-primary px-5 py-2 rounded-xl"
+            >
+              LƯU
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- TOAST -->
+    <div id="toast"></div>
+
+    <script src="../js/games/quizfruit.js" defer></script>
+  </body>
 </html>

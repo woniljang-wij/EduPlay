@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Fruit Ninja Demo</title>
+  <link rel="stylesheet" href="../css/play_quizfruit.css">
+</head>
+
+<body>
+
+<div id="gameArea"></div>
+
+<button id="exitBtn" onclick="openExit()">
+  THOÁT
+</button>
+
+<div id="exitModal" class="exit-modal">
+  <div class="exit-box">
+    <p>Bạn muốn thoát game?</p>
+    <div class="exit-actions">
+      <button onclick="confirmExit()" class="btn-exit">Thoát</button>
+      <button onclick="closeExit()" class="btn-cancel">Ở lại</button>
+    </div>
+  </div>
+</div>
+
+<script src="../js/games/play_quizfruit.js"></script>
+</body>
+</html>

@@ -47,7 +47,8 @@ const cellLayer = document.getElementById("cellLayer");
 const diceFaces = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
 const rollBtn = document.getElementById("rollBtn");
 let isRolling = false;
-
+let timer = null;
+let timeLeft = 0;
 // ===== STATE =====
 let positions = [];
 let currentPlayer = 0;
@@ -521,28 +522,40 @@ function showQuestion() {
   const answersDiv = document.getElementById("answers");
 
   title.innerText = q.question;
+
+  // 🔥 TIMER
+  timeLeft = q.time || 10;
+
+  // 👉 hiển thị timer
+  title.innerHTML = `
+    ${q.question}
+    <div style="margin-top:8px; font-size:14px; color:red;">
+      ⏱ ${timeLeft}s
+    </div>
+  `;
+
   answersDiv.innerHTML = "";
+
+  startTimer(); 
 
   q.answers.forEach((ans, i) => {
     const btn = document.createElement("button");
 
     const labels = ["A", "B", "C", "D"];
 
-    btn.className = `
-  answer-card flex items-center gap-3
-`;
+    btn.className = `answer-card flex items-center gap-3`;
 
     btn.innerHTML = `
-  <div class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 font-bold">
-    ${labels[i]}
-  </div>
-  <span>${ans}</span>
-`;
+      <div class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 font-bold">
+        ${labels[i]}
+      </div>
+      <span>${ans}</span>
+    `;
 
     btn.onclick = () => {
-      const buttons = answersDiv.querySelectorAll("button");
+      clearInterval(timer); 
 
-      // ❌ disable click
+      const buttons = answersDiv.querySelectorAll("button");
       buttons.forEach((b) => (b.style.pointerEvents = "none"));
 
       if (i === q.correct) {
@@ -562,15 +575,53 @@ function showQuestion() {
   popup.classList.add("flex");
 }
 
-function handleAnswer(selected, correct) {
+function startTimer() {
+  clearInterval(timer);
+
+  timer = setInterval(() => {
+    timeLeft--;
+
+    // update UI
+    const title = document.getElementById("qTitle");
+    if (title) {
+      const text = title.innerText.split("\n")[0];
+      title.innerHTML = `
+        ${text}
+        <div style="margin-top:8px; font-size:14px; color:red;">
+          ⏱ ${timeLeft}s
+        </div>
+      `;
+    }
+
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      handleTimeout();
+    }
+  }, 1000);
+}
+
+function handleTimeout() {
   const popup = document.getElementById("questionPopup");
 
-  const isCorrect = selected === correct;
+  // 🔒 disable click
+  const buttons = popup.querySelectorAll("button");
+  buttons.forEach(b => b.style.pointerEvents = "none");
+
+  // 🔥 gọi chung logic
+  handleAnswer(-1, -1, true);
+}
+
+function handleAnswer(selected, correct, isTimeout = false) {
+  clearInterval(timer);
+
+  const popup = document.getElementById("questionPopup");
+
+  const isCorrect = !isTimeout && selected === correct;
 
   const correctSound = document.getElementById("correctSound");
   const wrongSound = document.getElementById("wrongSound");
 
-  // 🔊 PLAY SOUND
+  // 🔊 SOUND
   if (isCorrect) {
     correctSound.currentTime = 0;
     correctSound.play().catch(() => {});
@@ -594,17 +645,29 @@ function handleAnswer(selected, correct) {
     <div class="bg-white p-6 rounded-2xl w-[320px] text-center shadow-xl animate-fadeIn ${boxClass}">
 
       <div class="text-5xl mb-3">
-        ${isCorrect ? "🎉" : "💀"}
+        ${isTimeout ? "⏰" : isCorrect ? "🎉" : "💀"}
       </div>
 
       <h2 class="text-2xl font-bold mb-2 ${
         isCorrect ? "text-green-500" : "text-red-500"
       }">
-        ${isCorrect ? "Chính xác!" : "Sai rồi!"}
+        ${
+          isTimeout
+            ? "Hết giờ!"
+            : isCorrect
+            ? "Chính xác!"
+            : "Sai rồi!"
+        }
       </h2>
 
       <p class="text-gray-500 mb-2">
-        ${isCorrect ? "Bạn được đi tiếp!" : "Bạn bị mất lượt!"}
+        ${
+          isTimeout
+            ? "Bạn không trả lời kịp"
+            : isCorrect
+            ? "Bạn được đi tiếp!"
+            : "Bạn bị mất lượt!"
+        }
       </p>
 
     </div>
@@ -612,14 +675,13 @@ function handleAnswer(selected, correct) {
 
   popup.appendChild(result);
 
-  // 💥 RUNG KHI SAI
+  // 💥 RUNG khi sai hoặc timeout
   if (!isCorrect) {
     document.body.classList.add("shake");
     flashRed();
     setTimeout(() => document.body.classList.remove("shake"), 300);
   }
 
-  // ⏳ delay
   setTimeout(() => {
     result.remove();
 

@@ -20,7 +20,9 @@ function goCreate(isEdit = false) {
     editingId = null;
     tempQuestions = [];
 
-    const titleInput = document.querySelector("input[placeholder='Tiêu đề bài chơi']");
+    const titleInput = document.querySelector(
+      "input[placeholder='Tiêu đề bài chơi']",
+    );
     if (titleInput) titleInput.value = "";
 
     const playerCount = document.getElementById("playerCount");
@@ -41,9 +43,9 @@ function goCreate(isEdit = false) {
     if (firstBtn) {
       selectedMusic = firstBtn.dataset.src;
 
-      document.querySelectorAll(".music-btn").forEach(b =>
-        b.classList.remove("bg-green-500", "text-white")
-      );
+      document
+        .querySelectorAll(".music-btn")
+        .forEach((b) => b.classList.remove("bg-green-500", "text-white"));
 
       firstBtn.classList.add("bg-green-500", "text-white");
     }
@@ -337,7 +339,11 @@ function editGame(id) {
   editingId = id;
 
   goCreate(true);
-  history.pushState({}, "", `/frontend/games/turnbased.html?mode=edit&id=${id}`);
+  history.pushState(
+    {},
+    "",
+    `/frontend/games/turnbased.html?mode=edit&id=${id}`,
+  );
 
   // ===== TITLE =====
   document.querySelector("input[placeholder='Tiêu đề bài chơi']").value =
@@ -495,7 +501,14 @@ function addQuestionForm() {
         <option value="2">✅ C đúng</option>
         <option value="3">✅ D đúng</option>
       </select>
-
+      
+      <!-- TIME -->
+      <input 
+  type="number"
+  placeholder="⏱ Thời gian (giây)"
+  value="10"
+  class="mt-2 border p-2 rounded-lg w-full"
+/>
     </div>
   `;
 
@@ -510,7 +523,7 @@ function saveAllQuestions() {
   items.forEach((item) => {
     const inputs = item.querySelectorAll("input");
     const select = item.querySelector("select");
-
+    const time = parseInt(inputs[5]?.value) || 10;
     if (!inputs[0].value.trim()) return;
 
     tempQuestions.push({
@@ -522,6 +535,7 @@ function saveAllQuestions() {
         inputs[4].value,
       ],
       correct: parseInt(select.value),
+      time
     });
   });
 
@@ -564,42 +578,41 @@ function renderQuestionPreview() {
 
   tempQuestions.forEach((q, i) => {
     html += `
-      <div class="px-4 py-3 border-t flex items-center justify-between hover:bg-gray-50 transition group">
+      <div class="px-4 py-3 border-t flex items-start justify-between hover:bg-gray-50 transition group">
 
         <!-- LEFT -->
-        <div class="flex-1">
+        <div class="flex-1 text-left">
 
-          <div class="font-medium mb-1">
+          <!-- QUESTION -->
+          <div class="font-medium mb-2">
             ${i + 1}. ${q.question}
           </div>
 
-          <div class="grid grid-cols-2 gap-3 text-sm">
-         ${q.answers
-           .map(
-             (a, idx) => `
-  <div class="
-    p-3 rounded-lg border
-    flex items-start gap-2
-    min-h-[60px]
-    ${
-      idx === q.correct
-        ? "bg-green-100 border-green-400 text-green-700 font-semibold"
-        : "bg-gray-50"
-    }
-  ">
-    <span class="font-semibold">
-      ${String.fromCharCode(65 + idx)}.
-    </span>
-
-    <span class="flex-1 break-words">
-      ${a}
-    </span>
-
-    ${idx === q.correct ? "✔" : ""}
-  </div>
-`,
-           )
-           .join("")}
+          <!-- ANSWERS (KIỂU INLINE) -->
+          <div class="flex flex-wrap gap-3 text-sm">
+            ${q.answers
+              .map(
+                (a, idx) => `
+                  <span class="
+                    px-3 py-1 rounded-lg border
+                    transition-all duration-200
+                    cursor-pointer
+                    hover:scale-105 hover:shadow
+                    ${
+                      idx === q.correct
+                        ? "bg-green-100 border-green-400 text-green-700 font-semibold"
+                        : "bg-gray-50 hover:bg-gray-200"
+                    }
+                  ">
+                    <span class="font-semibold mr-1">
+                      ${String.fromCharCode(65 + idx)}:
+                    </span>
+                    ${a}
+                    ${idx === q.correct ? " ✔" : ""}
+                  </span>
+                `,
+              )
+              .join("")}
           </div>
 
         </div>
@@ -607,25 +620,21 @@ function renderQuestionPreview() {
         <!-- RIGHT ACTION -->
         <div class="flex items-center gap-2 ml-4">
 
-          <!-- ⬆ -->
           <button onclick="moveQuestion(${i}, -1)"
             class="px-2 py-1 border rounded text-gray-600 hover:bg-gray-200">
             ⬆
           </button>
 
-          <!-- ⬇ -->
           <button onclick="moveQuestion(${i}, 1)"
             class="px-2 py-1 border rounded text-gray-600 hover:bg-gray-200">
             ⬇
           </button>
 
-          <!-- EDIT -->
           <button onclick="editQuestion(${i})"
             class="px-2 py-1 border rounded text-blue-500 hover:bg-blue-50">
             ✏️
           </button>
 
-          <!-- DELETE -->
           <button onclick="deleteQuestion(${i})"
             class="px-2 py-1 border rounded text-red-500 hover:bg-red-50">
             🗑
