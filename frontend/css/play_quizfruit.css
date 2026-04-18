@@ -28,6 +28,8 @@ body {
   position: absolute;
   width: 250px;
   pointer-events: none;
+
+  filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5));
 }
 
 /* ✂️ NỬA TRÁI */
@@ -43,11 +45,26 @@ body {
 /* SPLASH */
 .splash {
   position: absolute;
-  width: 100px;
-  height: 100px;
-  background: radial-gradient(circle, red, transparent);
+  width: 120px;
+  height: 120px;
+
   border-radius: 50%;
   pointer-events: none;
+
+  filter: blur(6px);
+
+  animation: splashBoom 0.4s forwards;
+}
+
+@keyframes splashBoom {
+  from {
+    transform: scale(0.3);
+    opacity: 1;
+  }
+  to {
+    transform: scale(2.5);
+    opacity: 0;
+  }
 }
 
 .slash {
@@ -70,23 +87,24 @@ body {
 }
 
 #exitBtn {
-  position: absolute;
-  right: 20px;
-  bottom: 20px;
-  padding: 10px 20px;
+  padding: 10px 18px;
   background: #ef4444;
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   font-weight: bold;
   cursor: pointer;
-  z-index: 999;
-  transition: 0.2s;
+
+  transition: all 0.2s ease;
 }
 
 #exitBtn:hover {
-  transform: scale(1.05);
   background: #dc2626;
+  transform: scale(1.05);
+}
+
+#exitBtn:active {
+  transform: scale(0.95);
 }
 
 .exit-modal {
@@ -106,6 +124,7 @@ body {
   color: white;
   text-align: center;
   box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  animation: popIn 0.2s ease;
 }
 
 .exit-actions {
@@ -131,4 +150,429 @@ body {
   border-radius: 8px;
   color: white;
   cursor: pointer;
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+#questionBox {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 1100px;
+
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(6px);
+
+  border-radius: 20px;
+  padding: 18px 25px;
+
+  border: 2px solid rgba(255,255,255,0.2);
+
+  box-shadow:
+    0 10px 40px rgba(0,0,0,0.6),
+    inset 0 0 20px rgba(255,255,255,0.05);
+
+  color: white;
+  z-index: 999;
+
+  animation: slideDown 0.4s ease;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translate(-50%, -30px);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}
+
+.q-top {
+  font-size: 13px;
+  color: #ddd;
+  opacity: 0.8;
+}
+
+.q-text {
+  font-size: 22px;
+  font-weight: 800;
+  margin: 10px 0 15px;
+
+  text-shadow: 2px 2px 0 #000;
+}
+
+.q-answers {
+  display: flex;
+  gap: 10px;
+}
+
+.ans {
+  flex: 1;
+  padding: 14px;
+  border-radius: 14px;
+  text-align: center;
+
+  font-weight: 800;
+  font-size: 18px;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+  
+  position: relative;
+  overflow: hidden;
+
+  box-shadow:
+    inset 0 -4px rgba(0,0,0,0.3),
+    0 4px 10px rgba(0,0,0,0.4);
+}
+
+/* hover */
+.ans:hover {
+  transform: translateY(-3px) scale(1.05);
+  filter: brightness(1.1);
+}
+
+/* click */
+.ans:active {
+  transform: translateY(2px);
+  box-shadow: inset 0 2px rgba(0,0,0,0.4);
+}
+
+.ans-0 { background: linear-gradient(135deg, #22c55e, #15803d); }
+.ans-1 { background: linear-gradient(135deg, #ef4444, #991b1b); }
+.ans-2 { background: linear-gradient(135deg, #facc15, #ca8a04); color: #000; }
+.ans-3 { background: linear-gradient(135deg, #a855f7, #6b21a8); }
+
+/* ánh sáng chạy */
+.ans::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255,255,255,0.4),
+    transparent
+  );
+
+  transition: 0.4s;
+}
+
+.ans:hover::after {
+  left: 100%;
+}
+
+.fruit-label {
+  position: absolute;
+  bottom: -20px;
+  width: 100%;
+  text-align: center;
+  font-weight: bold;
+  color: white;
+}
+
+/* ===================== */
+/* 🔥 TIMER CIRCLE XỊN */
+/* ===================== */
+
+.timer-circle {
+  position: fixed;
+  bottom: 25px;
+  left: 25px;
+  width: 90px;
+  height: 90px;
+  z-index: 999;
+
+  filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));
+}
+
+.timer-circle svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  overflow: visible;
+}
+
+.timer-circle circle {
+  fill: none;
+  stroke-width: 8;
+}
+
+/* nền */
+.timer-circle .bg {
+  stroke: rgba(255,255,255,0.2);
+}
+
+/* thanh chạy */
+.timer-circle .progress {
+  stroke: #22c55e;
+  stroke-dasharray: 283;
+  stroke-dashoffset: 0;
+  transition: stroke 0.3s;
+}
+
+/* số */
+.timer-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-size: 26px;
+  font-weight: 900;
+  color: white;
+
+  text-shadow: 0 0 10px rgba(255,255,255,0.8);
+}
+
+/* ⚠️ danger mode */
+.timer-circle.danger .progress {
+  stroke: #ef4444;
+}
+
+.timer-circle.danger {
+  animation: shake 0.3s infinite;
+  filter: drop-shadow(0 0 15px red);
+}
+
+@keyframes shake {
+  0% { transform: translate(0, 0) scale(1.15); }
+  25% { transform: translate(-2px, 2px) scale(1.15); }
+  50% { transform: translate(2px, -2px) scale(1.15); }
+  75% { transform: translate(-2px, -2px) scale(1.15); }
+  100% { transform: translate(0, 0) scale(1.15); }
+}
+
+/* 🎮 Overlay kiểu game (không blur sang chảnh nữa) */
+.end-modal {
+  position: fixed;
+  inset: 0;
+
+  /* 🔥 lớp tối */
+  background: rgba(0,0,0,0.6);
+
+  /* 🔥 BLUR nền phía sau */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 9999;
+}
+
+.end-modal::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background: radial-gradient(circle at center,
+    transparent 40%,
+    rgba(0,0,0,0.7) 100%
+  );
+
+  pointer-events: none;
+}
+
+/* 🍉 Popup kiểu bảng gỗ + giấy dán */
+.end-box {
+  background: url("../assets/images/bg_wood.png") center/cover no-repeat;
+  padding: 40px 60px;
+  border-radius: 20px;
+
+  text-align: center;
+
+  border: 6px solid #5c3b1e;
+  box-shadow:
+    inset 0 0 20px rgba(0,0,0,0.6),
+    0 10px 40px rgba(0,0,0,0.8);
+
+  animation: bounceIn 0.4s ease;
+}
+
+/* 🎯 Tiêu đề kiểu brush */
+.end-title {
+  font-size: 42px;
+  color: #fff;
+  font-weight: bold;
+
+  text-shadow:
+    2px 2px 0 #000,
+    0 0 10px rgba(255,255,255,0.3);
+
+  margin-bottom: 10px;
+}
+
+/* 💯 Điểm số kiểu arcade */
+.end-score {
+  font-size: 60px;
+  font-weight: 900;
+  color: #ffeb3b;
+
+  text-shadow:
+    3px 3px 0 #000,
+    0 0 15px rgba(255,235,59,0.6);
+
+  margin: 15px 0;
+}
+
+/* 📝 Sub text */
+.end-sub {
+  color: #fff;
+  font-size: 16px;
+  text-shadow: 1px 1px 0 #000;
+  margin-bottom: 25px;
+}
+
+/* 🎮 Buttons kiểu game */
+.end-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.btn-replay {
+  background: #22c55e;
+  color: white;
+  padding: 12px 25px;
+  border-radius: 10px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+
+  box-shadow: 0 4px 0 #166534;
+}
+
+.btn-replay:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #166534;
+}
+
+.btn-exit {
+  background: #ef4444;
+  color: white;
+  padding: 12px 25px;
+  border-radius: 10px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+
+  box-shadow: 0 4px 0 #7f1d1d;
+}
+
+.btn-exit:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #7f1d1d;
+}
+
+/* 🎉 Animation popup */
+@keyframes bounceIn {
+  0% { transform: scale(0.5); opacity: 0; }
+  60% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* 🗡️ SLASH */
+.slash-line {
+  box-shadow:
+    0 0 10px rgba(255,255,255,0.8),
+    0 0 20px rgba(99,102,241,0.6),
+    0 0 40px rgba(147,51,234,0.5);
+
+  position: absolute;
+  height: 6px;
+
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0),
+    rgba(255,255,255,0.9),
+    rgba(255,255,255,0)
+  );
+
+  border-radius: 10px;
+  pointer-events: none;
+
+  transform-origin: left center;
+
+  filter: blur(2px);
+  opacity: 0.9;
+
+  animation: slashFade 0.2s forwards;
+}
+
+@keyframes slashFade {
+  to {
+    opacity: 0;
+    transform: scaleX(1.3);
+  }
+}
+
+
+@keyframes shakeScreen {
+  0% { transform: translate(0); }
+  25% { transform: translate(-5px, 5px); }
+  50% { transform: translate(5px, -5px); }
+  75% { transform: translate(-5px, -5px); }
+  100% { transform: translate(0); }
+}
+
+.game-controls {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  gap: 12px;
+  z-index: 1000;
+}
+
+/* 🔊 sound button */
+#soundBtn {
+  width: 45px;
+  height: 45px;
+
+  background: radial-gradient(circle at top, #333, #111);
+  border: 2px solid rgba(255,255,255,0.2);
+
+  border-radius: 12px;
+
+  font-size: 20px;
+  color: white;
+
+  cursor: pointer;
+
+  box-shadow:
+    inset 0 2px rgba(255,255,255,0.2),
+    0 4px 10px rgba(0,0,0,0.5);
+
+  transition: all 0.2s ease;
+}
+
+#soundBtn:hover {
+  transform: scale(1.1);
+  box-shadow:
+    0 0 10px rgba(255,255,255,0.5),
+    0 4px 15px rgba(0,0,0,0.6);
+}
+
+#soundBtn:active {
+  transform: scale(0.95);
 }

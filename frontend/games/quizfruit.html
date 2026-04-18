@@ -33,7 +33,7 @@
 
           <button
             id="btn-create"
-            onclick="goCreate()"
+            onclick="goCreateNew()"
             class="nav-btn w-full text-left px-4 py-3 rounded-xl"
           >
             ➕ Tạo bài mới
@@ -127,18 +127,16 @@
 
           <div class="flex gap-3 mb-4">
             <button
-              onclick="openQuestionManager()"
+              onclick="startAddQuestion()"
+              id="btnAddFirst"
               class="border px-4 py-2 rounded-xl"
             >
               ✏️ Nhập câu hỏi
             </button>
           </div>
 
-          <div
-            id="questionPreview"
-            class="bg-gray-50 rounded-xl p-6 text-center text-gray-500 mb-6"
-          >
-            Chưa có câu hỏi nào
+          <div id="questionList" class="space-y-4 mb-6">
+            <p class="text-gray-400 text-center">Chưa có câu hỏi nào</p>
           </div>
 
           <!-- ACTION -->

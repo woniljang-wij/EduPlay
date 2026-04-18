@@ -14,14 +14,14 @@ function setActive(type) {
     "bg-gradient-to-r",
     "from-blue-500",
     "to-purple-500",
-    "text-white"
+    "text-white",
   );
 
   create.classList.remove(
     "bg-gradient-to-r",
     "from-blue-500",
     "to-purple-500",
-    "text-white"
+    "text-white",
   );
 
   if (type === "home") {
@@ -29,14 +29,14 @@ function setActive(type) {
       "bg-gradient-to-r",
       "from-blue-500",
       "to-purple-500",
-      "text-white"
+      "text-white",
     );
   } else {
     create.classList.add(
       "bg-gradient-to-r",
       "from-blue-500",
       "to-purple-500",
-      "text-white"
+      "text-white",
     );
   }
 }
@@ -48,12 +48,37 @@ function goCreate() {
 
   setActive("create");
 
-  // FIX
-  if (!editingId) {
+  // 🟢 CREATE MODE
+  if (editingId === null) {
     tempQuestions = [];
-    document.getElementById("questionPreview").innerHTML = "Chưa có câu hỏi nào";
-    document.getElementById("questionCount").innerText = "Câu hỏi (0)";
+
+    document.getElementById("title").value = "";
+    document.getElementById("time").value = 25;
+    document.getElementById("hideCamera").checked = false;
+    document.getElementById("noCamera").checked = false;
+
+    selectedSpeed = "medium";
+
+    renderQuestions();
   }
+
+  // 🔵 EDIT MODE
+  else {
+    renderQuestions();
+  }
+
+  // update speed UI
+  document.querySelectorAll(".speed-btn").forEach((btn) => {
+    btn.classList.remove("active-speed");
+    if (btn.dataset.speed === selectedSpeed) {
+      btn.classList.add("active-speed");
+    }
+  });
+}
+
+function goCreateNew() {
+  editingId = null; 
+  goCreate();
 }
 
 function goHome() {
@@ -64,12 +89,13 @@ function goHome() {
   renderGames();
 }
 // SPEED
-document.querySelectorAll(".speed-btn").forEach(btn => {
+document.querySelectorAll(".speed-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     selectedSpeed = btn.dataset.speed;
 
-    document.querySelectorAll(".speed-btn")
-      .forEach(b => b.classList.remove("active-speed"));
+    document
+      .querySelectorAll(".speed-btn")
+      .forEach((b) => b.classList.remove("active-speed"));
 
     btn.classList.add("active-speed");
   });
@@ -86,7 +112,7 @@ function saveGame() {
 
   // ===== EDIT MODE =====
   if (editingId) {
-    const index = games.findIndex(g => g.id === editingId);
+    const index = games.findIndex((g) => g.id === editingId);
 
     if (index !== -1) {
       games[index] = {
@@ -96,7 +122,7 @@ function saveGame() {
         speed: selectedSpeed,
         hideCamera,
         noCamera,
-        questions: tempQuestions
+        questions: tempQuestions,
       };
     }
 
@@ -113,7 +139,7 @@ function saveGame() {
       speed: selectedSpeed,
       hideCamera,
       noCamera,
-      questions: tempQuestions
+      questions: tempQuestions,
     };
 
     games.push(newGame);
@@ -145,7 +171,9 @@ function renderGames() {
     return;
   }
 
-container.innerHTML = games.map(g => `
+  container.innerHTML = games
+    .map(
+      (g) => `
      <div class="w-80">
      <div class="card bg-white/80 backdrop-blur rounded-2xl p-5 shadow-lg border border-white/40 relative">
 
@@ -204,11 +232,15 @@ container.innerHTML = games.map(g => `
 
     </div>
   </div>
-`).join("");
+`,
+    )
+    .join("");
 }
 
 // ===== PLAY =====
 function playGame(id) {
+  sessionStorage.setItem("playMusic", "true");
+
   window.location.href = `play_quizfruit.html?id=${id}`;
 }
 
@@ -227,7 +259,7 @@ function deleteGame(id) {
   if (!confirm("Bạn chắc chắn muốn xóa bài này?")) return;
 
   let games = JSON.parse(localStorage.getItem("fruitGames")) || [];
-  games = games.filter(g => g.id !== id);
+  games = games.filter((g) => g.id !== id);
 
   localStorage.setItem("fruitGames", JSON.stringify(games));
 
@@ -238,16 +270,14 @@ function deleteGame(id) {
 // ===== EDIT =====
 function editGame(id) {
   let games = JSON.parse(localStorage.getItem("fruitGames")) || [];
-  const game = games.find(g => g.id === id);
+  const game = games.find((g) => String(g.id) === String(id));
 
   if (!game) return;
 
   editingId = id;
 
-  // chuyển sang create page
   goCreate();
 
-  // fill lại dữ liệu
   document.getElementById("title").value = game.title;
   document.getElementById("time").value = game.time;
   document.getElementById("hideCamera").checked = game.hideCamera;
@@ -255,18 +285,115 @@ function editGame(id) {
 
   selectedSpeed = game.speed;
 
-  // highlight speed
-  document.querySelectorAll(".speed-btn")
-    .forEach(b => {
-      b.classList.remove("active-speed");
-      if (b.dataset.speed === game.speed) {
-        b.classList.add("active-speed");
-      }
-    });
+  document.querySelectorAll(".speed-btn").forEach((b) => {
+    b.classList.remove("active-speed");
+    if (b.dataset.speed === game.speed) {
+      b.classList.add("active-speed");
+    }
+  });
 
-  tempQuestions = game.questions || [];
+  tempQuestions = JSON.parse(JSON.stringify(game.questions || []));
+  renderQuestions();
+}
 
-  showToast("✏️ Đang sửa bài...");
+function addQuestion() {
+  const q = {
+    question: "",
+    answers: ["", "", "", ""],
+    correct: 0,
+  };
+
+  tempQuestions.push(q);
+
+  renderQuestions();
+}
+
+function renderQuestions() {
+  const box = document.getElementById("questionList");
+  const btn = document.getElementById("btnAddFirst");
+
+  if (tempQuestions.length === 0) {
+    box.innerHTML = `<p class="text-gray-400 text-center">Chưa có câu hỏi nào</p>`;
+    document.getElementById("questionCount").innerText = "Câu hỏi (0)";
+
+    if (btn) btn.style.display = "inline-block";
+
+    return;
+  }
+
+  box.innerHTML = tempQuestions
+    .map((q, i) => `
+      <div class="bg-white p-4 rounded-xl shadow border">
+        <div class="flex justify-between items-center mb-2">
+          <b>Câu ${i + 1}</b>
+          <button onclick="deleteQuestion(${i})" class="text-red-500">🗑</button>
+        </div>
+
+        <input 
+          class="w-full border p-2 mb-3 rounded"
+          placeholder="Nhập câu hỏi..."
+          value="${q.question}"
+          oninput="updateQuestion(${i}, this.value)"
+        />
+
+        ${q.answers.map((a, j) => `
+          <div class="flex items-center gap-2 mb-2">
+            <input type="radio" name="correct_${i}"
+              ${q.correct === j ? "checked" : ""}
+              onchange="setCorrect(${i}, ${j})"
+            />
+
+            <input 
+              class="flex-1 border p-2 rounded"
+              placeholder="Đáp án ${j + 1}"
+              value="${a}"
+              oninput="updateAnswer(${i}, ${j}, this.value)"
+            />
+          </div>
+        `).join("")}
+
+        ${
+          i === tempQuestions.length - 1
+            ? `<button onclick="addQuestion()"
+                class="mt-3 px-4 py-2 rounded-xl bg-green-500 text-white">
+                ➕ Thêm câu hỏi
+              </button>`
+            : ""
+        }
+
+      </div>
+    `)
+    .join("");
+
+  document.getElementById("questionCount").innerText =
+    "Câu hỏi (" + tempQuestions.length + ")";
+
+  if (btn) btn.style.display = "none";
+}
+
+function startAddQuestion() {
+  if (tempQuestions.length > 0) return;
+  addQuestion();
+
+  const btn = document.getElementById("btnAddFirst");
+  if (btn) btn.style.display = "none";
+}
+
+function updateQuestion(i, value) {
+  tempQuestions[i].question = value;
+}
+
+function updateAnswer(i, j, value) {
+  tempQuestions[i].answers[j] = value;
+}
+
+function setCorrect(i, j) {
+  tempQuestions[i].correct = j;
+}
+
+function deleteQuestion(i) {
+  tempQuestions.splice(i, 1);
+  renderQuestions();
 }
 
 // TOAST
