@@ -127,6 +127,7 @@
             <button class="bg-green-500 text-white px-4 py-2 rounded-xl">
               📚 Lấy từ Kho câu hỏi
             </button>
+            
            <button onclick="openQuestionManager()"
                    class="border px-4 py-2 rounded-xl">
                ✏️ Nhập thủ công
@@ -141,10 +142,10 @@
           <!-- action -->
           <div class="flex justify-end gap-3">
             <button onclick="goHome()" class="px-4 py-2 border rounded-xl">HỦY</button>
-<button onclick="saveGame()"
-  class="bg-green-500 text-white px-5 py-2 rounded-xl shadow">
-  LƯU BÀI CHƠI
-</button>
+            <button onclick="saveGame()"
+              class="bg-green-500 text-white px-5 py-2 rounded-xl shadow">
+              LƯU BÀI CHƠI
+            </button>
           </div>
 
         </div>
@@ -241,11 +242,16 @@
     </div>
 
     <select id="editCorrect" class="border p-2 w-full mb-4">
-      <option value="0">A đúng</option>
-      <option value="1">B đúng</option>
-      <option value="2">C đúng</option>
-      <option value="3">D đúng</option>
+      <option value="0">✅ A đúng</option>
+      <option value="1">✅ B đúng</option>
+      <option value="2">✅ C đúng</option>
+      <option value="3">✅ D đúng</option>
     </select>
+    
+    <input id="editTime"
+    type="number"
+    class="border p-2 w-full mb-4"
+    placeholder="⏱ Nhập thời gian câu hỏi..." />
 
     <div class="flex justify-end gap-3">
       <button onclick="closeEdit()">Hủy</button>

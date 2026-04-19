@@ -1,97 +1,138 @@
 /* ===== GLOBAL ===== */
 body {
   font-family: 'Segoe UI', sans-serif;
-}
-
-body {
-  font-family: 'Segoe UI', sans-serif;
 
   background: url("../assets/images/bg_turnbased.png") center/cover no-repeat fixed;
+  overflow-x: hidden;
 }
 
+/* 🌑 overlay cinematic */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.3);
-  backdrop-filter: blur(2px);
+
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.08), transparent),
+    rgba(0,0,0,0.55);
+
+  backdrop-filter: blur(6px);
   z-index: -1;
 }
 
 /* ===== SIDEBAR ===== */
 .sidebar {
   width: 260px;
-  background: rgba(255,255,255,0.7);
-  backdrop-filter: blur(15px);
-  padding: 20px;
+
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.75),
+    rgba(255,255,255,0.45)
+  );
+
+  backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(255,255,255,0.3);
+
+  padding: 24px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  border-right: 1px solid rgba(255,255,255,0.3);
+
+  box-shadow: 10px 0 40px rgba(0,0,0,0.2);
 }
 
-/* menu */
+/* ===== MENU ===== */
 .menu button {
-  padding: 12px;
+  padding: 12px 16px;
   border-radius: 14px;
   border: none;
+
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
+
   background: transparent;
+  font-weight: 500;
 }
 
+/* hover mượt + glow nhẹ */
 .menu button:hover {
-  background: rgba(255,255,255,0.6);
-  transform: translateX(6px);
+  background: rgba(255,255,255,0.5);
+  transform: translateX(8px);
+
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
-/* active */
+/* active mạnh hơn */
 .menu .active {
-  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
   color: white;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+
+  box-shadow:
+    0 8px 25px rgba(59,130,246,0.4),
+    inset 0 0 10px rgba(255,255,255,0.2);
+}
+
+/* thanh highlight */
+.menu .active::before {
+  content: "";
+  position: absolute;
+  left: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 5px;
+  height: 60%;
+
+  background: white;
+  border-radius: 10px;
 }
 
 /* ===== MAIN BOX ===== */
 .container-box {
-  background: rgba(255,255,255,0.8);
-  backdrop-filter: blur(15px);
-  border-radius: 24px;
-  padding: 30px;
-  height: 100%;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-  animation: fadeUp 0.6s ease;
-}
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.9),
+    rgba(255,255,255,0.75)
+  );
 
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  backdrop-filter: blur(20px);
+  border-radius: 28px;
+
+  padding: 32px;
+  height: 100%;
+
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.25),
+    inset 0 0 20px rgba(255,255,255,0.2);
+
+  animation: fadeUp 0.6s ease;
 }
 
 /* ===== HEADER ===== */
 .header h1 {
-  font-size: 26px;
-  font-weight: bold;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
 }
 
 .header p {
   color: #6b7280;
+  font-size: 14px;
 }
 
 /* ===== NOTICE ===== */
 .notice {
   margin-top: 20px;
   padding: 14px;
+
   border: 1px solid #facc15;
-  background: #fefce8;
+  background: linear-gradient(135deg, #fefce8, #fef3c7);
   color: #92400e;
+
   border-radius: 12px;
+
+  box-shadow: 0 5px 15px rgba(250,204,21,0.2);
+
   animation: fadeUp 0.6s ease;
 }
 
@@ -99,14 +140,20 @@ body::before {
 .empty {
   margin-top: 40px;
   height: 400px;
+
   background: rgba(255,255,255,0.6);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
+  backdrop-filter: blur(12px);
+
+  border-radius: 24px;
 
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+
+  box-shadow:
+    inset 0 0 20px rgba(255,255,255,0.4),
+    0 10px 30px rgba(0,0,0,0.2);
 
   animation: fadeUp 0.6s ease;
 }
@@ -114,40 +161,51 @@ body::before {
 .empty .icon {
   font-size: 70px;
   margin-bottom: 10px;
-  animation: float 3s ease-in-out infinite;
-}
 
-@keyframes float {
-  0%,100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  animation: float 3s ease-in-out infinite;
 }
 
 /* ===== BUTTON ===== */
 .btn-create {
   background: linear-gradient(135deg, #22c55e, #16a34a);
   color: white;
-  padding: 12px 20px;
+
+  padding: 12px 22px;
   border-radius: 14px;
   border: none;
+
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 8px 20px rgba(34,197,94,0.4);
+  transition: all 0.25s ease;
+
+  box-shadow:
+    0 10px 25px rgba(34,197,94,0.4),
+    inset 0 0 10px rgba(255,255,255,0.2);
 }
 
+/* hover = nổi lên */
 .btn-create:hover {
-  transform: translateY(-3px) scale(1.03);
-  box-shadow: 0 12px 25px rgba(34,197,94,0.6);
+  transform: translateY(-4px) scale(1.04);
+
+  box-shadow:
+    0 15px 35px rgba(34,197,94,0.6);
 }
 
 /* ===== INPUT ===== */
 input, select {
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.1);
+  padding: 10px;
+
   transition: all 0.2s ease;
 }
 
 input:focus, select:focus {
   outline: none;
   border-color: #22c55e;
-  box-shadow: 0 0 0 3px rgba(34,197,94,0.3);
+
+  box-shadow:
+    0 0 0 3px rgba(34,197,94,0.25),
+    0 5px 15px rgba(0,0,0,0.1);
 }
 
 /* ===== MUSIC BUTTON ===== */
@@ -156,34 +214,48 @@ input:focus, select:focus {
 }
 
 .music-btn:hover {
-  transform: scale(1.1);
+  transform: scale(1.15) rotate(5deg);
 }
 
 /* ===== CLICK EFFECT ===== */
 button:active {
-  transform: scale(0.95);
+  transform: scale(0.93);
 }
 
-.menu .active {
-  position: relative;
+/* ===== ANIMATION ===== */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
-.menu .active::before {
-  content: "";
-  position: absolute;
-  left: -10px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 5px;
-  height: 60%;
-  background: white;
-  border-radius: 10px;
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
 }
 
+/* ===== QUESTION PREVIEW ===== */
+#questionPreview .border-t {
+  transition: all 0.25s ease;
+}
+
+#questionPreview .border-t:hover {
+  transform: translateY(-3px) scale(1.01);
+
+  box-shadow:
+    0 10px 20px rgba(0,0,0,0.1);
+}
+
+/* ===== MINI FADE ===== */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: scale(0.9);
+    transform: scale(0.92);
   }
   to {
     opacity: 1;
@@ -192,14 +264,9 @@ button:active {
 }
 
 .animate-fadeIn {
-  animation: fadeIn 0.2s ease;
+  animation: fadeIn 0.25s ease;
 }
 
-#questionPreview .border-t {
-  transition: all 0.25s ease;
-}
-
-#questionPreview .border-t:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+input::placeholder {
+  color: #9ca3af;
 }

@@ -15,7 +15,6 @@ function goCreate(isEdit = false) {
 
   setActive("create");
 
-  // 🔥 chỉ reset khi tạo mới
   if (!isEdit) {
     editingId = null;
     tempQuestions = [];
@@ -38,7 +37,6 @@ function goCreate(isEdit = false) {
       value.innerText = 1;
     }
 
-    // reset music
     const firstBtn = document.querySelector(".music-btn");
     if (firstBtn) {
       selectedMusic = firstBtn.dataset.src;
@@ -105,7 +103,7 @@ function renderPlayers(count) {
   if (!playerInputs) return;
 
   playerInputs.innerHTML = "";
-  const icons = ["👤", "🐸", "🐱", "🐶", "🦊", "🐼", "🐵", "🐯"];
+  const icons = ["🐸", "🐱", "🐶", "🦊", "🐼", "🐵", "🐯"];
 
   for (let i = 1; i <= count; i++) {
     const input = document.createElement("input");
@@ -237,7 +235,6 @@ function saveGame() {
   }
 
   localStorage.setItem("games", JSON.stringify(games));
-  tempQuestions = [];
   updateQuestionCount();
   goHome();
   renderGames();
@@ -404,49 +401,65 @@ function closeAssign() {
 
 // ===== QUESTION SYSTEM =====
 let tempQuestions = [];
+let backupQuestions = [];
+
 function openQuestionManager() {
+  backupQuestions = JSON.parse(JSON.stringify(tempQuestions));
+
   const modal = document.getElementById("questionManager");
 
   modal.classList.remove("hidden");
   modal.classList.add("flex");
 
   const list = document.getElementById("questionList");
+  list.innerHTML = "";
 
   if (tempQuestions.length === 0) {
     list.innerHTML = `<p class="text-gray-400 text-center">Chưa có câu hỏi nào</p>`;
   } else {
-    list.innerHTML = "";
-
     tempQuestions.forEach((q, i) => {
-      list.innerHTML += `
-    <div class="border p-4 rounded-xl bg-gray-50 shadow-sm">
+      list.insertAdjacentHTML(
+        "beforeend",
+        `
+        <div class="border p-4 rounded-xl bg-gray-50 shadow-sm">
 
-      <div class="flex justify-between mb-2">
-        <p class="text-sm font-semibold">Câu ${i + 1}</p>
+          <div class="flex justify-between mb-2">
+            <p class="text-sm font-semibold">Câu ${i + 1}</p>
 
-        <button onclick="this.closest('div').remove(); updateQuestionCount2(); refreshQuestionIndex()"
-          class="text-red-500">🗑</button>
-      </div>
+            <button onclick="deleteQuestionForm(${i}, this)"
+              class="text-red-500">🗑</button>
+          </div>
 
-      <input value="${q.question}"
-        class="w-full mb-2 border p-2 rounded" />
+          <input value="${q.question}"
+            oninput="updateQuestion(${i}, 'question', this.value)"
+            class="w-full mb-2 border p-2 rounded" />
 
-      <div class="grid grid-cols-2 gap-2">
-        <input value="${q.answers[0]}" class="border p-2 rounded" />
-        <input value="${q.answers[1]}" class="border p-2 rounded" />
-        <input value="${q.answers[2]}" class="border p-2 rounded" />
-        <input value="${q.answers[3]}" class="border p-2 rounded" />
-      </div>
+          <div class="grid grid-cols-2 gap-2">
+            <input value="${q.answers[0]}" oninput="updateAnswer(${i}, 0, this.value)" class="border p-2 rounded" />
+            <input value="${q.answers[1]}" oninput="updateAnswer(${i}, 1, this.value)" class="border p-2 rounded" />
+            <input value="${q.answers[2]}" oninput="updateAnswer(${i}, 2, this.value)" class="border p-2 rounded" />
+            <input value="${q.answers[3]}" oninput="updateAnswer(${i}, 3, this.value)" class="border p-2 rounded" />
+          </div>
 
-      <select class="mt-2 border p-2 rounded w-full">
-        <option value="0" ${q.correct == 0 ? "selected" : ""}>A đúng</option>
-        <option value="1" ${q.correct == 1 ? "selected" : ""}>B đúng</option>
-        <option value="2" ${q.correct == 2 ? "selected" : ""}>C đúng</option>
-        <option value="3" ${q.correct == 3 ? "selected" : ""}>D đúng</option>
-      </select>
+          <select onchange="updateQuestion(${i}, 'correct', this.value)"
+            class="mt-2 border p-2 rounded w-full">
+            <option value="0" ${q.correct == 0 ? "selected" : ""}>✅ A đúng</option>
+            <option value="1" ${q.correct == 1 ? "selected" : ""}>✅ B đúng</option>
+            <option value="2" ${q.correct == 2 ? "selected" : ""}>✅ C đúng</option>
+            <option value="3" ${q.correct == 3 ? "selected" : ""}>✅ D đúng</option>
+          </select>
 
-    </div>
-  `;
+          <!-- ✅ TIME -->
+          <input type="number"
+            value="${q.time || ""}"
+            placeholder="⏱ Nhập thời gian câu hỏi..."
+            oninput="updateQuestion(${i}, 'time', this.value)"
+            class="mt-2 border p-2 rounded w-full"
+          />
+
+        </div>
+      `,
+      );
     });
   }
 
@@ -455,6 +468,7 @@ function openQuestionManager() {
 
 function closeQuestionManager() {
   const modal = document.getElementById("questionManager");
+
   modal.classList.add("hidden");
   modal.classList.remove("flex");
 }
@@ -466,51 +480,49 @@ function addQuestionForm() {
     list.innerHTML = "";
   }
 
-  const index = document.querySelectorAll("#questionList > div").length + 1;
+  const index = tempQuestions.length;
 
-  list.innerHTML += `
-    <div class="border p-4 rounded-xl bg-gray-50 shadow-sm relative">
+  list.insertAdjacentHTML(
+    "beforeend",
+    `
+    <div class="border p-4 rounded-xl bg-gray-50 shadow-sm">
 
-      <!-- HEADER -->
-      <div class="flex justify-between items-center mb-2">
-        <p class="font-semibold text-sm text-gray-600">Câu ${index}</p>
+      <div class="flex justify-between mb-2">
+        <p class="text-sm font-semibold">Câu ${index + 1}</p>
 
-        <!-- 🗑 XÓA -->
-      <button onclick="this.closest('div').remove(); updateQuestionCount2(); refreshQuestionIndex()"
-          class="text-red-500 text-sm hover:scale-110 transition">
-          🗑
-      </button>
+        <button onclick="deleteQuestionForm(${index}, this)"
+          class="text-red-500">🗑</button>
       </div>
 
-      <!-- QUESTION -->
       <input placeholder="Nhập câu hỏi..."
-        class="w-full mb-3 border p-2 rounded-lg focus:ring-2 focus:ring-blue-300 outline-none" />
+        oninput="updateQuestion(${index}, 'question', this.value)"
+        class="w-full mb-2 border p-2 rounded" />
 
-      <!-- ANSWERS -->
-      <div class="grid grid-cols-2 gap-2 mb-2">
-        <input placeholder="Đáp án A" class="border p-2 rounded-lg" />
-        <input placeholder="Đáp án B" class="border p-2 rounded-lg" />
-        <input placeholder="Đáp án C" class="border p-2 rounded-lg" />
-        <input placeholder="Đáp án D" class="border p-2 rounded-lg" />
+      <div class="grid grid-cols-2 gap-2">
+        <input placeholder="Đáp án A" oninput="updateAnswer(${index}, 0, this.value)" class="border p-2 rounded" />
+        <input placeholder="Đáp án B" oninput="updateAnswer(${index}, 1, this.value)" class="border p-2 rounded" />
+        <input placeholder="Đáp án C" oninput="updateAnswer(${index}, 2, this.value)" class="border p-2 rounded" />
+        <input placeholder="Đáp án D" oninput="updateAnswer(${index}, 3, this.value)" class="border p-2 rounded" />
       </div>
 
-      <!-- CORRECT -->
-      <select class="mt-2 border p-2 rounded-lg w-full bg-white">
+      <select onchange="updateQuestion(${index}, 'correct', this.value)"
+        class="mt-2 border p-2 rounded w-full">
         <option value="0">✅ A đúng</option>
         <option value="1">✅ B đúng</option>
         <option value="2">✅ C đúng</option>
         <option value="3">✅ D đúng</option>
       </select>
-      
-      <!-- TIME -->
-      <input 
-  type="number"
-  placeholder="⏱ Thời gian (giây)"
-  value="10"
-  class="mt-2 border p-2 rounded-lg w-full"
-/>
+
+      <!-- ✅ TIME -->
+      <input type="number"
+        placeholder="⏱ Nhập thời gian câu hỏi..."
+        oninput="updateQuestion(${index}, 'time', this.value)"
+        class="mt-2 border p-2 rounded w-full"
+      />
+
     </div>
-  `;
+  `,
+  );
 
   updateQuestionCount2();
 }
@@ -518,16 +530,24 @@ function addQuestionForm() {
 function saveAllQuestions() {
   const items = document.querySelectorAll("#questionList > div");
 
-  tempQuestions = [];
+  let newQuestions = [];
 
-  items.forEach((item) => {
+  for (let item of items) {
     const inputs = item.querySelectorAll("input");
     const select = item.querySelector("select");
-    const time = parseInt(inputs[5]?.value) || 10;
-    if (!inputs[0].value.trim()) return;
 
-    tempQuestions.push({
-      question: inputs[0].value,
+    const question = inputs[0].value.trim();
+
+    if (!question) {
+      showToast("⚠️ Vui lòng nhập câu hỏi!", "error");
+      return;
+    }
+
+    const rawTime = inputs[5]?.value;
+    const time = rawTime ? parseInt(rawTime) : null;
+
+    newQuestions.push({
+      question,
       answers: [
         inputs[1].value,
         inputs[2].value,
@@ -535,18 +555,17 @@ function saveAllQuestions() {
         inputs[4].value,
       ],
       correct: parseInt(select.value),
-      time
+      time,
     });
-  });
+  }
+
+  tempQuestions = newQuestions;
 
   closeQuestionManager();
   updateQuestionCount();
   renderQuestionPreview();
-}
 
-function updateQuestionCount2() {
-  const count = document.querySelectorAll("#questionList > div").length;
-  document.getElementById("questionCount2").innerText = count;
+  showToast("✅ Đã lưu câu hỏi");
 }
 
 function updateQuestionCount() {
@@ -554,6 +573,10 @@ function updateQuestionCount() {
   if (el) {
     el.innerText = `Câu hỏi (${tempQuestions.length})`;
   }
+}
+
+function updateQuestionCount2() {
+  document.getElementById("questionCount2").innerText = tempQuestions.length;
 }
 
 function renderQuestionPreview() {
@@ -736,6 +759,8 @@ function editQuestion(index) {
   document.getElementById("editD").value = q.answers?.[3] || "";
   document.getElementById("editCorrect").value = q.correct ?? 0;
 
+  document.getElementById("editTime").value = q.time || "";
+
   const modal = document.getElementById("editQuestionModal");
   modal.classList.remove("hidden");
   modal.classList.add("flex");
@@ -748,6 +773,8 @@ function saveEdit() {
   const c = document.getElementById("editC").value;
   const d = document.getElementById("editD").value;
   const correct = parseInt(document.getElementById("editCorrect").value);
+  const rawTime = document.getElementById("editTime").value;
+  const time = rawTime ? parseInt(rawTime) : null;
 
   if (!question.trim()) {
     showToast("⚠️ Nhập câu hỏi!", "error");
@@ -758,6 +785,7 @@ function saveEdit() {
     question,
     answers: [a, b, c, d],
     correct,
+    time,
   };
 
   renderQuestionPreview();
@@ -773,6 +801,68 @@ function closeEdit() {
   modal.classList.remove("flex");
 
   editingQuestionIndex = null;
+}
+
+function deleteQuestionForm(index, btn) {
+  tempQuestions.splice(index, 1);
+  reopenQuestionManager();
+}
+
+function reopenQuestionManager() {
+  const list = document.getElementById("questionList");
+  list.innerHTML = "";
+
+  if (tempQuestions.length === 0) {
+    list.innerHTML = `<p class="text-gray-400 text-center">Chưa có câu hỏi nào</p>`;
+    updateQuestionCount2();
+    return;
+  }
+
+  tempQuestions.forEach((q, i) => {
+    list.insertAdjacentHTML(
+      "beforeend",
+      `
+      <div class="border p-4 rounded-xl bg-gray-50 shadow-sm">
+
+        <div class="flex justify-between mb-2">
+          <p class="text-sm font-semibold">Câu ${i + 1}</p>
+
+          <button onclick="deleteQuestionForm(${i}, this)"
+            class="text-red-500">🗑</button>
+        </div>
+
+        <input placeholder="Nhập câu hỏi..." value="${q.question}"
+          oninput="updateQuestion(${i}, 'question', this.value)"
+          class="w-full mb-2 border p-2 rounded" />
+
+        <div class="grid grid-cols-2 gap-2">
+          <input placeholder="Đáp án A" value="${q.answers[0]}" oninput="updateAnswer(${i}, 0, this.value)" class="border p-2 rounded" />
+          <input placeholder="Đáp án B" value="${q.answers[1]}" oninput="updateAnswer(${i}, 1, this.value)" class="border p-2 rounded" />
+          <input placeholder="Đáp án C" value="${q.answers[2]}" oninput="updateAnswer(${i}, 2, this.value)" class="border p-2 rounded" />
+          <input placeholder="Đáp án D" value="${q.answers[3]}" oninput="updateAnswer(${i}, 3, this.value)" class="border p-2 rounded" />
+        </div>
+
+        <select onchange="updateQuestion(${i}, 'correct', this.value)"
+          class="mt-2 border p-2 rounded w-full">
+          <option value="0" ${q.correct == 0 ? "selected" : ""}>✅ A đúng</option>
+          <option value="1" ${q.correct == 1 ? "selected" : ""}>✅ B đúng</option>
+          <option value="2" ${q.correct == 2 ? "selected" : ""}>✅ C đúng</option>
+          <option value="3" ${q.correct == 3 ? "selected" : ""}>✅ D đúng</option>
+        </select>
+
+        <input type="number"
+          value="${q.time || ""}"
+          placeholder="⏱ Nhập thời gian câu hỏi..."
+          oninput="updateQuestion(${i}, 'time', this.value)"
+          class="mt-2 border p-2 rounded w-full"
+        />
+
+      </div>
+    `,
+    );
+  });
+
+  updateQuestionCount2();
 }
 
 function deleteQuestion(index) {
