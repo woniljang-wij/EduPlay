@@ -480,7 +480,7 @@ function addQuestionForm() {
     list.innerHTML = "";
   }
 
-  const index = tempQuestions.length;
+  const index = document.querySelectorAll("#questionList > div").length;
 
   list.insertAdjacentHTML(
     "beforeend",
@@ -576,7 +576,8 @@ function updateQuestionCount() {
 }
 
 function updateQuestionCount2() {
-  document.getElementById("questionCount2").innerText = tempQuestions.length;
+  const count = document.querySelectorAll("#questionList > div").length;
+  document.getElementById("questionCount2").innerText = count;
 }
 
 function renderQuestionPreview() {
@@ -693,6 +694,9 @@ function refreshQuestionIndex() {
 
   items.forEach((item, i) => {
     item.querySelector("p").innerText = "Câu " + (i + 1);
+
+    const deleteBtn = item.querySelector("button");
+    deleteBtn.setAttribute("onclick", `deleteQuestionForm(${i}, this)`);
   });
 }
 
@@ -804,8 +808,12 @@ function closeEdit() {
 }
 
 function deleteQuestionForm(index, btn) {
-  tempQuestions.splice(index, 1);
-  reopenQuestionManager();
+  const item = btn.closest("#questionList > div");
+
+  item.remove();
+
+  refreshQuestionIndex();
+  updateQuestionCount2();
 }
 
 function reopenQuestionManager() {
