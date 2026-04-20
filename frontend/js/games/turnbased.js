@@ -182,11 +182,42 @@ function generateObstacles(count, maxCell = 48) {
 // ===== SAVE GAME =====
 function saveGame() {
   const titleInput = document.querySelector("#page-create input");
-  const title = titleInput ? titleInput.value : "Game mới";
+  const title = titleInput ? titleInput.value.trim() : "";
 
+  // ===== VALIDATE =====
+
+  // ❌ chưa nhập tiêu đề
+  if (!title) {
+    showToast("⚠️ Vui lòng nhập tiêu đề bài chơi!", "error");
+    titleInput.focus();
+    return;
+  }
+
+  // ❌ chưa có câu hỏi
+  if (!tempQuestions || tempQuestions.length === 0) {
+    showToast("⚠️ Phải có ít nhất 1 câu hỏi!", "error");
+    return;
+  }
+
+  // ❌ check từng câu hỏi
+  for (let i = 0; i < tempQuestions.length; i++) {
+    const q = tempQuestions[i];
+
+    if (!q.question || q.question.trim() === "") {
+      showToast(`⚠️ Câu ${i + 1} chưa có nội dung!`, "error");
+      return;
+    }
+
+    if (!q.answers || q.answers.some(a => !a || a.trim() === "")) {
+      showToast(`⚠️ Câu ${i + 1} chưa đủ đáp án!`, "error");
+      return;
+    }
+  }
+
+  // ===== LẤY DATA =====
   const players = [];
   document.querySelectorAll("#playerInputs input").forEach((input) => {
-    players.push(input.value || "Người chơi");
+    players.push(input.value.trim() || "Người chơi");
   });
 
   const obstacles = parseInt(document.getElementById("slider").value);
@@ -215,7 +246,7 @@ function saveGame() {
     }
 
     editingId = null;
-    showToast("✅ Cập nhật thành công!");
+    showToast("✅ Cập nhật thành công!", "success");
   }
 
   // ===== CREATE MODE =====
@@ -231,10 +262,12 @@ function saveGame() {
     };
 
     games.push(newGame);
-    showToast("🎉 Lưu thành công!");
+    showToast("🎉 Lưu thành công!", "success");
   }
 
+  // ===== SAVE =====
   localStorage.setItem("games", JSON.stringify(games));
+
   updateQuestionCount();
   goHome();
   renderGames();
@@ -530,30 +563,54 @@ function addQuestionForm() {
 function saveAllQuestions() {
   const items = document.querySelectorAll("#questionList > div");
 
+  if (items.length === 0) {
+    showToast("⚠️ Phải có ít nhất 1 câu hỏi!", "error");
+    return;
+  }
+
   let newQuestions = [];
 
-  for (let item of items) {
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
     const inputs = item.querySelectorAll("input");
     const select = item.querySelector("select");
 
     const question = inputs[0].value.trim();
 
     if (!question) {
-      showToast("⚠️ Vui lòng nhập câu hỏi!", "error");
+      showToast(`⚠️ Câu ${i + 1} chưa có nội dung!`, "error");
+      return;
+    }
+
+    const answers = [
+      inputs[1].value.trim(),
+      inputs[2].value.trim(),
+      inputs[3].value.trim(),
+      inputs[4].value.trim(),
+    ];
+
+    if (answers.some(a => !a)) {
+      showToast(`⚠️ Câu ${i + 1} chưa đủ đáp án!`, "error");
       return;
     }
 
     const rawTime = inputs[5]?.value;
-    const time = rawTime ? parseInt(rawTime) : null;
+
+    if (!rawTime) {
+      showToast(`⚠️ Câu ${i + 1} chưa nhập thời gian!`, "error");
+      return;
+    }
+
+    const time = parseInt(rawTime);
+
+    if (isNaN(time) || time <= 0) {
+      showToast(`⚠️ Thời gian câu ${i + 1} không hợp lệ!`, "error");
+      return;
+    }
 
     newQuestions.push({
       question,
-      answers: [
-        inputs[1].value,
-        inputs[2].value,
-        inputs[3].value,
-        inputs[4].value,
-      ],
+      answers,
       correct: parseInt(select.value),
       time,
     });
@@ -565,7 +622,7 @@ function saveAllQuestions() {
   updateQuestionCount();
   renderQuestionPreview();
 
-  showToast("✅ Đã lưu câu hỏi");
+  showToast("✅ Đã lưu câu hỏi", "success");
 }
 
 function updateQuestionCount() {
@@ -722,30 +779,6 @@ function createAssign() {
   showToast("🎉 Giao bài thành công!");
 
   closeAssign();
-}
-
-function showToast(message, type = "success") {
-  const toast = document.getElementById("toast");
-
-  toast.innerText = message;
-
-  toast.className = `
-    fixed top-5 right-5 z-[9999]
-    px-5 py-3 rounded-xl shadow-lg text-white font-semibold
-    transition-all duration-500 ease-out
-    translate-x-full opacity-0
-  `;
-
-  toast.classList.add(type === "error" ? "bg-red-500" : "bg-green-500");
-
-  // hiện
-  setTimeout(() => {
-    toast.classList.remove("translate-x-full", "opacity-0");
-  }, 50);
-
-  setTimeout(() => {
-    toast.classList.add("translate-x-full", "opacity-0");
-  }, 2500);
 }
 
 let editingQuestionIndex = null;

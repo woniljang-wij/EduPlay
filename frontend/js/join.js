@@ -8,7 +8,6 @@ inputs.forEach((input, index) => {
     input.addEventListener('input', (e) => {
         let value = e.target.value;
 
-        // ✅ CHỈ GIỮ 1 KÝ TỰ
         value = value.slice(-1);
         e.target.value = value;
 

@@ -1,25 +1,22 @@
+/* ===== GLOBAL ===== */
 body {
   font-family: 'Segoe UI', sans-serif;
-  background: url("../assets/images/bg_quizfruit.png") center/cover no-repeat fixed;
+
+  background: url("../assets/images/bg_quizfruit.png") center/contain no-repeat fixed;
+  background-size: cover; 
+
+  overflow-x: hidden;
 }
 
-/* ===== OVERLAY ===== */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.35);
-  backdrop-filter: blur(3px);
-  z-index: -1;
-}
 
-/* ánh sáng nền nhẹ */
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: radial-gradient(circle at 30% 40%, rgba(255,255,255,0.08), transparent);
-  pointer-events: none;
+  background: rgba(0,0,0,0.3);
+
+  backdrop-filter: none; 
+  z-index: -1;
 }
 
 /* ===== BUTTON GLOBAL ===== */
@@ -164,9 +161,4 @@ button:active {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-/* ===== TOAST ===== */
-#toast {
-  backdrop-filter: blur(10px);
 }

@@ -750,29 +750,6 @@ function nextTurn() {
   rollBtn.innerText = "🎲 Tung xúc xắc";
 }
 
-function showToast(message, type = "success") {
-  const toast = document.getElementById("toast");
-
-  toast.innerText = message;
-
-  toast.className = `
-    fixed top-5 right-5 z-[9999]
-    px-5 py-3 rounded-xl shadow-lg text-white font-semibold
-    transition-all duration-500 ease-out
-    translate-x-full opacity-0
-  `;
-
-  toast.classList.add(type === "error" ? "bg-red-500" : "bg-green-500");
-
-  setTimeout(() => {
-    toast.classList.remove("translate-x-full", "opacity-0");
-  }, 50);
-
-  setTimeout(() => {
-    toast.classList.add("translate-x-full", "opacity-0");
-  }, 2500);
-}
-
 function restartGame() {
   document.body.classList.remove("modal-open");
   location.reload();

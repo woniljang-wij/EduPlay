@@ -103,14 +103,46 @@ document.querySelectorAll(".speed-btn").forEach((btn) => {
 
 // SAVE
 function saveGame() {
-  const title = document.getElementById("title").value;
+  const title = document.getElementById("title").value.trim();
   const time = document.getElementById("time").value;
-  const hideCamera = document.getElementById("hideCamera").checked;
-  const noCamera = document.getElementById("noCamera").checked;
+
+  // ===== VALIDATE TITLE =====
+  if (!title) {
+    showToast("⚠️ Vui lòng nhập tiêu đề!", "error");
+    return;
+  }
+
+  // ===== VALIDATE QUESTIONS =====
+  if (tempQuestions.length < 10) {
+    showToast("⚠️ Cần ít nhất 10 câu hỏi!", "error");
+    return;
+  }
+
+  for (let i = 0; i < tempQuestions.length; i++) {
+    const q = tempQuestions[i];
+
+    if (!q.question.trim()) {
+      showToast(`⚠️ Câu ${i + 1} chưa có nội dung!`, "error");
+      return;
+    }
+
+    if (q.answers.some(a => !a.trim())) {
+      showToast(`⚠️ Câu ${i + 1} chưa đủ đáp án!`, "error");
+      return;
+    }
+  }
+
+  // ===== AUTO SCALE SCORE =====
+  const totalQuestions = tempQuestions.length;
+  const scorePerQuestion = 10 / totalQuestions;
+
+  const questionsWithScore = tempQuestions.map(q => ({
+    ...q,
+    score: scorePerQuestion
+  }));
 
   let games = JSON.parse(localStorage.getItem("fruitGames")) || [];
 
-  // ===== EDIT MODE =====
   if (editingId) {
     const index = games.findIndex((g) => g.id === editingId);
 
@@ -120,26 +152,19 @@ function saveGame() {
         title,
         time,
         speed: selectedSpeed,
-        hideCamera,
-        noCamera,
-        questions: tempQuestions,
+        questions: questionsWithScore
       };
     }
 
     editingId = null;
     showToast("✅ Cập nhật thành công!");
-  }
-
-  // ===== CREATE MODE =====
-  else {
+  } else {
     const newGame = {
       id: Date.now(),
       title,
       time,
       speed: selectedSpeed,
-      hideCamera,
-      noCamera,
-      questions: tempQuestions,
+      questions: questionsWithScore
     };
 
     games.push(newGame);
@@ -147,7 +172,6 @@ function saveGame() {
   }
 
   localStorage.setItem("fruitGames", JSON.stringify(games));
-
   goHome();
 }
 
@@ -394,30 +418,6 @@ function setCorrect(i, j) {
 function deleteQuestion(i) {
   tempQuestions.splice(i, 1);
   renderQuestions();
-}
-
-// TOAST
-function showToast(message, type = "success") {
-  const toast = document.getElementById("toast");
-
-  toast.innerText = message;
-
-  toast.className = `
-    fixed top-5 right-5 z-[9999]
-    px-5 py-3 rounded-xl shadow-lg text-white font-semibold
-    transition-all duration-500 ease-out
-    translate-x-full opacity-0
-  `;
-
-  toast.classList.add(type === "error" ? "bg-red-500" : "bg-green-500");
-
-  setTimeout(() => {
-    toast.classList.remove("translate-x-full", "opacity-0");
-  }, 50);
-
-  setTimeout(() => {
-    toast.classList.add("translate-x-full", "opacity-0");
-  }, 2500);
 }
 
 window.onload = () => {

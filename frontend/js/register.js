@@ -4,15 +4,40 @@ const btn = document.getElementById("registerBtn");
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const firstName = document.getElementById("firstName").value.trim();
-    const lastName = document.getElementById("lastName").value.trim();
-    const username = document.getElementById("username").value.trim();
-    const password = document.getElementById("password").value.trim();
+    const firstNameInput = document.getElementById("firstName");
+    const lastNameInput = document.getElementById("lastName");
+    const usernameInput = document.getElementById("username");
+    const passwordInput = document.getElementById("password");
+
+    const firstName = firstNameInput.value.trim();
+    const lastName = lastNameInput.value.trim();
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value.trim();
 
     const full_name = firstName + " " + lastName;
 
-    if (!firstName || !lastName || !username || !password) {
-        alert("Vui lòng nhập đầy đủ thông tin!");
+    // 🔴 VALIDATE
+    if (!firstName) {
+        showToast("Nhập tên!", "error");
+        firstNameInput.focus();
+        return;
+    }
+
+    if (!lastName) {
+        showToast("Nhập họ!", "error");
+        lastNameInput.focus();
+        return;
+    }
+
+    if (!username) {
+        showToast("Nhập email!", "error");
+        usernameInput.focus();
+        return;
+    }
+
+    if (!password) {
+        showToast("Nhập mật khẩu!", "error");
+        passwordInput.focus();
         return;
     }
 
@@ -23,29 +48,25 @@ form.addEventListener("submit", async (e) => {
     try {
         const res = await fetch("http://127.0.0.1:5000/auth/register", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                full_name,
-                username,
-                password
-            })
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ full_name, username, password })
         });
 
         const data = await res.json();
 
         if (res.ok) {
-            alert("Đăng ký thành công!");
+            showToast("Đăng ký thành công 🎉", "success");
 
-            // 👉 chuyển qua login
-            window.location.href = "login.html";
+            setTimeout(() => {
+                window.location.href = "login.html";
+            }, 500); // delay nhẹ cho đẹp
         } else {
-            alert(data.message);
+            showToast(data.message || "Đăng ký thất bại!", "error");
         }
 
     } catch (err) {
-        alert("Lỗi kết nối server!");
+        showToast("Lỗi kết nối server!", "error");
+        console.error(err);
     }
 
     btn.disabled = false;

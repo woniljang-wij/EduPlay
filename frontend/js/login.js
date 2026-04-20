@@ -1,47 +1,58 @@
 const form = document.getElementById("loginForm");
+const btn = document.getElementById("loginBtn");
 
 form.addEventListener("submit", async (e) => {
-  e.preventDefault(); // 🔥 CHẶN RELOAD
+  e.preventDefault();
 
-  console.log("🔥 submit login");
+  const usernameInput = document.getElementById("username");
+  const passwordInput = document.getElementById("password");
 
-  const username = document.getElementById("username").value.trim();
-  const password = document.getElementById("password").value.trim();
+  const username = usernameInput.value.trim();
+  const password = passwordInput.value.trim();
+
+  // 🔴 VALIDATE
+  if (!username) {
+    showToast("Nhập email!", "error");
+    usernameInput.focus();
+    return;
+  }
+
+  if (!password) {
+    showToast("Nhập mật khẩu!", "error");
+    passwordInput.focus();
+    return;
+  }
+
+  // loading
+  btn.disabled = true;
+  btn.innerText = "Đang đăng nhập...";
 
   try {
     const res = await fetch("http://127.0.0.1:5000/auth/login", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        username,
-        password,
-      }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
     });
 
     const data = await res.json();
 
     if (res.ok) {
-      alert("Đăng nhập thành công 🎉");
+      showToast("Đăng nhập thành công 🎉", "success");
 
-      // lưu user
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      const redirect = localStorage.getItem("redirectAfterLogin");
-
-      if (redirect) {
-        localStorage.removeItem("redirectAfterLogin");
-        window.location.href = redirect;
-      } else {
+      setTimeout(() => {
         window.location.href = "index.html";
-      }
-      
+      }, 400); // delay nhẹ thôi
     } else {
-      alert(data.message);
+      showToast(data.message || "Sai tài khoản!", "error");
     }
+
   } catch (err) {
-    alert("Lỗi kết nối server!");
+    showToast("Lỗi server!", "error");
     console.error(err);
   }
+
+  btn.disabled = false;
+  btn.innerText = "Đăng nhập";
 });
