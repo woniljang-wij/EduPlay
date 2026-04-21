@@ -279,16 +279,50 @@ function shareGame(id) {
 }
 
 // ===== DELETE =====
+let deletedGame = null;
+let undoTimer = null;
+
 function deleteGame(id) {
-  if (!confirm("Bạn chắc chắn muốn xóa bài này?")) return;
+  let games = JSON.parse(localStorage.getItem("fruitGames")) || [];
+  const game = games.find(g => g.id === id);
+
+  if (!game) return;
+
+  // 🔥 lưu lại để undo
+  deletedGame = game;
+
+  // ❌ xóa
+  games = games.filter(g => g.id !== id);
+  localStorage.setItem("fruitGames", JSON.stringify(games));
+
+  renderGames();
+
+  // 💥 toast có undo + firework
+  showUndoToast("🗑 Đã xóa bài chơi", () => {
+    undoDelete();
+  }, 4000);
+
+  // ⏳ reset undo sau 4s
+  clearTimeout(undoTimer);
+  undoTimer = setTimeout(() => {
+    deletedGame = null;
+  }, 4000);
+}
+
+function undoDelete() {
+  if (!deletedGame) return;
 
   let games = JSON.parse(localStorage.getItem("fruitGames")) || [];
-  games = games.filter((g) => g.id !== id);
+
+  games.push(deletedGame);
 
   localStorage.setItem("fruitGames", JSON.stringify(games));
 
-  showToast("🗑 Đã xóa bài!");
   renderGames();
+
+  showToast("↩ Đã khôi phục!", "success");
+
+  deletedGame = null;
 }
 
 // ===== EDIT =====

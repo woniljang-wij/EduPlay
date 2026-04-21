@@ -954,9 +954,48 @@ function playGame(id) {
   };
 }
 // ===== DELETE =====
+let deletedGame = null;
+let undoTimer = null;
+
 function deleteGame(id) {
   let games = JSON.parse(localStorage.getItem("games")) || [];
-  games = games.filter((g) => g.id !== id);
+  const game = games.find(g => g.id === id);
+
+  if (!game) return;
+
+  // 🔥 lưu lại
+  deletedGame = game;
+
+  // ❌ xóa
+  games = games.filter(g => g.id !== id);
   localStorage.setItem("games", JSON.stringify(games));
+
   renderGames();
+
+  // 💥 toast + undo thật sự
+  showUndoToast("🗑 Đã xóa bài chơi", () => {
+    undoDelete();
+  }, 4000);
+
+  // ⏳ timeout clear
+  clearTimeout(undoTimer);
+  undoTimer = setTimeout(() => {
+    deletedGame = null;
+  }, 4000);
+}
+
+function undoDelete() {
+  if (!deletedGame) return;
+
+  let games = JSON.parse(localStorage.getItem("games")) || [];
+
+  games.push(deletedGame);
+
+  localStorage.setItem("games", JSON.stringify(games));
+
+  renderGames();
+
+  showToast("↩ Đã khôi phục!", "success");
+
+  deletedGame = null;
 }
