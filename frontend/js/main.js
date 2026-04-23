@@ -7,17 +7,22 @@ const ctaButtons = document.querySelector(".cta-buttons");
 // nếu đã login → đổi navbar
 if (user && navAuth) {
   navAuth.innerHTML = `
-        <div style="display:flex; gap:10px; align-items:center;">
-            <span style="background:#d1fae5; padding:8px 16px; border-radius:20px; font-weight:bold;">
-                Xin chào, ${user.full_name}
-            </span>
+  <div class="nav-user">
 
-            <button id="logoutBtn"
-                style="background:#fee2e2; padding:8px 16px; border-radius:20px; font-weight:bold;">
-                Đăng xuất
-            </button>
-        </div>
-    `;
+    <div class="user-chip">
+      👤 ${user.full_name}
+    </div>
+
+ <button id="logoutBtn" class="logout-btn" title="Đăng xuất">
+  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+    <polyline points="16 17 21 12 16 7"/>
+    <line x1="21" y1="12" x2="9" y2="12"/>
+  </svg>
+ </button>
+
+  </div>
+`;
 
   if (ctaButtons) {
     ctaButtons.style.display = "none";

@@ -285,6 +285,7 @@ function renderGames() {
   if (games.length === 0) {
     container.innerHTML = `
       <div class="col-span-full text-center py-20">
+      <div class="text-5xl mb-3">🎲</div>
         <h2 class="text-xl font-semibold mb-4">Chưa có bài chơi nào</h2>
         <button onclick="goCreate()" class="bg-green-500 text-white px-5 py-2 rounded-xl">
           ➕ Tạo bài đầu tiên
@@ -953,6 +954,7 @@ function playGame(id) {
     window.location.href = `/frontend/games/play.html?id=${id}&autoplay=1`;
   };
 }
+
 // ===== DELETE =====
 let deletedGame = null;
 let undoTimer = null;

@@ -55,30 +55,66 @@ let currentPlayer = 0;
 
 const playerIcons = ["🐸", "🐱", "🐶", "🦊", "🐼", "🐵", "🐯"];
 
-const path = [];
+const path = [
+  // ===== ROW 1 =====
+  { x: 17, y: 20 },
+  { x: 26, y: 20 },
+  { x: 36, y: 19.5},
+  { x: 46, y: 19.5 },
+  { x: 56, y: 19.5 },
+  { x: 66, y: 19 },
+  { x: 76, y: 19 },
+  { x: 86, y: 19 },
+  { x: 92, y: 27 },
 
-const cols = 10;
-const rows = 1;
+  // ===== ROW 2 (ngược) =====
+  { x: 87, y: 34 },
+  { x: 76, y: 34 },
+  { x: 66, y: 34 },
+  { x: 56, y: 34 },
+  { x: 46, y: 34 },
+  { x: 36, y: 34 },
+  { x: 26, y: 34 },
+  { x: 17, y: 34 },
 
-for (let row = 0; row < rows; row++) {
-  if (row % 2 === 0) {
-    // đi từ trái sang phải
-    for (let col = 0; col < cols; col++) {
-      path.push({ col, row });
-    }
-  } else {
-    // đi từ phải sang trái
-    for (let col = cols - 1; col >= 0; col--) {
-      path.push({ col, row });
-    }
-  }
-}
+  // ===== ROW 3 =====
+  { x: 11, y: 41 },
+  { x: 17, y: 48.5 },
+  { x: 26, y: 49 },
+  { x: 36, y: 49 },
+  { x: 46, y: 49},
+  { x: 56, y: 49 },
+  { x: 66, y: 49.5 },
+  { x: 76, y: 49.5 },
+  { x: 86, y: 50 },
+
+  // ===== ROW 4 (ngược) =====
+  { x: 92, y: 58 },
+  { x: 86, y: 65 },
+  { x: 76, y: 65 },
+  { x: 66, y: 65 },
+  { x: 56, y: 64.5 },
+  { x: 46, y: 64.5 },
+  { x: 36, y: 64 },
+  { x: 26, y: 64 },
+  { x: 17, y: 65 },
+
+  // ===== ROW 5 =====
+  { x: 11, y: 72.5 },
+  { x: 17, y: 81 },
+  { x: 26, y: 81 },
+  { x: 36, y: 81 },
+  { x: 46, y: 81 },
+  { x: 56, y: 81 },
+  { x: 66, y: 81 },
+  { x: 76, y: 81 },
+  { x: 85, y: 82 }
+];
 
 // ===== INIT =====
 if (game) {
   positions = new Array(game.players.length).fill(0);
 
-  // 🔥 load dữ liệu
   obstacleCells = game.obstacleCells || [];
   questions = game.questions || [];
 
@@ -126,37 +162,30 @@ function updateInfo() {
 // ===== CELLS =====
 function renderCells() {
   cellLayer.innerHTML = "";
-  const rect = cellLayer.getBoundingClientRect();
-
-  const cols = 10;
-  const rows = 5;
-
-  const cellWidth = rect.width / cols;
-  const cellHeight = rect.height / rows;
 
   path.forEach((p, index) => {
-    const x = p.col * cellWidth + cellWidth / 2;
-    const y = p.row * cellHeight + cellHeight / 2;
+    const x = p.x;
+    const y = p.y;
 
     const cell = document.createElement("div");
 
-    cell.className = `
-  absolute w-12 h-12
+  cell.className = `
+  absolute w-8 h-8
   flex items-center justify-center
-  text-sm font-bold
-  rounded-2xl
-  backdrop-blur-md
-  bg-white/70
-  border border-white/40
+  text-xs font-bold
+  rounded-full
+  bg-white/80
+  border border-white/50
   shadow-lg
-  transition-all duration-300
-  hover:scale-125 hover:shadow-xl
+  backdrop-blur-md
+  transition-all duration-200
+  hover:scale-110
 `;
 
-    cell.style.boxShadow = "0 4px 15px rgba(0,0,0,0.2)";
-
-    cell.style.left = x - 24 + "px";
-    cell.style.top = y - 24 + "px";
+    cell.style.boxShadow = "0 6px 18px rgba(0,0,0,0.2)";
+    cell.style.left = x + "%";
+    cell.style.top = y + "%";
+    cell.style.transform = "translate(-50%, -50%)";
 
     // 🚩 START
     if (index === 0) {
@@ -174,18 +203,10 @@ function renderCells() {
     else if (obstacleCells.includes(index)) {
       cell.innerText = "💀";
 
-      // 🔥 hiệu ứng nâng cấp mạnh
       cell.style.background = "rgba(255,0,0,0.25)";
       cell.style.boxShadow = "0 0 12px rgba(255,0,0,0.7)";
       cell.style.border = "1px solid rgba(255,0,0,0.7)";
-
-      // animation pulse
       cell.style.animation = "obstaclePulse 1.2s infinite";
-    }
-
-    // 🔢 NORMAL
-    else {
-      cell.innerText = index;
     }
 
     cellLayer.appendChild(cell);
@@ -195,28 +216,25 @@ function renderCells() {
 // ===== PLAYER =====
 function renderPlayersOnMap() {
   playerLayer.innerHTML = "";
-  const rect = playerLayer.getBoundingClientRect();
-
-  const cols = 10;
-  const rows = 5;
-
-  const cellWidth = rect.width / cols;
-  const cellHeight = rect.height / rows;
 
   positions.forEach((pos, i) => {
     const p = path[pos];
     if (!p) return;
 
-    const x = p.col * cellWidth + cellWidth / 2;
-    const y = p.row * cellHeight + cellHeight / 2;
+    const x = p.x;
+    const y = p.y;
 
     const el = document.createElement("div");
 
     el.className = "absolute text-2xl transition-all duration-300";
 
-    // tránh chồng
-    el.style.left = x - 12 + i * 10 + "px";
-    el.style.top = y - 12 + i * 5 + "px";
+    // 👉 FIX POSITION + chống chồng
+    el.style.left = x + "%";
+    el.style.top = y + "%";
+    el.style.transform = `
+      translate(-50%, -50%)
+      translate(${i * 10}px, ${i * 6}px)
+    `;
 
     el.innerText = playerIcons[i];
 
@@ -258,7 +276,6 @@ function rollDice() {
   // 🚀 easing mượt khi dừng
   dice.style.transition = "transform 0.7s cubic-bezier(0.22, 1, 0.36, 1)";
 
-  // 🎯 mặt cuối
   const finalRotation = {
     1: "rotateX(0deg) rotateY(0deg)",
     2: "rotateX(90deg) rotateY(0deg)",
@@ -285,8 +302,8 @@ function createTrailEffect(pos) {
   const p = path[pos];
   if (!p) return;
 
-  const x = (p.col + 0.5) * (rect.width / 10);
-  const y = (p.row + 0.5) * (rect.height / 5);
+  const x = (p.x / 100) * rect.width;
+  const y = (p.y / 100) * rect.height;
 
   const trail = document.createElement("div");
 
@@ -418,12 +435,15 @@ function startGameMusic() {
 
   music.muted = true;
 
-  music.play().then(() => {
-    setTimeout(() => {
-      music.muted = false;
-      music.volume = 0.5;
-    }, 200);
-  }).catch(() => {});
+  music
+    .play()
+    .then(() => {
+      setTimeout(() => {
+        music.muted = false;
+        music.volume = 0.5;
+      }, 200);
+    })
+    .catch(() => {});
 }
 
 function showVictory(playerName, playerIndex) {
@@ -536,7 +556,7 @@ function showQuestion() {
 
   answersDiv.innerHTML = "";
 
-  startTimer(); 
+  startTimer();
 
   q.answers.forEach((ans, i) => {
     const btn = document.createElement("button");
@@ -553,7 +573,7 @@ function showQuestion() {
     `;
 
     btn.onclick = () => {
-      clearInterval(timer); 
+      clearInterval(timer);
 
       const buttons = answersDiv.querySelectorAll("button");
       buttons.forEach((b) => (b.style.pointerEvents = "none"));
@@ -605,7 +625,7 @@ function handleTimeout() {
 
   // 🔒 disable click
   const buttons = popup.querySelectorAll("button");
-  buttons.forEach(b => b.style.pointerEvents = "none");
+  buttons.forEach((b) => (b.style.pointerEvents = "none"));
 
   // 🔥 gọi chung logic
   handleAnswer(-1, -1, true);
@@ -651,13 +671,7 @@ function handleAnswer(selected, correct, isTimeout = false) {
       <h2 class="text-2xl font-bold mb-2 ${
         isCorrect ? "text-green-500" : "text-red-500"
       }">
-        ${
-          isTimeout
-            ? "Hết giờ!"
-            : isCorrect
-            ? "Chính xác!"
-            : "Sai rồi!"
-        }
+        ${isTimeout ? "Hết giờ!" : isCorrect ? "Chính xác!" : "Sai rồi!"}
       </h2>
 
       <p class="text-gray-500 mb-2">
@@ -665,8 +679,8 @@ function handleAnswer(selected, correct, isTimeout = false) {
           isTimeout
             ? "Bạn không trả lời kịp"
             : isCorrect
-            ? "Bạn được đi tiếp!"
-            : "Bạn bị mất lượt!"
+              ? "Bạn được đi tiếp!"
+              : "Bạn bị mất lượt!"
         }
       </p>
 

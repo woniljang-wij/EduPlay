@@ -9,7 +9,11 @@
   </head>
 
   <body class="min-h-screen flex">
-    
+  
+  <video autoplay muted loop playsinline preload="auto" id="bgVideo">
+   <source src="../assets/videos/turnbased.mp4" type="video/mp4">
+  </video>
+
   <aside class="w-72 bg-white/60 backdrop-blur-xl p-6 flex flex-col justify-between border-r border-white/30 shadow-xl">
   <div>
     <h2 class="text-xl font-bold mb-6">🎲 Game Theo Lượt</h2>
@@ -53,8 +57,8 @@
     <main class="flex-1 p-6">
 
       <!-- LIST PAGE -->
-<div id="page-list">
-  <div class="bg-white rounded-3xl p-8 shadow-lg h-full">
+      <div id="page-list">
+       <div class="container-box">
 
     <div class="mb-6 flex justify-between items-center">
       <div>
@@ -69,7 +73,7 @@
 
       <!-- CREATE PAGE -->
       <div id="page-create" class="hidden">
-        <div class="bg-white rounded-3xl p-8 shadow-lg h-full">
+        <div class="container-box">
 
           <h1 class="text-2xl font-bold mb-4 text-emerald-600">
             🎲 Tạo Game Theo Lượt mới

@@ -2,7 +2,6 @@
 body {
   font-family: 'Segoe UI', sans-serif;
 
-  background: url("../assets/images/bg_quizfruit.png") center/contain no-repeat fixed;
   background-size: cover; 
 
   overflow-x: hidden;
@@ -16,6 +15,19 @@ body::before {
   background: rgba(0,0,0,0.3);
 
   backdrop-filter: none; 
+  z-index: -1;
+}
+
+#bgVideo {
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+
   z-index: -1;
 }
 
@@ -160,5 +172,33 @@ button:active {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+.container-box {
+  background: white; 
+
+  border-radius: 28px;
+  padding: 32px;
+
+  box-shadow:
+    0 25px 70px rgba(0,0,0,0.15);
+
+  animation: fadeUp 0.4s ease;
+}
+
+
+.fade-anim {
+  animation: fadeUp 0.5s ease;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }

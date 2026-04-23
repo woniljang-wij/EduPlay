@@ -43,31 +43,33 @@ function setActive(type) {
 
 // NAV
 function goCreate() {
-  document.getElementById("page-list").classList.add("hidden");
-  document.getElementById("page-create").classList.remove("hidden");
+  const list = document.getElementById("page-list");
+  const create = document.getElementById("page-create");
+
+  list.classList.add("hidden");
+  create.classList.remove("hidden");
+
+  // 🔥 trigger animation
+  const box = create.querySelector(".container-box");
+  box.classList.remove("fade-anim");
+  void box.offsetWidth;
+  box.classList.add("fade-anim");
 
   setActive("create");
 
-  // 🟢 CREATE MODE
+  // giữ nguyên code cũ của bạn
   if (editingId === null) {
     tempQuestions = [];
-
     document.getElementById("title").value = "";
     document.getElementById("time").value = 25;
     document.getElementById("hideCamera").checked = false;
     document.getElementById("noCamera").checked = false;
-
     selectedSpeed = "medium";
-
+    renderQuestions();
+  } else {
     renderQuestions();
   }
 
-  // 🔵 EDIT MODE
-  else {
-    renderQuestions();
-  }
-
-  // update speed UI
   document.querySelectorAll(".speed-btn").forEach((btn) => {
     btn.classList.remove("active-speed");
     if (btn.dataset.speed === selectedSpeed) {
@@ -82,12 +84,21 @@ function goCreateNew() {
 }
 
 function goHome() {
-  document.getElementById("page-create").classList.add("hidden");
-  document.getElementById("page-list").classList.remove("hidden");
+  const list = document.getElementById("page-list");
+  const create = document.getElementById("page-create");
+
+  create.classList.add("hidden");
+  list.classList.remove("hidden");
+
+  const box = list.querySelector(".container-box");
+  box.classList.remove("fade-anim");
+  void box.offsetWidth;
+  box.classList.add("fade-anim");
 
   setActive("home");
   renderGames();
 }
+
 // SPEED
 document.querySelectorAll(".speed-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
@@ -185,6 +196,7 @@ function renderGames() {
   if (games.length === 0) {
     container.innerHTML = `
       <div class="col-span-full text-center py-20">
+        <div class="text-5xl mb-3">🍉</div>
         <h2 class="text-xl font-semibold mb-4">Chưa có bài học nào</h2>
         <button onclick="goCreate()" 
           class="bg-green-500 text-white px-5 py-2 rounded-xl">

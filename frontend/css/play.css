@@ -98,15 +98,19 @@ body {
 .top    { transform: rotateX(90deg) translateZ(35px); }    /* 5 */
 .bottom { transform: rotateX(-90deg) translateZ(35px); }   /* 2 */
 
-/* ===== BOARD ===== */
-
-#board {
-  background: url('../assets/images/map.png') center/cover no-repeat;
+#board img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;   
+  display: block;
 }
 
-#playerLayer div {
-  transform: translate(-50%, -50%);
+#cellLayer,
+#playerLayer {
+  position: absolute;
+  inset: 0;
 }
+
 
 /* Hiệu ứng xuất hiện của toàn bộ Box */
 #victoryPopup:not(.hidden) .victory-card {
@@ -266,12 +270,21 @@ body {
 }
 
 @keyframes obstaclePulse {
-  0% { transform: scale(1); box-shadow: 0 0 5px rgba(255,0,0,0.4); }
-  50% { transform: scale(1.1); box-shadow: 0 0 18px rgba(255,0,0,0.9); }
-  100% { transform: scale(1); box-shadow: 0 0 5px rgba(255,0,0,0.4); }
-}
+  0% { 
+    transform: translate(-50%, -50%) scale(1); 
+    box-shadow: 0 0 5px rgba(255,0,0,0.4); 
+  }
 
-/* ===== POPUP ANIMATION ===== */
+  50% { 
+    transform: translate(-50%, -50%) scale(1.1); 
+    box-shadow: 0 0 18px rgba(255,0,0,0.9); 
+  }
+
+  100% { 
+    transform: translate(-50%, -50%) scale(1); 
+    box-shadow: 0 0 5px rgba(255,0,0,0.4); 
+  }
+}
 
 /* ===== POPUP ANIMATION ===== */
 @keyframes fadeIn {

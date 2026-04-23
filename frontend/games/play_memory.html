@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Play Memory</title>
+</head>
+<body>
+
+<h1>🎮 Game đang chạy...</h1>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
+
+  const games = JSON.parse(localStorage.getItem("memoryGames")) || [];
+  const game = games.find(g => g.id == id);
+
+  console.log(game);
+
+  if (game) {
+    document.body.innerHTML += `<h2>${game.title}</h2>`;
+  }
+</script>
+
+</body>
+</html>

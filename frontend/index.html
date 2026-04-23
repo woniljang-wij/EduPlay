@@ -14,6 +14,11 @@
   </head>
 
   <body class="bg-slate-50 text-slate-800 font-[Be_Vietnam_Pro]">
+
+    <video autoplay muted loop playsinline id="bgVideo">
+     <source src="assets/videos/bg.mp4" type="video/mp4">
+    </video>
+
     <!-- NAVBAR -->
     <nav
       class="glass-nav fixed w-full z-50 border-b border-gray-100 bg-white/80 backdrop-blur"
@@ -29,31 +34,15 @@
           </h1>
         </div>
 
-        <!-- Menu -->
-        <div class="hidden md:flex items-center space-x-8 mr-10">
-          <a href="#" class="font-medium hover:text-blue-600 transition"
-            >Khám phá</a
-          >
-          <a href="#" class="font-medium hover:text-blue-600 transition"
-            >Thư viện</a
-          >
-        </div>
-
         <!-- Auth (Teacher only) -->
         <div class="flex items-center space-x-3">
           <div class="nav-auth flex items-center gap-4">
-            <a
-              href="login.html"
-              class="px-5 py-2.5 font-semibold text-gray-700 hover:text-blue-600 transition"
-            >
-              Đăng nhập
+            <a href="login.html" class="btn-login">
+             Đăng nhập
             </a>
 
-            <a
-              href="register.html"
-              class="px-6 py-2.5 bg-blue-600 text-white rounded-full font-semibold shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all transform active:scale-95"
-            >
-              Đăng ký
+            <a href="register.html" class="btn-register">
+             Đăng ký
             </a>
           </div>
         </div>
