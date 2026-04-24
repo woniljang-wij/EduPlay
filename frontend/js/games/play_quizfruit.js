@@ -23,6 +23,14 @@ let totalTime;
 let rafTimer;
 let isMuted = false;
 
+let speedConfig = {
+  fast: 1.5,
+  medium: 1,
+  slow: 0.5,
+};
+
+let speedMultiplier = 1;
+
 const bgm = new Audio("../assets/sounds/bai4.mp3");
 bgm.loop = true;
 bgm.volume = 0.4;
@@ -82,7 +90,10 @@ function loadGame() {
   if (!game) {
     alert("Không tìm thấy game!");
     window.location.href = "quizfruit.html";
+    return;
   }
+
+  speedMultiplier = speedConfig[game.speed] || 1;
 }
 
 let spawnLoop;
@@ -98,7 +109,6 @@ function startQuestion() {
 
   renderQuestion(q);
 
-  // ⚡ UI flash nhẹ
   const box = document.getElementById("questionBox");
   box.style.opacity = "0";
   box.style.transform = "translateX(-50%) translateY(-20px)";
@@ -109,19 +119,17 @@ function startQuestion() {
     box.style.transform = "translateX(-50%) translateY(0)";
   }, 50);
 
-  // 🔥 TIMER MƯỢT
   const maxTime = parseInt(game.time) || 10;
   totalTime = maxTime * 1000; // ms
   startTime = Date.now();
 
   runTimer();
 
-  // 🍉 spawn fruit
   spawnLoop = setInterval(() => {
     if (!isProcessing && fruits.length === 0) {
       spawnAnswers(q);
     }
-  }, 800);
+  }, 800 / speedMultiplier);
 }
 
 function runTimer() {
@@ -228,9 +236,8 @@ function spawnAnswers(q) {
     const x = Math.random() * window.innerWidth;
     const y = window.innerHeight;
 
-    const vx = (Math.random() - 0.5) * 8;
-    const vy = -20 - Math.random() * 10;
-
+    const vx = (Math.random() - 0.5) * 8 * speedMultiplier;
+    const vy = (-20 - Math.random() * 10) * speedMultiplier;
     const obj = {
       el: fruit,
       x,

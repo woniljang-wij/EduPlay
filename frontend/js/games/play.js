@@ -59,7 +59,7 @@ const path = [
   // ===== ROW 1 =====
   { x: 17, y: 20 },
   { x: 26, y: 20 },
-  { x: 36, y: 19.5},
+  { x: 36, y: 19.5 },
   { x: 46, y: 19.5 },
   { x: 56, y: 19.5 },
   { x: 66, y: 19 },
@@ -82,7 +82,7 @@ const path = [
   { x: 17, y: 48.5 },
   { x: 26, y: 49 },
   { x: 36, y: 49 },
-  { x: 46, y: 49},
+  { x: 46, y: 49 },
   { x: 56, y: 49 },
   { x: 66, y: 49.5 },
   { x: 76, y: 49.5 },
@@ -108,7 +108,7 @@ const path = [
   { x: 56, y: 81 },
   { x: 66, y: 81 },
   { x: 76, y: 81 },
-  { x: 85, y: 82 }
+  { x: 85, y: 82 },
 ];
 
 // ===== INIT =====
@@ -169,17 +169,27 @@ function renderCells() {
 
     const cell = document.createElement("div");
 
-  cell.className = `
-  absolute w-8 h-8
+    cell.className = `
+  absolute w-9 h-9
   flex items-center justify-center
-  text-xs font-bold
+
+  text-[11px] font-bold text-gray-700
+
   rounded-full
-  bg-white/80
-  border border-white/50
-  shadow-lg
-  backdrop-blur-md
-  transition-all duration-200
-  hover:scale-110
+
+  bg-white/70
+  backdrop-blur-lg
+
+  border border-white/40
+  shadow-[0_4px_12px_rgba(0,0,0,0.15)]
+
+  transition-all duration-300 ease-out
+
+  hover:scale-125
+  hover:bg-white/90
+  hover:shadow-[0_6px_18px_rgba(0,0,0,0.25)]
+
+  active:scale-95
 `;
 
     cell.style.boxShadow = "0 6px 18px rgba(0,0,0,0.2)";
@@ -190,23 +200,33 @@ function renderCells() {
     // 🚩 START
     if (index === 0) {
       cell.innerText = "🚩";
-      cell.style.background = "rgba(34,197,94,0.3)";
+
+      cell.style.background = "rgba(34,197,94,0.25)";
+      cell.style.border = "1px solid rgba(34,197,94,0.6)";
+      cell.style.animation = "startGlow 1.5s infinite ease-in-out";
     }
 
     // 🏁 END
     else if (index === path.length - 1) {
       cell.innerText = "🏁";
-      cell.style.background = "rgba(251,191,36,0.3)";
+
+      cell.style.background = "rgba(251,191,36,0.25)";
+      cell.style.border = "1px solid rgba(251,191,36,0.6)";
+      cell.style.animation = "endPulse 1.5s infinite ease-in-out";
     }
 
     // 💀 OBSTACLE
     else if (obstacleCells.includes(index)) {
       cell.innerText = "💀";
-
       cell.style.background = "rgba(255,0,0,0.25)";
       cell.style.boxShadow = "0 0 12px rgba(255,0,0,0.7)";
       cell.style.border = "1px solid rgba(255,0,0,0.7)";
       cell.style.animation = "obstaclePulse 1.2s infinite";
+    }
+
+    // ⭐ PLAYER ĐANG ĐỨNG TRÊN Ô
+    if (positions.includes(index)) {
+      cell.classList.add("ring-2", "ring-green-400", "scale-110");
     }
 
     cellLayer.appendChild(cell);
@@ -226,17 +246,17 @@ function renderPlayersOnMap() {
 
     const el = document.createElement("div");
 
-    el.className = "absolute text-2xl transition-all duration-300";
+    el.className =
+      "absolute flex items-center justify-center transition-all duration-300";
 
-    // 👉 FIX POSITION + chống chồng
     el.style.left = x + "%";
     el.style.top = y + "%";
-    el.style.transform = `
-      translate(-50%, -50%)
-      translate(${i * 10}px, ${i * 6}px)
-    `;
 
-    el.innerText = playerIcons[i];
+    el.style.transform = `translate(-50%, -50%)`;
+    el.style.marginLeft = i * 10 + "px";
+    el.style.marginTop = i * 6 + "px";
+
+    el.innerHTML = `<span class="player-icon">${playerIcons[i]}</span>`;
 
     playerLayer.appendChild(el);
   });

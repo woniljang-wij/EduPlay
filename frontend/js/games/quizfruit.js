@@ -42,14 +42,14 @@ function setActive(type) {
 }
 
 // NAV
-function goCreate() {
+function goCreate(isEdit) {
+  isEdit = isEdit === true;
   const list = document.getElementById("page-list");
   const create = document.getElementById("page-create");
 
   list.classList.add("hidden");
   create.classList.remove("hidden");
 
-  // 🔥 trigger animation
   const box = create.querySelector(".container-box");
   box.classList.remove("fade-anim");
   void box.offsetWidth;
@@ -57,17 +57,14 @@ function goCreate() {
 
   setActive("create");
 
-  // giữ nguyên code cũ của bạn
-  if (editingId === null) {
-    tempQuestions = [];
+  if (!isEdit) {
     document.getElementById("title").value = "";
     document.getElementById("time").value = 25;
     document.getElementById("hideCamera").checked = false;
     document.getElementById("noCamera").checked = false;
+
     selectedSpeed = "medium";
-    renderQuestions();
-  } else {
-    renderQuestions();
+    tempQuestions = [];
   }
 
   document.querySelectorAll(".speed-btn").forEach((btn) => {
@@ -79,7 +76,7 @@ function goCreate() {
 }
 
 function goCreateNew() {
-  editingId = null; 
+  editingId = null;
   goCreate();
 }
 
@@ -124,8 +121,8 @@ function saveGame() {
   }
 
   // ===== VALIDATE QUESTIONS =====
-  if (tempQuestions.length < 10) {
-    showToast("⚠️ Cần ít nhất 10 câu hỏi!", "error");
+  if (tempQuestions.length < 1) {
+    showToast("⚠️ Cần ít nhất 1 câu hỏi!", "error");
     return;
   }
 
@@ -137,7 +134,7 @@ function saveGame() {
       return;
     }
 
-    if (q.answers.some(a => !a.trim())) {
+    if (q.answers.some((a) => !a.trim())) {
       showToast(`⚠️ Câu ${i + 1} chưa đủ đáp án!`, "error");
       return;
     }
@@ -147,9 +144,9 @@ function saveGame() {
   const totalQuestions = tempQuestions.length;
   const scorePerQuestion = 10 / totalQuestions;
 
-  const questionsWithScore = tempQuestions.map(q => ({
+  const questionsWithScore = tempQuestions.map((q) => ({
     ...q,
-    score: scorePerQuestion
+    score: scorePerQuestion,
   }));
 
   let games = JSON.parse(localStorage.getItem("fruitGames")) || [];
@@ -163,7 +160,7 @@ function saveGame() {
         title,
         time,
         speed: selectedSpeed,
-        questions: questionsWithScore
+        questions: questionsWithScore,
       };
     }
 
@@ -175,7 +172,7 @@ function saveGame() {
       title,
       time,
       speed: selectedSpeed,
-      questions: questionsWithScore
+      questions: questionsWithScore,
     };
 
     games.push(newGame);
@@ -296,29 +293,28 @@ let undoTimer = null;
 
 function deleteGame(id) {
   let games = JSON.parse(localStorage.getItem("fruitGames")) || [];
-  const game = games.find(g => g.id === id);
+  const game = games.find((g) => g.id === id);
 
   if (!game) return;
 
-  // 🔥 lưu lại để undo
   deletedGame = game;
 
-  // ❌ xóa
-  games = games.filter(g => g.id !== id);
+  games = games.filter((g) => g.id !== id);
   localStorage.setItem("fruitGames", JSON.stringify(games));
 
   renderGames();
+  showUndoToast(
+    "🗑 Đã xóa bài chơi",
+    () => {
+      undoDelete();
+    },
+    5000,
+  );
 
-  // 💥 toast có undo + firework
-  showUndoToast("🗑 Đã xóa bài chơi", () => {
-    undoDelete();
-  }, 4000);
-
-  // ⏳ reset undo sau 4s
   clearTimeout(undoTimer);
   undoTimer = setTimeout(() => {
     deletedGame = null;
-  }, 4000);
+  }, 5000);
 }
 
 function undoDelete() {
@@ -340,20 +336,25 @@ function undoDelete() {
 // ===== EDIT =====
 function editGame(id) {
   let games = JSON.parse(localStorage.getItem("fruitGames")) || [];
-  const game = games.find((g) => String(g.id) === String(id));
+  const game = games.find((g) => g.id == id);
 
   if (!game) return;
 
   editingId = id;
 
-  goCreate();
+  history.pushState({}, "", `?mode=edit&id=${id}`);
+
+  editingId = id;
+
+  history.pushState({}, "", `?mode=edit&id=${id}`);
+
+  selectedSpeed = game.speed;
+  tempQuestions = JSON.parse(JSON.stringify(game.questions || []));
+
+  goCreate(true);
 
   document.getElementById("title").value = game.title;
   document.getElementById("time").value = game.time;
-  document.getElementById("hideCamera").checked = game.hideCamera;
-  document.getElementById("noCamera").checked = game.noCamera;
-
-  selectedSpeed = game.speed;
 
   document.querySelectorAll(".speed-btn").forEach((b) => {
     b.classList.remove("active-speed");
@@ -362,7 +363,6 @@ function editGame(id) {
     }
   });
 
-  tempQuestions = JSON.parse(JSON.stringify(game.questions || []));
   renderQuestions();
 }
 
@@ -392,7 +392,8 @@ function renderQuestions() {
   }
 
   box.innerHTML = tempQuestions
-    .map((q, i) => `
+    .map(
+      (q, i) => `
       <div class="bg-white p-4 rounded-xl shadow border">
         <div class="flex justify-between items-center mb-2">
           <b>Câu ${i + 1}</b>
@@ -406,7 +407,9 @@ function renderQuestions() {
           oninput="updateQuestion(${i}, this.value)"
         />
 
-        ${q.answers.map((a, j) => `
+        ${q.answers
+          .map(
+            (a, j) => `
           <div class="flex items-center gap-2 mb-2">
             <input type="radio" name="correct_${i}"
               ${q.correct === j ? "checked" : ""}
@@ -420,7 +423,9 @@ function renderQuestions() {
               oninput="updateAnswer(${i}, ${j}, this.value)"
             />
           </div>
-        `).join("")}
+        `,
+          )
+          .join("")}
 
         ${
           i === tempQuestions.length - 1
@@ -432,7 +437,8 @@ function renderQuestions() {
         }
 
       </div>
-    `)
+    `,
+    )
     .join("");
 
   document.getElementById("questionCount").innerText =
@@ -467,5 +473,12 @@ function deleteQuestion(i) {
 }
 
 window.onload = () => {
-  goHome();
+  const params = new URLSearchParams(window.location.search);
+
+  if (params.get("mode") === "edit") {
+    const id = parseInt(params.get("id"));
+    setTimeout(() => editGame(id), 50);
+  } else {
+    goHome();
+  }
 };

@@ -137,8 +137,17 @@ function setupMusicButtons() {
 
 // ===== LOAD STATE =====
 window.onload = () => {
-  if (location.search.includes("mode=edit")) goCreate();
-  else goHome();
+  const params = new URLSearchParams(window.location.search);
+
+  if (params.get("mode") === "edit") {
+    const id = parseInt(params.get("id"));
+
+    if (id) {
+      setTimeout(() => editGame(id), 50);
+    }
+  } else {
+    goHome();
+  }
 
   const slider = document.getElementById("slider");
   const value = document.getElementById("value");
@@ -152,6 +161,7 @@ window.onload = () => {
   }
 
   setupMusicButtons();
+
   const firstBtn = document.querySelector(".music-btn");
   if (firstBtn) {
     selectedMusic = firstBtn.dataset.src;
@@ -162,8 +172,14 @@ window.onload = () => {
 };
 
 window.onpopstate = () => {
-  if (location.search.includes("mode=edit")) goCreate();
-  else goHome();
+  const params = new URLSearchParams(window.location.search);
+
+  if (params.get("mode") === "edit") {
+    const id = parseInt(params.get("id"));
+    if (id) editGame(id);
+  } else {
+    goHome();
+  }
 };
 
 // ===== GENERATE OBSTACLE =====
