@@ -1,115 +1,242 @@
-🎮 EduPlay – Nền tảng học tập qua trò chơi
-📌 Giới thiệu
+# 🎮 EduPlay – Gamified Learning Platform
 
-EduPlay là nền tảng học tập tương tác áp dụng Gamification để biến kiến thức thành trải nghiệm game sinh động.
-Người dùng có thể tạo – quản lý – tham gia các trò chơi học tập trực tiếp trên web.
+> 🚀 Biến việc học thành trải nghiệm game tương tác  
+> ⚡ Tập trung vào UI/UX, animation mượt và game feel thực tế
 
-🎯 Mục tiêu
-🎮 Gamification trong giáo dục
-⚡ Tăng hứng thú học tập
-🧠 Kết hợp tư duy + phản xạ + trải nghiệm
-🎮 Các chế độ chơi
-🍉 Chém Hoa Quả (Fruit Quiz)
+---
 
-Mô tả:
-Chọn đáp án bằng cách “chém” trái cây bay trên màn hình.
+## 📌 Giới thiệu
 
-Tính năng nổi bật:
+**EduPlay** là nền tảng học tập thông qua trò chơi (Gamification), cho phép người dùng:
 
-Physics trái cây (bay, rơi, xoay)
-Swipe detection (chém bằng chuột)
-Timer mượt (requestAnimationFrame)
-Hiệu ứng:
-✂️ Cắt đôi trái
-💦 Splash theo màu
-🗡️ Slash trail
-🔊 Âm thanh + nhạc nền
-🎲 Game Theo Lượt (Turn-Based)
+* 🎮 Tạo game học tập
+* 🧠 Thêm câu hỏi tương tác
+* ⚡ Trải nghiệm gameplay thay vì web form truyền thống
 
-Mô tả:
-Người chơi tung xúc xắc, di chuyển trên bản đồ và trả lời câu hỏi.
+---
 
-Gameplay:
+## 🎯 Mục tiêu
 
-Tung xúc xắc → di chuyển
-Dính ô 💀 → trả lời câu hỏi
-Đúng → đi tiếp
-Sai → mất lượt
+* Gamification trong giáo dục  
+* Tăng hứng thú học tập  
+* Kết hợp:
+  * 🧠 Tư duy  
+  * ⚡ Phản xạ  
+  * 🎮 Trải nghiệm game  
 
-Tính năng:
+---
 
-🎲 Dice animation
-🗺️ Map di chuyển theo tọa độ
-👥 Multiplayer local
-🎬 Video intro / victory
-🎉 Confetti chiến thắng
-⏱ Timer câu hỏi
-🧩 Lật Mảnh Ghép (Memory Game)
+## 🎮 Các chế độ chơi
 
-Trạng thái: 🟡 Đang phát triển (đã có gameplay chính)
+### 🍉 Chém Hoa Quả (Fruit Quiz)
+* Chém trái cây bay để chọn đáp án
+* Physics + slash effect + timer
+* Âm thanh + hiệu ứng sinh động
 
-Mô tả:
-Mở các ô để dần lộ ra bức ảnh ẩn, kết hợp trả lời câu hỏi.
+---
 
-Đã hoàn thiện:
+### 🎲 Game Theo Lượt (Turn-Based)
+* Tung xúc xắc → di chuyển → trả lời câu hỏi
+* Nhiều người chơi
+* Confetti + animation chiến thắng
 
-Grid động (NxN)
-Hệ thống tile che ảnh
-Modal câu hỏi
-Thanh tiến trình (% hoàn thành)
-Popup chiến thắng
-Giải mã ảnh cuối game
-🧠 Kéo Co Kiến Thức (Tug of War)
+---
 
-Trạng thái: 🔴 Đang phát triển
+### 🧩 Lật Mảnh Ghép (Memory Game)
+* Lật ô → trả lời câu hỏi → mở ảnh
+* Giải mã hình ảnh để thắng
+* Gameplay chính đã hoàn thiện gần xong
 
-Ý tưởng:
+---
 
-2 đội thi đấu
-Trả lời đúng → kéo dây
-Đội kéo về hết → thắng
-🚀 Tính năng hệ thống
-📚 Quản lý bài học
-Tạo / sửa / xoá game
-Thêm câu hỏi
-Lưu bằng LocalStorage
-🎨 UI/UX (X10THINK Style)
-Full background (video + image)
-Overlay + blur hiện đại
-Animation mượt (60fps)
-Game feel thay vì form truyền thống
-🔊 Âm thanh & hiệu ứng
-Nhạc nền + sound effect
-Toggle mute
-Toast notification
-Confetti + animation chiến thắng
-🧱 Công nghệ sử dụng
-Frontend
-HTML5
-CSS3 (Animation, UI game)
-JavaScript (Vanilla)
-Backend
-Python (Flask)
-SQLite
+### 🧠 Kéo Co Kiến Thức
+* 2 đội trả lời câu hỏi để kéo dây
+* Đang phát triển
 
-🎮 Cách sử dụng
-👨‍🏫 Giáo viên
-Đăng nhập
-Tạo game
-Thêm câu hỏi
-Chia sẻ cho học sinh
-🎮 Học sinh
-Tham gia game
-Trả lời câu hỏi
-Học thông qua gameplay
+---
 
-👨‍💻 Tác giả
+## 🚀 Tính năng hệ thống
 
-EduPlay Team
+### 📚 Quản lý bài học
+* Tạo / sửa / xoá game  
+* Thêm câu hỏi  
+* Lưu bằng LocalStorage  
 
-Nguyễn Nhật Trường
-Lê Chí Hưng
-Bùi Phong Nhận
-📜 License
+---
 
-Dự án phục vụ mục đích học tập.
+### 🎨 UI/UX (X10THINK Style)
+* Full background (video + animation)
+* Blur + glass effect
+* Gradient + hover animation
+* Game feel thay vì web form
+
+---
+
+### 🔊 Âm thanh
+* Nhạc nền  
+* Sound effect  
+* Toggle mute  
+
+---
+
+## 📊 Cập nhật tiến độ (Tuần 5)
+
+---
+
+### 👤 SV1 – UI/UX & Memory Game
+
+#### 🎨 Giao diện
+
+* Thiết kế toàn bộ UI Memory Game theo phong cách **full background**
+* Sử dụng **ảnh + animation động**
+* Áp dụng **blur + overlay hiện đại**
+* Thiết kế lại:
+  * Header
+  * Top panel (title + progress + button)
+* Responsive layout
+
+---
+
+#### 🎮 Gameplay
+
+* Grid NxN động
+* Click ô → câu hỏi → mở ảnh
+* Liên kết dữ liệu câu hỏi với từng ô
+
+---
+
+#### 🖼️ Xử lý ảnh
+
+* Dùng 1 ảnh nền duy nhất
+* Ô chỉ là lớp overlay
+* Fix:
+  * Lệch ảnh
+  * Khe hở grid
+
+---
+
+#### 🧱 Tile system
+
+* Hover + click animation
+* Fade + scale khi mở
+* Gradient + bo góc
+
+---
+
+#### 📋 Modal câu hỏi
+
+* Hiển thị câu hỏi + đáp án
+* Highlight đáp án
+* Animation mượt
+
+---
+
+#### 🧠 Giải mã ảnh
+
+* Popup nhập đáp án
+* Đúng → mở toàn bộ ảnh + kết thúc game
+
+---
+
+#### 📊 Progress bar
+
+* Hiển thị % hoàn thành
+* Update realtime
+
+---
+
+#### 🎉 Popup chiến thắng
+
+* UI gradient + glow
+* Animation xuất hiện
+* Hiển thị đáp án
+
+---
+
+### 👤 SV2 – Hiệu ứng & UX
+
+#### 🔔 Toast system
+
+* success / error / warning / info
+* Animation xuất hiện + biến mất
+* Fix lỗi CSS
+
+---
+
+#### 🔊 Âm thanh
+
+* Sound đúng / sai / win
+
+---
+
+#### 🎉 Hiệu ứng
+
+* Confetti từ trung tâm
+* Burst đa hướng
+* Random màu + xoay
+
+---
+
+#### ⚡ Tối ưu
+
+* Hover button
+* Popup animation
+
+---
+
+### 👤 SV3 – Logic & Turn-based
+
+#### 🧠 Dữ liệu
+
+* Lấy game từ LocalStorage
+* Truyền id qua URL
+
+---
+
+#### ⚙️ Logic
+
+* Kiểm tra đáp án
+* Mở ô
+* Check win
+
+---
+
+#### 🎲 Turn-based
+
+* Di chuyển theo tọa độ map (không zigzag)
+* Nhân vật đi đúng đường
+
+---
+
+#### 🛠 Fix
+
+* Auto focus input
+* Auto scroll câu hỏi mới
+* Fix bug UI + logic
+
+---
+
+## 🧱 Công nghệ sử dụng
+
+### Frontend
+* HTML5  
+* CSS3  
+* JavaScript  
+
+### Backend
+* Python (Flask)  
+* SQLite  
+
+---
+
+## 📁 Cấu trúc project
+
+```bash
+EDUPLAY/
+├── backend/
+├── frontend/
+│   ├── assets/
+│   ├── css/
+│   ├── games/
+│   ├── js/
+│   └── index.html
