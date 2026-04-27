@@ -535,7 +535,7 @@ function addQuestionForm() {
   list.insertAdjacentHTML(
     "beforeend",
     `
-    <div class="border p-4 rounded-xl bg-gray-50 shadow-sm">
+    <div class="border p-4 rounded-xl bg-gray-50 shadow-sm new-question">
 
       <div class="flex justify-between mb-2">
         <p class="text-sm font-semibold">Câu ${index + 1}</p>
@@ -545,8 +545,8 @@ function addQuestionForm() {
       </div>
 
       <input placeholder="Nhập câu hỏi..."
-        oninput="updateQuestion(${index}, 'question', this.value)"
-        class="w-full mb-2 border p-2 rounded" />
+        class="w-full mb-2 border p-2 rounded question-input"
+        oninput="updateQuestion(${index}, 'question', this.value)" />
 
       <div class="grid grid-cols-2 gap-2">
         <input placeholder="Đáp án A" oninput="updateAnswer(${index}, 0, this.value)" class="border p-2 rounded" />
@@ -563,7 +563,6 @@ function addQuestionForm() {
         <option value="3">✅ D đúng</option>
       </select>
 
-      <!-- ✅ TIME -->
       <input type="number"
         placeholder="⏱ Nhập thời gian câu hỏi..."
         oninput="updateQuestion(${index}, 'time', this.value)"
@@ -575,6 +574,17 @@ function addQuestionForm() {
   );
 
   updateQuestionCount2();
+
+  setTimeout(() => {
+    const last = document.querySelector("#questionList .new-question:last-child");
+
+    if (last) {
+      last.scrollIntoView({ behavior: "smooth", block: "center" });
+
+      const input = last.querySelector(".question-input");
+      if (input) input.focus();
+    }
+  }, 50);
 }
 
 function saveAllQuestions() {

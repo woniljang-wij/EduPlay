@@ -133,17 +133,23 @@ button:focus {
 input, select {
   width: 100%;
 
-  height: 48px;             
-  padding: 0 16px;        
+  height: 48px;
+  padding: 12px 16px; 
 
-  border-radius: 16px;      
+  border-radius: 16px;
   border: 1px solid rgba(0,0,0,0.1);
 
-  font-size: 15px;          
+  font-size: 15px;
 
   background: #f9fafb;
 
   transition: all 0.25s ease;
+}
+
+.form-box input,
+.form-box select {
+  padding-left: 16px !important;
+  padding-right: 16px !important;
 }
 
 /* focus đẹp hơn */
@@ -272,4 +278,82 @@ input[type="radio"] {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+}
+
+/* ===== FORM BOX ===== */
+.form-box {
+  background: rgba(255,255,255,0.85);
+  border-radius: 20px;
+  padding: 20px;
+
+  border: 1px solid rgba(255,255,255,0.4);
+
+  box-shadow:
+    0 10px 30px rgba(0,0,0,0.1),
+    inset 0 0 10px rgba(255,255,255,0.2);
+
+  backdrop-filter: blur(10px);
+}
+
+/* ===== TITLE ===== */
+.form-title {
+  font-weight: 700;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+/* ===== LABEL ===== */
+.label {
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.btn-manual {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+
+  padding: 10px 18px;
+  border-radius: 12px;
+  border: none;
+
+  font-weight: 600;
+
+  box-shadow: 0 8px 20px rgba(99,102,241,0.4);
+
+  transition: all 0.25s ease;
+}
+
+.btn-manual:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 12px 30px rgba(99,102,241,0.6);
+}
+
+.color-option {
+  padding: 10px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(0,0,0,0.1);
+
+  background: white;
+
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+}
+
+/* hover */
+.color-option:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+}
+
+/* ACTIVE (GIỐNG HÌNH 1) */
+.active-color {
+  background: linear-gradient(135deg, #e0f2fe, #dbeafe);
+  border: 2px solid #3b82f6;
+
+  font-weight: 700; /* 👉 BOLD TEXT */
+
+  box-shadow: 0 8px 20px rgba(59,130,246,0.4);
 }

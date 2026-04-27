@@ -24,6 +24,10 @@ function goCreate() {
   document.getElementById("page-list").classList.add("hidden");
 
   setActive("btn-create");
+
+  tempQuestions = [];
+  renderQuestionPreview();
+  updateQuestionCount();
 }
 
 // ===== ACTIVE MENU =====
@@ -79,13 +83,13 @@ function editMemoryGame(id) {
   document.getElementById("grid").value = game.grid;
   document.getElementById("time").value = game.time;
 
-  // ảnh preview
   document.getElementById("previewImg").src = game.image;
   document.getElementById("previewBox").classList.remove("hidden");
 
   tempQuestions = game.questions || [];
+  renderQuestionPreview();
+  updateQuestionCount();
 
-  // đánh dấu đang edit
   window.editingId = id;
 
   showToast("✏️ Đang chỉnh sửa", "info");
@@ -96,7 +100,8 @@ function saveMemoryGame() {
   const title = document.getElementById("title").value.trim();
   const answer = document.getElementById("answer").value.trim();
   const grid = parseInt(document.getElementById("grid").value);
-  const time = parseInt(document.getElementById("time").value);
+  const timeRaw = document.getElementById("time").value.trim();
+  const time = timeRaw === "" ? 0 : parseInt(timeRaw);
 
   const imgType = document.querySelector(
     "input[name='imgType']:checked",
@@ -105,17 +110,19 @@ function saveMemoryGame() {
   // ===== VALIDATE =====
   if (!title) return showToast("Nhập tiêu đề!", "error");
   if (!answer) return showToast("Nhập đáp án!", "error");
-  if (!time || time <= 0) return showToast("Nhập thời gian!", "error");
-
-  if (tempQuestions.length === 0) {
-    showToast("⚠️ Chưa có câu hỏi, vẫn lưu để test", "info");
+  if (isNaN(time) || time < 0) {
+    return showToast("Thời gian không hợp lệ!", "error");
   }
 
+  const max = grid * grid;
+
+  if (tempQuestions.length < max) {
+    return showToast(`❌ Cần đủ ${max} câu hỏi`, "error");
+  }
   // ===== IMAGE HANDLE =====
   if (imgType === "upload") {
     const file = document.getElementById("imageFile").files[0];
 
-    // 👉 edit không chọn file → dùng ảnh cũ
     if (!file) {
       const currentImg = document.getElementById("previewImg").src;
 
@@ -126,7 +133,6 @@ function saveMemoryGame() {
       return saveGameWithImage(currentImg);
     }
 
-    // 👉 có file → convert base64
     const reader = new FileReader();
     reader.onload = function (e) {
       saveGameWithImage(e.target.result);
@@ -149,7 +155,8 @@ function saveGameWithImage(image) {
   const title = document.getElementById("title").value.trim();
   const answer = document.getElementById("answer").value.trim();
   const grid = parseInt(document.getElementById("grid").value);
-  const time = parseInt(document.getElementById("time").value);
+  const timeRaw = document.getElementById("time").value.trim();
+  const time = timeRaw === "" ? 0 : parseInt(timeRaw);
 
   let games = JSON.parse(localStorage.getItem("memoryGames")) || [];
 
@@ -165,6 +172,7 @@ function saveGameWithImage(image) {
           grid,
           time,
           questions: tempQuestions,
+          theme: selectedTheme,
         };
       }
       return g;
@@ -182,6 +190,7 @@ function saveGameWithImage(image) {
       grid,
       time,
       questions: tempQuestions,
+      theme: selectedTheme,
     });
 
     showToast("🎉 Lưu thành công!", "success");
@@ -205,6 +214,17 @@ function saveGameWithImage(image) {
   document.getElementById("previewImg").src = "";
 
   tempQuestions = [];
+  renderQuestionPreview();
+  updateQuestionCount();
+
+  selectedTheme = "blue";
+
+  document.querySelectorAll(".color-option").forEach((btn) => {
+    btn.classList.remove("ring-2");
+  });
+
+  const defaultBtn = document.querySelector('[data-color="blue"]');
+  if (defaultBtn) defaultBtn.classList.add("ring-2");
 }
 
 // ===== RENDER LIST =====
@@ -392,4 +412,269 @@ window.onload = () => {
       box.classList.remove("hidden");
     });
   }
+
+  document.getElementById("grid").addEventListener("change", () => {
+    const grid = parseInt(document.getElementById("grid").value);
+    const max = grid * grid;
+
+    if (tempQuestions.length > max) {
+      tempQuestions = tempQuestions.slice(0, max);
+    }
+
+    renderQuestionPreview();
+    updateQuestionCount();
+  });
 };
+
+function openQuestionManager() {
+  const modal = document.getElementById("questionManager");
+
+  modal.classList.remove("hidden");
+  modal.classList.add("flex");
+
+  renderQuestionForm();
+}
+
+function updateQuestionCount() {
+  const grid = parseInt(document.getElementById("grid").value);
+  const max = grid * grid;
+
+  const el = document.querySelector("#page-create .question-title");
+
+  if (el) {
+    el.innerText = `📚 Câu hỏi (${tempQuestions.length}/${max})`;
+  }
+}
+
+function closeQuestionManager() {
+  const modal = document.getElementById("questionManager");
+
+  modal.classList.add("hidden");
+  modal.classList.remove("flex");
+}
+
+function editQuestion(i) {
+  openQuestionManager();
+
+  setTimeout(() => {
+    const inputs = document.querySelectorAll("#questionList input");
+    if (inputs[i * 5]) {
+      inputs[i * 5].focus();
+    }
+  }, 100);
+}
+
+function deleteQuestion(i) {
+  tempQuestions.splice(i, 1);
+  renderQuestionForm();
+  renderQuestionPreview();
+  updateQuestionCount();
+}
+
+function addQuestionForm() {
+  const grid = parseInt(document.getElementById("grid").value);
+  const max = grid * grid;
+
+  if (tempQuestions.length >= max) {
+    showToast(`⚠️ Tối đa ${max} câu hỏi`, "error");
+    return;
+  }
+
+  tempQuestions.push({
+    question: "",
+    answers: ["", "", "", ""],
+    correct: 0,
+  });
+
+  renderQuestionForm();
+  updateQuestionCount();
+
+  setTimeout(() => {
+    const list = document.getElementById("questionList");
+    const inputs = list.querySelectorAll("input");
+
+    if (inputs.length > 0) {
+      list.scrollTop = list.scrollHeight;
+
+      inputs[inputs.length - 5].focus();
+    }
+  }, 50);
+}
+
+function renderQuestionForm() {
+  const list = document.getElementById("questionList");
+
+  if (tempQuestions.length === 0) {
+    list.innerHTML = `<p class="text-gray-400 text-center">Chưa có câu hỏi nào</p>`;
+
+    document.getElementById("questionCount2").innerText = 0;
+    updateQuestionCount();
+
+    const btn = document.querySelector("#btnAddQuestion");
+    if (btn) btn.disabled = false;
+
+    return;
+  }
+
+  list.innerHTML = "";
+
+  tempQuestions.forEach((q, i) => {
+    list.insertAdjacentHTML(
+      "beforeend",
+      `
+      <div class="border p-4 rounded-xl bg-gray-50 relative">
+
+  <button onclick="deleteQuestion(${i})"
+    class="absolute top-2 right-2 text-red-500 hover:scale-110">
+    🗑
+  </button>
+
+        <p class="mb-2 font-semibold">Câu ${i + 1}</p>
+
+        <input placeholder="Câu hỏi..."
+          value="${q.question}"
+          oninput="updateQuestion(${i}, this.value)"
+          class="border rounded px-4" />
+
+        <div class="grid grid-cols-2 gap-2">
+          ${q.answers
+            .map(
+              (a, idx) => `
+            <input placeholder="Đáp án ${String.fromCharCode(65 + idx)}"
+              value="${a}"
+              oninput="updateAnswer(${i}, ${idx}, this.value)"
+              class="border rounded px-4" />
+          `,
+            )
+            .join("")}
+        </div>
+
+        <select onchange="setCorrect(${i}, this.value)"
+          class="mt-2 border p-2 w-full rounded">
+          <option value="0" ${q.correct == 0 ? "selected" : ""}>A đúng</option>
+          <option value="1" ${q.correct == 1 ? "selected" : ""}>B đúng</option>
+          <option value="2" ${q.correct == 2 ? "selected" : ""}>C đúng</option>
+          <option value="3" ${q.correct == 3 ? "selected" : ""}>D đúng</option>
+        </select>
+
+      </div>
+    `,
+    );
+  });
+
+  document.getElementById("questionCount2").innerText = tempQuestions.length;
+  updateQuestionCount();
+
+  const grid = parseInt(document.getElementById("grid").value);
+  const max = grid * grid;
+
+  const btn = document.querySelector("#btnAddQuestion");
+
+  if (btn) {
+    const isMax = tempQuestions.length >= max;
+
+    btn.disabled = isMax;
+
+    btn.classList.toggle("opacity-50", isMax);
+    btn.classList.toggle("cursor-not-allowed", isMax);
+  }
+}
+
+function updateQuestion(i, value) {
+  tempQuestions[i].question = value;
+}
+
+function updateAnswer(i, idx, value) {
+  tempQuestions[i].answers[idx] = value;
+}
+
+function setCorrect(i, value) {
+  tempQuestions[i].correct = parseInt(value);
+}
+
+function saveAllQuestions() {
+  if (tempQuestions.length === 0) {
+    return showToast("❌ Phải có ít nhất 1 câu hỏi", "error");
+  }
+
+  for (let q of tempQuestions) {
+    if (!q.question.trim()) {
+      return showToast("❌ Thiếu nội dung câu hỏi", "error");
+    }
+
+    if (q.answers.some((a) => !a.trim())) {
+      return showToast("❌ Thiếu đáp án", "error");
+    }
+  }
+
+  renderQuestionPreview();
+  closeQuestionManager();
+
+  showToast("✅ Đã lưu câu hỏi", "success");
+}
+
+function renderQuestionPreview() {
+  const box = document.getElementById("questionPreview");
+
+  if (tempQuestions.length === 0) {
+    box.innerHTML = `<div class="text-gray-400 text-center">Chưa có câu hỏi</div>`;
+    updateQuestionCount();
+    return;
+  }
+
+  let html = `<div class="bg-white rounded-xl border">`;
+
+  tempQuestions.forEach((q, i) => {
+    html += `
+      <div class="p-3 border-t relative">
+
+  <button onclick="editQuestion(${i})"
+    class="absolute top-2 right-10 text-blue-500">
+    ✏️
+  </button>
+
+  <button onclick="deleteQuestion(${i})"
+    class="absolute top-2 right-2 text-red-500">
+    🗑
+  </button>
+        <div class="font-semibold mb-2">${i + 1}. ${q.question}</div>
+
+        <div class="flex flex-wrap gap-2 text-sm">
+          ${q.answers
+            .map(
+              (a, idx) => `
+            <span class="px-2 py-1 rounded 
+              ${idx === q.correct ? "bg-green-200" : "bg-gray-100"}">
+              ${a}
+            </span>
+          `,
+            )
+            .join("")}
+        </div>
+      </div>
+    `;
+  });
+
+  html += "</div>";
+  box.innerHTML = html;
+  updateQuestionCount();
+}
+
+let selectedTheme = "blue";
+
+window.addEventListener("load", () => {
+  const defaultBtn = document.querySelector('[data-color="blue"]');
+  if (defaultBtn) defaultBtn.classList.add("active-color");
+});
+
+document.querySelectorAll(".color-option").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    selectedTheme = btn.dataset.color;
+
+    document.querySelectorAll(".color-option").forEach((b) => {
+      b.classList.remove("active-color");
+    });
+
+    btn.classList.add("active-color");
+  });
+});

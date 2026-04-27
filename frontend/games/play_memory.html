@@ -1,26 +1,92 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
-<head>
-  <meta charset="UTF-8">
-  <title>Play Memory</title>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <title>EduPlay - Memory</title>
 
-<h1>🎮 Game đang chạy...</h1>
+    <link rel="stylesheet" href="../css/play_memory.css" />
+    <link rel="stylesheet" href="../css/toast.css" />
+  </head>
 
-<script>
-  const params = new URLSearchParams(window.location.search);
-  const id = params.get("id");
+  <body>
+    <!-- BACKGROUND -->
+    <video id="bgVideo" autoplay muted loop>
+      <source src="../assets/videos/bg.mp4" type="video/mp4" />
+    </video>
 
-  const games = JSON.parse(localStorage.getItem("memoryGames")) || [];
-  const game = games.find(g => g.id == id);
+    <!-- ===== TOP PANEL (GOM LẠI) ===== -->
+    <div class="top-panel">
+      <div class="top-bar">
+        <button class="btn-back" onclick="goBack()">← Quay lại</button>
 
-  console.log(game);
+        <h2 id="gameTitle">Loading...</h2>
 
-  if (game) {
-    document.body.innerHTML += `<h2>${game.title}</h2>`;
-  }
-</script>
+        <div class="top-actions">
+          <button class="btn-red" onclick="openGuess()">
+            🔍 Giải mã tên ảnh
+          </button>
+          <button class="btn-red" onclick="toggleFullscreen()">
+            ⛶ Toàn màn hình
+          </button>
+        </div>
+      </div>
 
-</body>
+      <div class="progress-wrap">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+
+      <p class="progress-text" id="progressText">0/4 (0%)</p>
+    </div>
+
+    <!-- GRID -->
+    <div id="grid" class="grid"></div>
+
+    <!-- ===== QUESTION MODAL ===== -->
+    <div id="questionModal" class="modal hidden">
+      <div class="modal-box">
+        <h3>❓ Câu hỏi</h3>
+        <p id="questionText"></p>
+
+        <div id="answers"></div>
+
+        <div class="modal-actions">
+          <button onclick="closeModal()">❌ Hủy</button>
+          <button onclick="submitAnswer()">✅ Trả lời</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== GUESS MODAL ===== -->
+    <div id="guessModal" class="modal hidden">
+      <div class="modal-box">
+        <h3>🔍 Nhập tên ảnh</h3>
+
+        <input
+          id="guessInput"
+          placeholder="Nhập đáp án..."
+        />
+
+        <div class="modal-actions">
+          <button onclick="closeGuess()">❌ Hủy</button>
+          <button onclick="submitGuess()">✅ Xác nhận</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== WIN ===== -->
+    <div id="winBox" class="win hidden">
+      <div class="win-card">
+        <h2>🎉 Tên ảnh:</h2>
+        <p id="finalAnswer"></p>
+        <button onclick="location.reload()">↺ Chơi lại</button>
+      </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="toast-container"></div>
+
+    <!-- JS -->
+    <script src="../js/games/toast.js"></script>
+    <script src="../js/games/play_memory.js"></script>
+  </body>
 </html>

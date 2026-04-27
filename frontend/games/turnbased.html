@@ -4,281 +4,312 @@
     <meta charset="UTF-8" />
     <title>Game Theo Lượt</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;800&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="../css/turnbased.css" />
     <link rel="stylesheet" href="../css/toast.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
   </head>
 
-  <body class="min-h-screen flex">
-  
-  <video autoplay muted loop playsinline preload="auto" id="bgVideo">
-   <source src="../assets/videos/turnbased.mp4" type="video/mp4">
-  </video>
+  <body class="min-h-screen flex font-[Be_Vietnam_Pro]">
+    <video autoplay muted loop playsinline preload="auto" id="bgVideo">
+      <source src="../assets/videos/turnbased.mp4" type="video/mp4" />
+    </video>
 
-  <aside class="w-72 bg-white/60 backdrop-blur-xl p-6 flex flex-col justify-between border-r border-white/30 shadow-xl">
-  <div>
-    <h2 class="text-xl font-bold mb-6">🎲 Game Theo Lượt</h2>
+    <aside
+      class="w-72 bg-white/60 backdrop-blur-xl p-6 flex flex-col justify-between border-r border-white/30 shadow-xl"
+    >
+      <div>
+        <h2 class="text-xl font-bold mb-6">🎲 Game Theo Lượt</h2>
 
-    <div class="space-y-3">
+        <div class="space-y-3">
+          <!-- 🏠 TRANG CHỦ -->
+          <button
+            onclick="goIndex()"
+            class="w-full text-left px-4 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 font-semibold"
+          >
+            🏠 Trang chủ
+          </button>
 
-      <!-- 🏠 TRANG CHỦ -->
-      <button onclick="goIndex()"
-        class="w-full text-left px-4 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 font-semibold">
-        🏠 Trang chủ
-      </button>
+          <!-- HOME -->
+          <button
+            id="btn-home"
+            onclick="goHome()"
+            class="w-full text-left px-4 py-3 rounded-xl font-semibold"
+          >
+            🎲 Bài của tôi
+          </button>
 
-      <!-- HOME -->
-      <button id="btn-home" onclick="goHome()"
-        class="w-full text-left px-4 py-3 rounded-xl font-semibold">
-        🎲 Bài của tôi
-      </button>
-
-      <!-- CREATE -->
-      <button id="btn-create" onclick="goCreate()"
-        class="w-full text-left px-4 py-3 rounded-xl">
-        ➕ Tạo bài mới
-      </button>
-
-      <div class="px-4 py-3 bg-green-100 rounded-xl text-sm">
-        Đã dùng 0/5 bài
+          <!-- CREATE -->
+          <button
+            id="btn-create"
+            onclick="goCreate()"
+            class="w-full text-left px-4 py-3 rounded-xl font-semibold"
+          >
+            ➕ Tạo bài mới
+          </button>
+        </div>
       </div>
-
-      <button class="w-full px-4 py-3 rounded-xl bg-red-500 text-white font-semibold">
-        ⭐ Nâng cấp Lẻ
-      </button>
-
-      <button class="w-full px-4 py-3 rounded-xl bg-gray-100">
-        🐛 Báo lỗi
-      </button>
-    </div>
-  </div>
-</aside>
+    </aside>
 
     <!-- MAIN -->
     <main class="flex-1 p-6">
-
       <!-- LIST PAGE -->
       <div id="page-list">
-       <div class="container-box">
-
-    <div class="mb-6 flex justify-between items-center">
-      <div>
-        <h1 class="text-2xl font-bold mb-1">🎲 Bài chơi của tôi</h1>
-        <p class="text-gray-500 text-sm">Quản lý các bài Game theo Lượt đã tạo</p>
+        <div class="container-box">
+          <div class="mb-6 flex justify-between items-center">
+            <div>
+              <h1 class="text-2xl font-bold mb-1">🎲 Bài chơi của tôi</h1>
+              <p class="text-gray-500 text-sm">
+                Quản lý các bài Game theo Lượt đã tạo
+              </p>
+            </div>
+          </div>
+          <div id="gameList"></div>
+        </div>
       </div>
-    </div>
-    <div id="gameList"></div>
-
-  </div>
-</div>
 
       <!-- CREATE PAGE -->
       <div id="page-create" class="hidden">
         <div class="container-box">
-
-          <h1 class="text-2xl font-bold mb-4 text-emerald-600">
-            🎲 Tạo Game Theo Lượt mới
+          <h1 class="title-main">
+            <i class="bi bi-controller"></i>
+            Tạo Game Theo Lượt mới
           </h1>
 
-          <!-- title -->
-          <input class="w-full p-3 border rounded-xl mb-4" placeholder="Tiêu đề bài chơi">
-
-          <!-- player count -->
-          <div class="mb-4">
-            <label class="text-sm text-gray-500">Số người chơi</label>
-          <!-- player count -->
-          <div class="mb-4">
-          <select id="playerCount" class="w-full p-3 border rounded-xl mt-1">
-            <option value="2">2 người chơi</option>
-            <option value="3">3 người chơi</option>
-            <option value="4">4 người chơi</option>
-          </select>
-          </div>
-
-         <!-- players -->
-         <div id="playerInputs" class="flex gap-3 mb-4"></div>
-          <!-- slider -->
+          <!-- TITLE -->
           <div class="mb-6">
-            <label class="block mb-2">
-              Số chướng ngại vật mỗi đường: <b id="value">1</b>
+            <label class="label-ui">
+              <i class="bi bi-pencil-square"></i>
+              Tiêu đề bài chơi
             </label>
-            <input type="range" min="1" max="30" value="1" id="slider" class="w-full">
+
+            <input
+              id="gameTitleInput"
+              class="input-ui"
+              placeholder="Nhập tiêu đề..."
+            />
           </div>
-          
-          <!-- music -->
+
+          <!-- PLAYER COUNT -->
           <div class="mb-6">
-            <p class="mb-2">🎵 Nhạc nền mặc định</p>
-          <div class="flex gap-2" id="musicSelect">
-  <button class="music-btn px-4 py-2 border rounded-full"
-    data-src="../assets/sounds/bai1.mp3">Bài 1</button>
+            <label class="label-ui">
+              <i class="bi bi-people-fill"></i>
+              Số người chơi
+            </label>
 
-  <button class="music-btn px-4 py-2 border rounded-full"
-  data-src="../assets/sounds/bai2.mp3">Bài 2</button>
-
-  <button class="music-btn px-4 py-2 border rounded-full"
-    data-src="../assets/sounds/bai3.mp3">Bài 3</button>
-  
-  <button class="music-btn px-4 py-2 border rounded-full"
-    data-src="../assets/sounds/bai4.mp3">Bài 4</button>
-
-  <button class="music-btn px-4 py-2 border rounded-full"
-    data-src="../assets/sounds/bai5.mp3">Bài 5</button>
-</div>
+            <select id="playerCount" class="input-ui">
+              <option value="2">2 người chơi</option>
+              <option value="3">3 người chơi</option>
+              <option value="4">4 người chơi</option>
+            </select>
           </div>
 
-          <!-- question -->
-          <h3 id="questionCount" class="font-semibold mb-2">Câu hỏi (0)</h3>
+          <!-- PLAYERS -->
+          <div id="playerInputs" class="flex gap-3 mb-6"></div>
+
+          <!-- SLIDER -->
+          <div class="mb-6">
+            <label class="label-ui">
+              <i class="bi bi-sliders"></i>
+              Số chướng ngại vật: <b id="value">1</b>
+            </label>
+
+            <input
+              type="range"
+              min="1"
+              max="30"
+              value="1"
+              id="slider"
+              class="w-full"
+            />
+          </div>
+
+          <!-- MUSIC -->
+          <div class="mb-6">
+            <label class="label-ui">
+              <i class="bi bi-music-note-beamed"></i>
+              Nhạc nền mặc định
+            </label>
+
+            <div class="flex gap-2" id="musicSelect">
+              <button class="music-btn">Bài 1</button>
+              <button class="music-btn">Bài 2</button>
+              <button class="music-btn">Bài 3</button>
+              <button class="music-btn">Bài 4</button>
+              <button class="music-btn">Bài 5</button>
+            </div>
+          </div>
+
+          <!-- QUESTION -->
+          <h3 id="questionCount" class="label-ui mb-3">
+            <i class="bi bi-patch-question-fill"></i>
+            Câu hỏi (0)
+          </h3>
 
           <div class="flex gap-3 mb-4">
-            <button class="bg-green-500 text-white px-4 py-2 rounded-xl">
-              📚 Lấy từ Kho câu hỏi
+            <button class="btn-primary">
+              <i class="bi bi-collection"></i>
+              Lấy từ Kho
             </button>
-            
-           <button onclick="openQuestionManager()"
-                   class="border px-4 py-2 rounded-xl">
-               ✏️ Nhập thủ công
-          </button>
-          </div>
 
-         <div id="questionPreview"
-              class="bg-gray-50 rounded-xl p-6 text-center text-gray-500 mb-6">
-          Chưa có câu hỏi nào
-         </div>
-
-          <!-- action -->
-          <div class="flex justify-end gap-3">
-            <button onclick="goHome()" class="px-4 py-2 border rounded-xl">HỦY</button>
-            <button onclick="saveGame()"
-              class="bg-green-500 text-white px-5 py-2 rounded-xl shadow">
-              LƯU BÀI CHƠI
+            <button onclick="openQuestionManager()" class="btn-outline">
+              <i class="bi bi-pencil"></i>
+              Nhập thủ công
             </button>
           </div>
 
+          <div id="questionPreview" class="preview-box">
+            Chưa có câu hỏi nào
+          </div>
+
+          <!-- ACTION -->
+          <div class="flex justify-end gap-3 mt-6">
+            <button onclick="goHome()" class="btn-outline">Hủy</button>
+            <button onclick="saveGame()" class="btn-primary">
+              Lưu bài chơi
+            </button>
+          </div>
         </div>
       </div>
-
     </main>
 
-   <!-- ===== MODAL GIAO ===== -->
-<div id="assignModal"
-  class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50">
+    <!-- ===== MODAL GIAO ===== -->
+    <div
+      id="assignModal"
+      class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl w-[420px] p-6 shadow-xl">
+        <h2 class="text-xl font-semibold mb-4">📋 Giao bài tập</h2>
 
-  <div class="bg-white rounded-2xl w-[420px] p-6 shadow-xl">
+        <div class="bg-gray-100 rounded-xl p-4 mb-4">
+          <p id="assignTitle" class="font-semibold">Tên game</p>
+        </div>
 
-    <h2 class="text-xl font-semibold mb-4">📋 Giao bài tập</h2>
+        <input
+          id="assignName"
+          placeholder="Tên gợi nhớ"
+          class="w-full p-3 border rounded-xl mb-4"
+        />
 
-    <div class="bg-gray-100 rounded-xl p-4 mb-4">
-      <p id="assignTitle" class="font-semibold">Tên game</p>
+        <div class="flex justify-end gap-3">
+          <button onclick="closeAssign()" class="px-4 py-2 border rounded">
+            HỦY
+          </button>
+
+          <button
+            onclick="createAssign()"
+            class="px-4 py-2 bg-purple-500 text-white rounded"
+          >
+            TẠO
+          </button>
+        </div>
+      </div>
     </div>
 
-    <input id="assignName"
-      placeholder="Tên gợi nhớ"
-      class="w-full p-3 border rounded-xl mb-4" />
+    <!-- ===== QUESTION MODAL ===== -->
+    <div
+      id="questionManager"
+      class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl w-[800px] max-w-[95%] p-6">
+        <h2 class="text-xl font-bold mb-4">✏️ Nhập câu hỏi thủ công</h2>
 
-    <div class="flex justify-end gap-3">
-      <button onclick="closeAssign()" class="px-4 py-2 border rounded">
-        HỦY
-      </button>
+        <!-- COUNT -->
+        <p class="mb-2">Câu hỏi (<span id="questionCount2">0</span>)</p>
 
-<button onclick="createAssign()"
-  class="px-4 py-2 bg-purple-500 text-white rounded">
-  TẠO
-</button>
+        <!-- LIST -->
+        <div id="questionList" class="space-y-3 max-h-[400px] overflow-y-auto">
+          <p class="text-gray-400 text-center">Chưa có câu hỏi nào</p>
+        </div>
+
+        <!-- ADD -->
+        <div class="text-center mt-4">
+          <button
+            onclick="addQuestionForm()"
+            class="border px-4 py-2 rounded-lg text-blue-600"
+          >
+            ➕ THÊM CÂU HỎI
+          </button>
+        </div>
+
+        <!-- ACTION -->
+        <div class="flex justify-end gap-3 mt-6">
+          <button onclick="closeQuestionManager()">Hủy</button>
+
+          <button
+            onclick="saveAllQuestions()"
+            class="bg-purple-500 text-white px-4 py-2 rounded-lg"
+          >
+            Lưu
+          </button>
+        </div>
+      </div>
     </div>
 
-  </div>
-</div>
+    <div
+      id="toast"
+      class="fixed top-5 right-5 hidden z-[9999] px-5 py-3 rounded-xl shadow-lg text-white font-semibold transition-all duration-300"
+    ></div>
 
+    <div
+      id="editQuestionModal"
+      class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl w-[600px] p-6">
+        <h2 class="text-lg font-bold mb-4">✏️ Sửa câu hỏi</h2>
 
-<!-- ===== QUESTION MODAL ===== -->
-<div id="questionManager"
-  class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50">
+        <input id="editQuestionText" class="w-full mb-3 border p-2 rounded" />
 
-  <div class="bg-white rounded-2xl w-[800px] max-w-[95%] p-6">
+        <div class="grid grid-cols-2 gap-2 mb-3">
+          <input id="editA" class="border p-2 rounded" />
+          <input id="editB" class="border p-2 rounded" />
+          <input id="editC" class="border p-2 rounded" />
+          <input id="editD" class="border p-2 rounded" />
+        </div>
 
-    <h2 class="text-xl font-bold mb-4">✏️ Nhập câu hỏi thủ công</h2>
+        <select id="editCorrect" class="border p-2 w-full mb-4">
+          <option value="0">✅ A đúng</option>
+          <option value="1">✅ B đúng</option>
+          <option value="2">✅ C đúng</option>
+          <option value="3">✅ D đúng</option>
+        </select>
 
-    <!-- COUNT -->
-    <p class="mb-2">Câu hỏi (<span id="questionCount2">0</span>)</p>
+        <input
+          id="editTime"
+          type="number"
+          class="border p-2 w-full mb-4"
+          placeholder="⏱ Nhập thời gian câu hỏi..."
+        />
 
-    <!-- LIST -->
-    <div id="questionList" class="space-y-3 max-h-[400px] overflow-y-auto">
-      <p class="text-gray-400 text-center">Chưa có câu hỏi nào</p>
+        <div class="flex justify-end gap-3">
+          <button onclick="closeEdit()">Hủy</button>
+          <button
+            onclick="saveEdit()"
+            class="bg-purple-500 text-white px-4 py-2 rounded"
+          >
+            Lưu
+          </button>
+        </div>
+      </div>
     </div>
 
-    <!-- ADD -->
-    <div class="text-center mt-4">
-      <button onclick="addQuestionForm()"
-        class="border px-4 py-2 rounded-lg text-blue-600">
-        ➕ THÊM CÂU HỎI
-      </button>
+    <!-- 🎬 INTRO VIDEO -->
+    <div
+      id="introScreen"
+      class="fixed inset-0 bg-black hidden items-center justify-center z-[99999]"
+    >
+      <video
+        id="introVideo"
+        class="w-full h-full object-cover"
+        playsinline
+      ></video>
     </div>
-
-    <!-- ACTION -->
-    <div class="flex justify-end gap-3 mt-6">
-      <button onclick="closeQuestionManager()">Hủy</button>
-
-      <button onclick="saveAllQuestions()"
-        class="bg-purple-500 text-white px-4 py-2 rounded-lg">
-        Lưu
-      </button>
-    </div>
-
-  </div>
-</div>
-
-<div id="toast"
-  class="fixed top-5 right-5 hidden z-[9999] px-5 py-3 rounded-xl shadow-lg text-white font-semibold transition-all duration-300">
-</div>
-
- <div id="editQuestionModal"
-  class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50">
-
-  <div class="bg-white rounded-2xl w-[600px] p-6">
-
-    <h2 class="text-lg font-bold mb-4">✏️ Sửa câu hỏi</h2>
-
-    <input id="editQuestionText" class="w-full mb-3 border p-2 rounded" />
-
-    <div class="grid grid-cols-2 gap-2 mb-3">
-      <input id="editA" class="border p-2 rounded" />
-      <input id="editB" class="border p-2 rounded" />
-      <input id="editC" class="border p-2 rounded" />
-      <input id="editD" class="border p-2 rounded" />
-    </div>
-
-    <select id="editCorrect" class="border p-2 w-full mb-4">
-      <option value="0">✅ A đúng</option>
-      <option value="1">✅ B đúng</option>
-      <option value="2">✅ C đúng</option>
-      <option value="3">✅ D đúng</option>
-    </select>
-    
-    <input id="editTime"
-    type="number"
-    class="border p-2 w-full mb-4"
-    placeholder="⏱ Nhập thời gian câu hỏi..." />
-
-    <div class="flex justify-end gap-3">
-      <button onclick="closeEdit()">Hủy</button>
-      <button onclick="saveEdit()"
-        class="bg-purple-500 text-white px-4 py-2 rounded">
-        Lưu
-      </button>
-    </div>
-
-  </div>
-</div>
-  
-  <!-- 🎬 INTRO VIDEO -->
-<div id="introScreen"
-  class="fixed inset-0 bg-black hidden items-center justify-center z-[99999]">
-
-  <video id="introVideo"
-    class="w-full h-full object-cover"
-    playsinline>
-  </video>
-
-</div>
 
     <script src="../js/games/toast.js" defer></script>
     <script src="../js/games/turnbased.js" defer></script>

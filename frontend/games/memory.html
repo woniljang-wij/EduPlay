@@ -46,23 +46,6 @@
           >
             ➕ Tạo bài mới
           </button>
-
-          <!-- LIMIT -->
-          <div class="px-4 py-3 bg-green-100 rounded-xl text-sm">
-            Đã dùng 0/5 bài
-          </div>
-
-          <!-- UPGRADE -->
-          <button
-            class="w-full px-4 py-3 rounded-xl bg-red-500 text-white font-semibold"
-          >
-            ⭐ Nâng cấp Lẻ
-          </button>
-
-          <!-- BUG -->
-          <button class="w-full px-4 py-3 rounded-xl bg-gray-100">
-            🐛 Báo lỗi
-          </button>
         </div>
       </div>
     </aside>
@@ -102,23 +85,25 @@
             <p>Tạo game đoán hình qua từng mảnh ghép</p>
           </div>
 
-          <!-- TITLE -->
-          <input
-            id="title"
-            class="w-full mb-4"
-            placeholder="Tiêu đề bài chơi..."
-          />
+          <div class="form-box mb-6">
+            <h3 class="form-title">📌 Thông tin bài</h3>
 
-          <!-- ANSWER -->
-          <input
-            id="answer"
-            class="w-full mb-4"
-            placeholder="Đáp án (VD: Tháp Eiffel...)"
-          />
+            <input
+              id="title"
+              class="w-full mb-3 px-4"
+              placeholder="Tiêu đề Ảnh đố..."
+            />
+
+            <input
+              id="answer"
+              class="w-full px-4"
+              placeholder="Tên ảnh (đáp án)..."
+            />
+          </div>
 
           <!-- IMAGE SOURCE -->
-          <div class="mb-6">
-            <h3 class="font-semibold mb-2">📸 Nguồn ảnh</h3>
+          <div class="form-box mb-6">
+            <h3 class="form-title">📸 Nguồn ảnh</h3>
 
             <label
               ><input type="radio" name="imgType" value="upload" checked /> Tải
@@ -144,46 +129,68 @@
             </div>
           </div>
 
-          <!-- GRID -->
-          <div class="mb-6">
-            <h3 class="font-semibold mb-2">🔲 Cấu hình lưới</h3>
+          <!-- ===== GRID + TIME COMBINED ===== -->
+          <div class="form-box mb-6">
+            <h3 class="form-title">🔲 Cấu hình lưới</h3>
 
-            <select id="grid" class="w-full">
+            <!-- GRID SIZE -->
+            <label class="label">Kích thước lưới:</label>
+            <select id="grid" class="w-full mb-4">
               <option value="2">2x2 (4 ô)</option>
               <option value="3">3x3 (9 ô)</option>
               <option value="4">4x4 (16 ô)</option>
               <option value="5">5x5 (25 ô)</option>
               <option value="6">6x6 (36 ô)</option>
             </select>
+
+            <!-- CELL MODE (OPTIONAL - giống UI bạn vẽ) -->
+            <label class="label">Chế độ kích thước ô:</label>
+            <select id="cellMode" class="w-full mb-4">
+              <option value="equal">Bằng nhau</option>
+              <option value="random">Ngẫu nhiên</option>
+            </select>
+
+            <!-- TIME -->
+            <label class="label">
+              ⏱ Giới hạn thời gian mỗi câu (giây, 0 = không giới hạn):
+            </label>
+            <input id="time" type="number" class="w-full" value="0" />
           </div>
 
-          <!-- TIME -->
-          <div class="mb-6">
-            <h3 class="font-semibold mb-2">⏱ Thời gian mỗi câu</h3>
-            <input
-              id="time"
-              type="number"
-              class="w-full"
-              placeholder="VD: 10 giây"
-            />
+          <div class="form-box mb-6">
+            <h3 class="form-title">🎨 Màu mảnh ghép</h3>
+
+            <div class="flex flex-wrap gap-3">
+              <button class="color-option ui-color" data-color="blue">
+                🔵 Xanh dương
+              </button>
+
+              <button class="color-option ui-color" data-color="green">
+                🟢 Xanh lá
+              </button>
+
+              <button class="color-option ui-color" data-color="purple">
+                🟣 Tím
+              </button>
+
+              <button class="color-option ui-color" data-color="random">
+                🎲 Ngẫu nhiên
+              </button>
+            </div>
           </div>
 
           <!-- QUESTIONS -->
-          <div class="mb-6">
-            <h3 class="font-semibold mb-2">📚 Câu hỏi</h3>
+          <div class="form-box mb-6">
+            <h3 class="form-title question-title">❓ Câu hỏi (0/0)</h3>
 
-            <button
-              onclick="openQuestionManager()"
-              class="border px-4 py-2 rounded-xl"
-            >
-              ✏️ Nhập câu hỏi
-            </button>
+            <div class="flex gap-3 mb-3">
+              <button onclick="openQuestionManager()" class="btn-manual">
+                ✏️ Nhập thủ công
+              </button>
+            </div>
 
-            <div
-              id="questionPreview"
-              class="mt-4 bg-gray-50 p-4 rounded-xl text-gray-500"
-            >
-              Chưa có câu hỏi
+            <div id="questionPreview" class="question-preview">
+              📭 Chưa có câu hỏi nào
             </div>
           </div>
 
@@ -199,8 +206,48 @@
           </div>
         </div>
       </div>
-    </main>
 
+      <!-- ===== QUESTION MODAL ===== -->
+      <div
+        id="questionManager"
+        class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50"
+      >
+        <div class="bg-white rounded-2xl w-[800px] max-w-[95%] p-6">
+          <h2 class="text-xl font-bold mb-4">✏️ Nhập câu hỏi</h2>
+
+          <p class="mb-2">Câu hỏi (<span id="questionCount2">0</span>)</p>
+
+          <div
+            id="questionList"
+            class="space-y-3 max-h-[400px] overflow-y-auto"
+          >
+            <p class="text-gray-400 text-center">Chưa có câu hỏi nào</p>
+          </div>
+
+          <div class="text-center mt-4">
+            <button
+              id="btnAddQuestion"
+              onclick="addQuestionForm()"
+              class="border px-4 py-2 rounded-lg text-blue-600"
+            >
+              ➕ THÊM CÂU HỎI
+            </button>
+          </div>
+
+          <div class="flex justify-end gap-3 mt-6">
+            <button onclick="closeQuestionManager()">Hủy</button>
+
+            <button
+              onclick="saveAllQuestions()"
+              class="bg-purple-500 text-white px-4 py-2 rounded-lg"
+            >
+              Lưu
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+    
     <script src="../js/games/toast.js"></script>
     <script src="../js/games/memory.js"></script>
   </body>

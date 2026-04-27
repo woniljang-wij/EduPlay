@@ -16,7 +16,7 @@
   <body class="bg-slate-50 text-slate-800 font-[Be_Vietnam_Pro]">
 
     <video autoplay muted loop playsinline id="bgVideo">
-     <source src="assets/videos/bg.mp4" type="video/mp4">
+     <source src="assets/videos/bg (1).mp4" type="video/mp4">
     </video>
 
     <!-- NAVBAR -->
@@ -116,91 +116,103 @@
       <div class="h-1.5 w-24 bg-blue-600 mx-auto rounded-full"></div>
     </div>
 
-    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+<div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
 
-  <!-- Card -->
-  <a href="games/turnbased.html"
-     class="game-card require-login bg-white p-8 rounded-3xl border border-gray-100 shadow-sm text-center block flex flex-col justify-between h-full">
+  <!-- CARD 1 -->
+  <div class="game-card">
+    <div class="game-card-inner text-center flex flex-col justify-between h-full">
 
-    <div>
-      <div class="icon w-20 h-20 bg-green-100 rounded-2xl flex items-center justify-center text-4xl mx-auto mb-6">
-        🎲
+      <div>
+        <div class="icon w-20 h-20 bg-green-100 rounded-2xl flex items-center justify-center text-4xl mx-auto mb-6">
+          🎲
+        </div>
+
+        <h3 class="text-xl font-bold mb-3">Game Theo Lượt</h3>
+
+        <p class="text-gray-500 mb-6">
+          Tung xúc xắc, di chuyển nhân vật, vượt chướng ngại vật bằng câu hỏi.
+        </p>
       </div>
 
-      <h3 class="text-xl font-bold mb-3">Game Theo Lượt</h3>
+      <button class="game-btn require-login bg-gradient-to-r from-blue-500 to-purple-500 text-white px-5 py-2 rounded-xl"
+        data-url="games/turnbased.html">
+        Bắt đầu
+      </button>
 
-      <p class="text-gray-500 mb-6 line-clamp-2">
-        Tung xúc xắc, di chuyển nhân vật, vượt chướng ngại vật bằng câu hỏi.
-      </p>
     </div>
+  </div>
 
-    <button class="game-btn bg-gradient-to-r from-blue-500 to-purple-500 text-white px-5 py-2 rounded-xl">
-      Bắt đầu
-    </button>
-  </a>
+  <!-- CARD 2 -->
+  <div class="game-card">
+    <div class="game-card-inner text-center flex flex-col justify-between h-full">
 
-  <!-- Card -->
-  <a href="games/tugofwar.html"
-     class="game-card require-login bg-white p-8 rounded-3xl border border-gray-100 shadow-sm text-center block flex flex-col justify-between h-full">
+      <div>
+        <div class="icon w-20 h-20 bg-green-100 rounded-2xl flex items-center justify-center text-4xl mx-auto mb-6">
+          🍉
+        </div>
 
-    <div>
-      <div class="icon w-20 h-20 bg-blue-100 rounded-2xl flex items-center justify-center text-4xl mx-auto mb-6">
-        🧠
+        <h3 class="text-xl font-bold mb-3">Chém Hoa Quả</h3>
+
+        <p class="text-gray-500 mb-6">
+          Phản xạ nhanh tay chọn đáp án bay trên màn hình.
+        </p>
       </div>
 
-      <h3 class="text-xl font-bold mb-3">Kéo Co Kiến Thức</h3>
+      <button class="game-btn require-login bg-gradient-to-r from-blue-500 to-purple-500 text-white px-5 py-2 rounded-xl"
+        data-url="games/quizfruit.html">
+        Bắt đầu
+      </button>
 
-      <p class="text-gray-500 mb-6 line-clamp-2">
-        Đội nào trả lời nhanh và đúng hơn sẽ thắng cuộc.
-      </p>
     </div>
+  </div>
 
-    <button class="game-btn bg-gradient-to-r from-blue-500 to-purple-500 text-white px-5 py-2 rounded-xl">
-      Bắt đầu
-    </button>
-  </a>
+  <!-- CARD 3 -->
+  <div class="game-card">
+    <div class="game-card-inner text-center flex flex-col justify-between h-full">
 
-  <!-- Card -->
-  <a href="games/quizfruit.html"
-     class="game-card require-login bg-white p-8 rounded-3xl border border-gray-100 shadow-sm text-center block flex flex-col justify-between h-full">
+      <div>
+        <div class="icon w-20 h-20 bg-purple-100 rounded-2xl flex items-center justify-center text-4xl mx-auto mb-6">
+          🧩
+        </div>
 
-    <div>
-      <div class="icon w-20 h-20 bg-green-100 rounded-2xl flex items-center justify-center text-4xl mx-auto mb-6">
-        🍉
+        <h3 class="text-xl font-bold mb-3">Lật Mảnh Ghép</h3>
+
+        <p class="text-gray-500 mb-6">
+          Giải mã bức tranh bí ẩn đằng sau các câu hỏi khó.
+        </p>
       </div>
 
-      <h3 class="text-xl font-bold mb-3">Chém Hoa Quả</h3>
+      <button class="game-btn require-login bg-gradient-to-r from-blue-500 to-purple-500 text-white px-5 py-2 rounded-xl"
+        data-url="games/memory.html">
+        Bắt đầu
+      </button>
 
-      <p class="text-gray-500 mb-6 line-clamp-2">
-        Phản xạ nhanh tay chọn đáp án bay trên màn hình.
-      </p>
     </div>
+  </div>
 
-    <button class="game-btn bg-gradient-to-r from-blue-500 to-purple-500 text-white px-5 py-2 rounded-xl">
-      Bắt đầu
-    </button>
-  </a>
+  <!-- CARD 4 -->
+  <div class="game-card">
+    <div class="game-card-inner text-center flex flex-col justify-between h-full">
 
-  <!-- Card -->
-  <a href="games/memory.html"
-     class="game-card require-login bg-white p-8 rounded-3xl border border-gray-100 shadow-sm text-center block flex flex-col justify-between h-full">
+      <div>
+        <div class="icon w-20 h-20 bg-blue-100 rounded-2xl flex items-center justify-center text-4xl mx-auto mb-6">
+          🧠
+        </div>
 
-    <div>
-      <div class="icon w-20 h-20 bg-purple-100 rounded-2xl flex items-center justify-center text-4xl mx-auto mb-6">
-        🧩
+        <h3 class="text-xl font-bold mb-3">Kéo Co Kiến Thức</h3>
+
+        <p class="text-gray-500 mb-6">
+          Đội nào trả lời nhanh và đúng hơn sẽ thắng cuộc.
+        </p>
       </div>
 
-      <h3 class="text-xl font-bold mb-3">Lật Mảnh Ghép</h3>
+      <button class="game-btn require-login bg-gradient-to-r from-blue-500 to-purple-500 text-white px-5 py-2 rounded-xl"
+        data-url="games/tugofwar.html">
+        Bắt đầu
+      </button>
 
-      <p class="text-gray-500 mb-6 line-clamp-2">
-        Giải mã bức tranh bí ẩn đằng sau các câu hỏi khó.
-      </p>
     </div>
-
-    <button class="game-btn bg-gradient-to-r from-blue-500 to-purple-500 text-white px-5 py-2 rounded-xl">
-      Bắt đầu
-    </button>
-  </a>
+  </div>
 
 </div>
 

@@ -28,29 +28,23 @@ if (user && navAuth) {
     ctaButtons.style.display = "none";
   }
 
-  // logout
   document.getElementById("logoutBtn").addEventListener("click", () => {
     window.location.href = "logout.html";
   });
 }
 
-// ================= GAME AUTH =================
-
-// 👉 intercept tất cả card game
-document.querySelectorAll(".require-login").forEach((card) => {
-  card.addEventListener("click", function (e) {
+document.querySelectorAll(".game-btn").forEach((btn) => {
+  btn.addEventListener("click", function (e) {
     const user = localStorage.getItem("user");
+    const url = this.dataset.url;
 
     if (!user) {
-      e.preventDefault(); // chặn link
+      e.preventDefault();
 
-      const url = this.getAttribute("href");
-
-      // lưu lại trang muốn vào
       localStorage.setItem("redirectAfterLogin", url);
-
-      // chuyển login
       window.location.href = "login.html";
+    } else {
+      window.location.href = url;
     }
   });
 });
@@ -62,3 +56,21 @@ function confirmLogout() {
     window.location.href = "index.html";
   }, 300);
 }
+
+// ===== AUTO ENABLE SOUND =====
+(function () {
+  const video = document.getElementById("bgVideo");
+
+  if (!video) return;
+
+  function enableSound() {
+    video.muted = false;
+    video.volume = 1;
+
+    video.play().catch(() => {});
+  }
+
+  document.addEventListener("mousemove", enableSound, { once: true });
+  document.addEventListener("click", enableSound, { once: true });
+  document.addEventListener("touchstart", enableSound, { once: true });
+})();

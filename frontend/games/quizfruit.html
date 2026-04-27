@@ -6,12 +6,16 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../css/quizfruit.css" />
     <link rel="stylesheet" href="../css/toast.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
   </head>
 
   <body class="min-h-screen flex">
-
     <video autoplay muted loop playsinline id="bgVideo">
-     <source src="../assets/videos/quizfruit.mp4" type="video/mp4">
+      <source src="../assets/videos/quizfruit.mp4" type="video/mp4" />
     </video>
 
     <!-- SIDEBAR -->
@@ -44,20 +48,6 @@
           >
             ➕ Tạo bài mới
           </button>
-
-          <div class="px-4 py-3 bg-green-100 rounded-xl text-sm">
-            Đã dùng 0/5 bài
-          </div>
-
-          <button
-            class="w-full px-4 py-3 rounded-xl bg-red-500 text-white font-semibold"
-          >
-            ⭐ Nâng cấp Lẻ
-          </button>
-
-          <button class="w-full px-4 py-3 rounded-xl bg-gray-100">
-            🐛 Báo lỗi
-          </button>
         </div>
       </div>
     </aside>
@@ -85,50 +75,59 @@
           </h1>
 
           <!-- TITLE -->
-          <input
-            id="title"
-            class="w-full p-3 border rounded-xl mb-4"
-            placeholder="Tên bài học"
-          />
+          <div class="mb-5">
+            <label class="label-ui">
+              <i class="bi bi-pencil-square"></i>
+              Tiêu đề bài học
+            </label>
 
-          <!-- TIME -->
-          <div class="mb-4">
-            <label class="text-sm text-gray-500">⏱ Thời gian mỗi câu</label>
             <input
-              id="time"
-              type="number"
-              class="w-full p-3 border rounded-xl mt-1"
-              value="25"
+              id="title"
+              class="input-ui"
+              placeholder="Nhập tên bài học..."
             />
           </div>
 
-          <!-- SPEED -->
-          <div class="mb-4">
-            <p class="text-sm text-gray-500 mb-2">🍉 Tốc độ</p>
+          <!-- TIME -->
+          <div class="mb-5">
+            <label class="label-ui">
+              <i class="bi bi-stopwatch"></i>
+              Thời gian mỗi câu
+            </label>
 
-            <div class="flex gap-3">
-              <button class="speed-btn ui-btn" data-speed="fast">
-                🚀 Nhanh
-              </button>
-              <button class="speed-btn ui-btn" data-speed="medium">
+            <input id="time" type="number" class="input-ui" value="25" />
+          </div>
+
+          <!-- SPEED -->
+          <div class="mb-6">
+            <label class="label-ui">
+              <i class="bi bi-speedometer2"></i>
+              Tốc độ game
+            </label>
+
+            <div class="flex gap-3 mt-2">
+              <button class="speed-btn" data-speed="fast">🚀 Nhanh</button>
+              <button class="speed-btn" data-speed="medium">
                 ⚡ Trung bình
               </button>
-              <button class="speed-btn ui-btn" data-speed="slow">
-                🐢 Chậm
-              </button>
+              <button class="speed-btn" data-speed="slow">🐢 Chậm</button>
             </div>
           </div>
 
           <!-- QUESTION -->
-          <h3 id="questionCount" class="font-semibold mb-2">Câu hỏi (0)</h3>
+          <h3 id="questionCount" class="section-title">
+            <i class="bi bi-patch-question"></i>
+            Câu hỏi (0)
+          </h3>
 
           <div class="flex gap-3 mb-4">
             <button
               onclick="startAddQuestion()"
               id="btnAddFirst"
-              class="border px-4 py-2 rounded-xl"
+              class="btn-outline flex items-center gap-2"
             >
-              ✏️ Nhập câu hỏi
+              <i class="bi bi-plus-circle"></i>
+              Thêm câu hỏi
             </button>
           </div>
 
@@ -137,19 +136,13 @@
           </div>
 
           <!-- ACTION -->
-          <div class="flex justify-end gap-3">
-            <button
-              onclick="goHome()"
-              class="btn-secondary px-4 py-2 rounded-xl"
-            >
-              HỦY
+          <div class="action-bar">
+            <button onclick="goHome()" class="btn-secondary">
+              <i class="bi bi-x-circle"></i> Hủy
             </button>
 
-            <button
-              onclick="saveGame()"
-              class="btn-primary px-5 py-2 rounded-xl"
-            >
-              LƯU
+            <button onclick="saveGame()" class="btn-primary">
+              <i class="bi bi-save"></i> Lưu bài
             </button>
           </div>
         </div>
@@ -158,7 +151,7 @@
 
     <!-- TOAST -->
     <div id="toast"></div>
-    
+
     <script src="../js/games/toast.js" defer></script>
     <script src="../js/games/quizfruit.js" defer></script>
   </body>

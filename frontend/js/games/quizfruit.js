@@ -376,6 +376,18 @@ function addQuestion() {
   tempQuestions.push(q);
 
   renderQuestions();
+
+  setTimeout(() => {
+    const items = document.querySelectorAll("#questionList > div");
+    const last = items[items.length - 1];
+
+    if (last) {
+      last.scrollIntoView({ behavior: "smooth", block: "center" });
+
+      const input = last.querySelector("input");
+      if (input) input.focus();
+    }
+  }, 50);
 }
 
 function renderQuestions() {
@@ -384,7 +396,8 @@ function renderQuestions() {
 
   if (tempQuestions.length === 0) {
     box.innerHTML = `<p class="text-gray-400 text-center">Chưa có câu hỏi nào</p>`;
-    document.getElementById("questionCount").innerText = "Câu hỏi (0)";
+    document.getElementById("questionCount").innerHTML =
+      `<i class="bi bi-patch-question"></i> Câu hỏi (0)`;
 
     if (btn) btn.style.display = "inline-block";
 
@@ -394,7 +407,7 @@ function renderQuestions() {
   box.innerHTML = tempQuestions
     .map(
       (q, i) => `
-      <div class="bg-white p-4 rounded-xl shadow border">
+      <div class="bg-white p-4 rounded-xl shadow border question-item">
         <div class="flex justify-between items-center mb-2">
           <b>Câu ${i + 1}</b>
           <button onclick="deleteQuestion(${i})" class="text-red-500">🗑</button>
@@ -441,8 +454,8 @@ function renderQuestions() {
     )
     .join("");
 
-  document.getElementById("questionCount").innerText =
-    "Câu hỏi (" + tempQuestions.length + ")";
+  document.getElementById("questionCount").innerHTML =
+    `<i class="bi bi-patch-question"></i> Câu hỏi (${tempQuestions.length})`;
 
   if (btn) btn.style.display = "none";
 }
