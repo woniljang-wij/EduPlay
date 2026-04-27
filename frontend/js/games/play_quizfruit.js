@@ -120,7 +120,7 @@ function startQuestion() {
   }, 50);
 
   const maxTime = parseInt(game.time) || 10;
-  totalTime = maxTime * 1000; // ms
+  totalTime = maxTime * 1000; 
   startTime = Date.now();
 
   runTimer();
@@ -232,7 +232,6 @@ function spawnAnswers(q) {
 
     gameArea.appendChild(fruit);
 
-    // ✅ thêm vị trí & vận tốc
     const x = Math.random() * window.innerWidth;
     const y = window.innerHeight;
 
@@ -253,7 +252,6 @@ function spawnAnswers(q) {
 
     fruits.push(obj);
 
-    // 🔥 QUAN TRỌNG NHẤT
     animateFruit(obj);
   });
 }
@@ -282,7 +280,6 @@ function playSlash() {
   slashSound.play().catch(() => {});
 }
 
-// 🎯 physics bay cong
 function animateFruit(fruit) {
   const gravity = 0.5;
 
@@ -311,7 +308,7 @@ function animateFruit(fruit) {
 
   loop();
 }
-// 🖱️ swipe detection
+
 let lastPoint = null;
 
 document.addEventListener("mousemove", (e) => {
@@ -610,7 +607,7 @@ function flashWin() {
 }
 
 function playVictorySound() {
-  const audio = new Audio("../assets/sounds/victory.mp3");
+  const audio = new Audio("../assets/sounds/win.mp3");
   audio.volume = 0.6;
   audio.play();
 }
