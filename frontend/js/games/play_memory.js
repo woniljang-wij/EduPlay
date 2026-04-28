@@ -1,3 +1,7 @@
+let timerRAF = null;
+let timerStart = 0;
+let timerDuration = 0;
+
 // ===== LOAD GAME =====
 const params = new URLSearchParams(window.location.search);
 const id = parseInt(params.get("id"));
@@ -28,6 +32,7 @@ if (questions.length < total) {
 
 const imageUrl = game.image;
 const answer = game.answer || game.name || "???";
+timerDuration = parseInt(game.time) || 0;
 
 // ===== STATE =====
 let opened = Array(total).fill(false);
@@ -47,22 +52,44 @@ window.onload = () => {
 function renderGrid() {
   const board = document.getElementById("grid");
 
-  board.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
   board.innerHTML = "";
 
-  // ✅ ẢNH FULL ở grid
-  board.style.backgroundImage = `url(${imageUrl})`;
+  const img = document.createElement("img");
+  img.id = "gameImage";
+  img.src = imageUrl;
 
-  for (let i = 0; i < total; i++) {
-    const tile = document.createElement("div");
+  board.appendChild(img);
 
-    tile.className = "tile";
-    tile.innerText = i + 1;
+  img.onload = () => {
+    const ratio = img.naturalWidth / img.naturalHeight;
 
-    tile.onclick = () => handleTileClick(i);
+    let width, height;
 
-    board.appendChild(tile);
-  }
+    if (ratio > 1) {
+      width = Math.min(600, window.innerWidth * 0.9);
+      height = width / ratio;
+    } else {
+      height = Math.min(600, window.innerHeight * 0.6);
+      width = height * ratio;
+    }
+
+    board.style.width = width + "px";
+    board.style.height = height + "px";
+
+    board.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+    board.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
+
+    for (let i = 0; i < total; i++) {
+      const tile = document.createElement("div");
+
+      tile.className = "tile";
+      tile.innerText = i + 1;
+
+      tile.onclick = () => handleTileClick(i);
+
+      board.appendChild(tile);
+    }
+  };
 }
 
 // ===== CLICK =====
@@ -107,12 +134,14 @@ function showQuestion(index) {
 
     answersBox.appendChild(btn);
   });
-
+  startQuestionTimer();
   document.getElementById("questionModal").classList.remove("hidden");
 }
 
 // ===== SUBMIT =====
 function submitAnswer() {
+  cancelAnimationFrame(timerRAF);
+
   if (selectedAnswer === null) {
     showToast("Chọn đáp án!", "warning");
     return;
@@ -137,8 +166,47 @@ function checkAnswer(selected) {
   closeModal();
 }
 
+function startQuestionTimer() {
+  if (timerDuration <= 0) return;
+
+  cancelAnimationFrame(timerRAF);
+
+  timerStart = performance.now();
+
+  const circle = document.getElementById("timerCircle");
+  const text = document.getElementById("timerText");
+
+  const circumference = 2 * Math.PI * 20;
+
+  function update(now) {
+    const elapsed = (now - timerStart) / 1000;
+    const remain = Math.max(0, timerDuration - elapsed);
+
+    const percent = remain / timerDuration;
+    const offset = circumference * (1 - percent);
+
+    circle.style.strokeDashoffset = offset;
+    text.innerText = Math.ceil(remain);
+
+    if (remain <= 3) circle.style.stroke = "#ff4444";
+    else if (remain <= 6) circle.style.stroke = "#ffaa00";
+    else circle.style.stroke = "#00ff88";
+
+    if (remain <= 0) {
+      showToast("⏰ Hết giờ!", "error");
+      closeModal();
+      return;
+    }
+
+    timerRAF = requestAnimationFrame(update);
+  }
+
+  timerRAF = requestAnimationFrame(update);
+}
+
 // ===== CLOSE =====
 function closeModal() {
+  cancelAnimationFrame(timerRAF);
   document.getElementById("questionModal").classList.add("hidden");
 }
 
@@ -147,10 +215,9 @@ function openTile(index) {
   opened[index] = true;
   doneCount++;
 
-  const board = document.getElementById("grid");
-  const tile = board.children[index];
+  const tiles = document.querySelectorAll("#grid .tile");
+  const tile = tiles[index];
 
-  // ✅ chỉ bỏ lớp che
   tile.classList.add("opened");
   tile.innerText = "";
 
@@ -163,8 +230,7 @@ function openTile(index) {
 function updateProgress() {
   const percent = Math.floor((doneCount / total) * 100);
 
-  document.getElementById("progressText").innerText =
-    `${doneCount}/${total} (${percent}%)`;
+  document.getElementById("progressText").innerText = percent + "%";
 
   document.getElementById("progressBar").style.width = percent + "%";
 }
@@ -183,8 +249,12 @@ function showWin() {
 
 function launchConfetti() {
   const colors = [
-    "#ff4d4d", "#22c55e", "#3b82f6",
-    "#facc15", "#a855f7", "#ec4899"
+    "#ff4d4d",
+    "#22c55e",
+    "#3b82f6",
+    "#facc15",
+    "#a855f7",
+    "#ec4899",
   ];
 
   const shapes = ["circle", "square", "triangle"];
@@ -227,13 +297,14 @@ function launchConfetti() {
     const rotate = Math.random() * 720;
     const duration = 1200 + Math.random() * 800;
 
-    el.animate([
-      {
-        transform: `translate(-50%, -50%) scale(1)`,
-        opacity: 1
-      },
-      {
-        transform: `
+    el.animate(
+      [
+        {
+          transform: `translate(-50%, -50%) scale(1)`,
+          opacity: 1,
+        },
+        {
+          transform: `
           translate(
             calc(-50% + ${Math.cos(angle) * distance}px),
             calc(-50% + ${Math.sin(angle) * distance}px)
@@ -241,12 +312,14 @@ function launchConfetti() {
           rotate(${rotate}deg)
           scale(0.6)
         `,
-        opacity: 0
-      }
-    ], {
-      duration: duration,
-      easing: "ease-out"
-    });
+          opacity: 0,
+        },
+      ],
+      {
+        duration: duration,
+        easing: "ease-out",
+      },
+    );
 
     setTimeout(() => el.remove(), duration);
   }
@@ -262,7 +335,10 @@ function closeGuess() {
 }
 
 function submitGuess() {
-  const input = document.getElementById("guessInput").value.trim().toLowerCase();
+  const input = document
+    .getElementById("guessInput")
+    .value.trim()
+    .toLowerCase();
 
   if (!input) {
     showToast("Nhập đáp án!", "warning");
@@ -285,11 +361,12 @@ function submitGuess() {
 
 function revealAll() {
   const board = document.getElementById("grid");
+  const tiles = board.querySelectorAll(".tile");
 
   for (let i = 0; i < total; i++) {
     if (!opened[i]) {
       opened[i] = true;
-      board.children[i].classList.add("opened");
+      tiles[i].classList.add("opened");
     }
   }
 
