@@ -1027,3 +1027,15 @@ function undoDelete() {
 
   deletedGame = null;
 }
+
+window.addEventListener("load", () => {
+  const transition = document.getElementById("pageTransition");
+
+  requestAnimationFrame(() => {
+    transition.classList.add("play");
+  });
+
+  setTimeout(() => {
+    transition.remove();
+  }, 2000);
+});

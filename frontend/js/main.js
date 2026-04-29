@@ -74,3 +74,21 @@ function confirmLogout() {
   document.addEventListener("click", enableSound, { once: true });
   document.addEventListener("touchstart", enableSound, { once: true });
 })();
+
+
+const container = document.querySelector(".floating-particles");
+
+for (let i = 0; i < 40; i++) {
+  const particle = document.createElement("span");
+
+  particle.style.left = Math.random() * 100 + "vw";
+  particle.style.bottom = "-" + Math.random() * 20 + "vh";
+
+  particle.style.animationDuration = 6 + Math.random() * 6 + "s";
+  particle.style.animationDelay = Math.random() * 5 + "s";
+
+  particle.style.width = particle.style.height =
+    6 + Math.random() * 10 + "px";
+
+  container.appendChild(particle);
+}
