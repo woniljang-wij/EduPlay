@@ -1,32 +1,50 @@
 <!doctype html>
 <html lang="vi">
-<head>
-  <meta charset="UTF-8">
-  <title>Fruit Ninja Demo</title>
-  <link rel="stylesheet" href="../css/play_quizfruit.css" />
-  <link rel="stylesheet" href="../css/toast.css" />
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Fruit Ninja Demo</title>
 
-<body>
+    <link rel="stylesheet" href="../css/confetti.css" />
+    <link rel="stylesheet" href="../css/play_quizfruit.css" />
+    <link rel="stylesheet" href="../css/toast.css" />
+  </head>
 
-<div id="gameArea"></div>
+  <body>
+    <div id="gameArea"></div>
 
-<div class="game-controls">
-  <button id="soundBtn">🔊</button>
-  <button id="exitBtn" onclick="openExit()">THOÁT</button>
-</div>
+    <div id="endScene" class="end-scene hidden">
+      <!-- VIDEO -->
+      <video id="endVideo" class="end-video"></video>
 
-<div id="exitModal" class="exit-modal">
-  <div class="exit-box">
-    <p>Bạn muốn thoát game?</p>
-    <div class="exit-actions">
-      <button onclick="confirmExit()" class="btn-exit">Thoát</button>
-      <button onclick="closeExit()" class="btn-cancel">Ở lại</button>
+      <!-- OVERLAY SAU KHI VIDEO KẾT THÚC -->
+      <div id="endOverlay" class="end-overlay hidden">
+        <h2 id="endTitle"></h2>
+        <p id="endScore"></p>
+
+        <div class="end-actions">
+          <button onclick="replayGame()">Chơi lại</button>
+          <button onclick="confirmExit()">Thoát</button>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
-<script src="../js/games/toast.js" defer></script>
-<script src="../js/games/play_quizfruit.js" defer></script>
-</body>
+    <div class="game-controls">
+      <button id="soundBtn">🔊</button>
+      <button id="exitBtn" onclick="openExit()">THOÁT</button>
+    </div>
+
+    <div id="exitModal" class="exit-modal">
+      <div class="exit-box">
+        <p>Bạn muốn thoát game?</p>
+        <div class="exit-actions">
+          <button onclick="confirmExit()" class="btn-exit">Thoát</button>
+          <button onclick="closeExit()" class="btn-cancel">Ở lại</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="../js/games/toast.js" defer></script>
+    <script src="../js/games/confetti.js"></script>
+    <script src="../js/games/play_quizfruit.js" defer></script>
+  </body>
 </html>

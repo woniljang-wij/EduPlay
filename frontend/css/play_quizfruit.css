@@ -4,14 +4,12 @@ body {
   background: url("../assets/images/bg_wood.png") center/cover no-repeat;
 }
 
-/* GAME */
 #gameArea {
   width: 100%;
   height: 100vh;
   position: relative;
 }
 
-/* FRUIT */
 .fruit {
   position: absolute;
   width: 250px;
@@ -23,13 +21,12 @@ body {
   width: 100%;
 }
 
-/* HALF */
 .half {
   position: absolute;
   width: 250px;
   pointer-events: none;
 
-  filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5));
+  filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.5));
 }
 
 /* ✂️ NỬA TRÁI */
@@ -42,7 +39,6 @@ body {
   clip-path: polygon(55% 0, 100% 0, 100% 100%, 45% 100%);
 }
 
-/* SPLASH */
 .splash {
   position: absolute;
   width: 120px;
@@ -110,7 +106,7 @@ body {
 .exit-modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   display: none;
   justify-content: center;
   align-items: center;
@@ -123,8 +119,7 @@ body {
   border-radius: 16px;
   color: white;
   text-align: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-  animation: popIn 0.2s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .exit-actions {
@@ -134,7 +129,7 @@ body {
   justify-content: center;
 }
 
-.btn-exit {
+.exit-modal .btn-exit{
   background: #ef4444;
   padding: 8px 18px;
   border: none;
@@ -152,17 +147,6 @@ body {
   cursor: pointer;
 }
 
-@keyframes popIn {
-  from {
-    transform: scale(0.8);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
 #questionBox {
   position: fixed;
   top: 20px;
@@ -171,17 +155,17 @@ body {
   width: 90%;
   max-width: 1100px;
 
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(6px);
 
   border-radius: 20px;
   padding: 18px 25px;
 
-  border: 2px solid rgba(255,255,255,0.2);
+  border: 2px solid rgba(255, 255, 255, 0.2);
 
   box-shadow:
-    0 10px 40px rgba(0,0,0,0.6),
-    inset 0 0 20px rgba(255,255,255,0.05);
+    0 10px 40px rgba(0, 0, 0, 0.6),
+    inset 0 0 20px rgba(255, 255, 255, 0.05);
 
   color: white;
   z-index: 999;
@@ -231,16 +215,15 @@ body {
   cursor: pointer;
 
   transition: all 0.2s ease;
-  
+
   position: relative;
   overflow: hidden;
 
   box-shadow:
-    inset 0 -4px rgba(0,0,0,0.3),
-    0 4px 10px rgba(0,0,0,0.4);
+    inset 0 -4px rgba(0, 0, 0, 0.3),
+    0 4px 10px rgba(0, 0, 0, 0.4);
 }
 
-/* hover */
 .ans:hover {
   transform: translateY(-3px) scale(1.05);
   filter: brightness(1.1);
@@ -249,15 +232,23 @@ body {
 /* click */
 .ans:active {
   transform: translateY(2px);
-  box-shadow: inset 0 2px rgba(0,0,0,0.4);
+  box-shadow: inset 0 2px rgba(0, 0, 0, 0.4);
 }
 
-.ans-0 { background: linear-gradient(135deg, #22c55e, #15803d); }
-.ans-1 { background: linear-gradient(135deg, #ef4444, #991b1b); }
-.ans-2 { background: linear-gradient(135deg, #facc15, #ca8a04); color: #000; }
-.ans-3 { background: linear-gradient(135deg, #a855f7, #6b21a8); }
+.ans-0 {
+  background: linear-gradient(135deg, #22c55e, #15803d);
+}
+.ans-1 {
+  background: linear-gradient(135deg, #ef4444, #991b1b);
+}
+.ans-2 {
+  background: linear-gradient(135deg, #facc15, #ca8a04);
+  color: #000;
+}
+.ans-3 {
+  background: linear-gradient(135deg, #a855f7, #6b21a8);
+}
 
-/* ánh sáng chạy */
 .ans::after {
   content: "";
   position: absolute;
@@ -269,7 +260,7 @@ body {
   background: linear-gradient(
     120deg,
     transparent,
-    rgba(255,255,255,0.4),
+    rgba(255, 255, 255, 0.4),
     transparent
   );
 
@@ -280,19 +271,6 @@ body {
   left: 100%;
 }
 
-.fruit-label {
-  position: absolute;
-  bottom: -20px;
-  width: 100%;
-  text-align: center;
-  font-weight: bold;
-  color: white;
-}
-
-/* ===================== */
-/* 🔥 TIMER CIRCLE XỊN */
-/* ===================== */
-
 .timer-circle {
   position: fixed;
   bottom: 25px;
@@ -301,7 +279,7 @@ body {
   height: 90px;
   z-index: 999;
 
-  filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
 }
 
 .timer-circle svg {
@@ -316,12 +294,10 @@ body {
   stroke-width: 8;
 }
 
-/* nền */
 .timer-circle .bg {
-  stroke: rgba(255,255,255,0.2);
+  stroke: rgba(255, 255, 255, 0.2);
 }
 
-/* thanh chạy */
 .timer-circle .progress {
   stroke: #22c55e;
   stroke-dasharray: 283;
@@ -329,7 +305,6 @@ body {
   transition: stroke 0.3s;
 }
 
-/* số */
 .timer-text {
   position: absolute;
   inset: 0;
@@ -341,10 +316,9 @@ body {
   font-weight: 900;
   color: white;
 
-  text-shadow: 0 0 10px rgba(255,255,255,0.8);
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
 }
 
-/* ⚠️ danger mode */
 .timer-circle.danger .progress {
   stroke: #ef4444;
 }
@@ -355,195 +329,21 @@ body {
 }
 
 @keyframes shake {
-  0% { transform: translate(0, 0) scale(1.15); }
-  25% { transform: translate(-2px, 2px) scale(1.15); }
-  50% { transform: translate(2px, -2px) scale(1.15); }
-  75% { transform: translate(-2px, -2px) scale(1.15); }
-  100% { transform: translate(0, 0) scale(1.15); }
-}
-
-/* 🎮 Overlay kiểu game (không blur sang chảnh nữa) */
-.end-modal {
-  position: fixed;
-  inset: 0;
-
-  /* 🔥 lớp tối */
-  background: rgba(0,0,0,0.6);
-
-  /* 🔥 BLUR nền phía sau */
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  z-index: 9999;
-}
-
-.end-modal::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-
-  background: radial-gradient(circle at center,
-    transparent 40%,
-    rgba(0,0,0,0.7) 100%
-  );
-
-  pointer-events: none;
-}
-
-/* 🍉 Popup kiểu bảng gỗ + giấy dán */
-.end-box {
-  background: url("../assets/images/bg_wood1.png") center/cover no-repeat;
-
-  transform: scale(1.05);
-
-  width: 400px;
-  height: 320px;
-
-  padding: 40px 50px;
-  border-radius: 20px;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-
-  text-align: center;
-
-  border: 6px solid #5c3b1e;
-
-  box-shadow:
-    inset 0 0 20px rgba(0,0,0,0.6),
-    0 10px 40px rgba(0,0,0,0.8);
-
-  animation: bounceIn 0.4s ease;
-}
-
-/* 🎯 Tiêu đề kiểu brush */
-.end-title {
-  font-size: 42px;
-  color: #fff;
-  font-weight: bold;
-
-  text-shadow:
-    2px 2px 0 #000,
-    0 0 10px rgba(255,255,255,0.3);
-
-  margin-bottom: 10px;
-}
-
-/* 💯 Điểm số kiểu arcade */
-.end-score {
-  font-size: 60px;
-  font-weight: 900;
-  color: #ffeb3b;
-
-  min-height: 70px;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* 📝 Sub text */
-.end-sub {
-  color: #fff;
-  font-size: 16px;
-  text-shadow: 1px 1px 0 #000;
-  margin-bottom: 25px;
-}
-
-/* 🎮 Buttons kiểu game */
-.end-actions {
-  display: flex;
-  gap: 15px;
-  justify-content: center;
-}
-
-.btn-replay {
-  background: #22c55e;
-  color: white;
-  padding: 12px 25px;
-  border-radius: 10px;
-  border: none;
-  font-weight: bold;
-  cursor: pointer;
-
-  box-shadow: 0 4px 0 #166534;
-}
-
-.btn-replay:active {
-  transform: translateY(3px);
-  box-shadow: 0 1px 0 #166534;
-}
-
-.btn-exit {
-  background: #ef4444;
-  color: white;
-  padding: 12px 25px;
-  border-radius: 10px;
-  border: none;
-  font-weight: bold;
-  cursor: pointer;
-
-  box-shadow: 0 4px 0 #7f1d1d;
-}
-
-.btn-exit:active {
-  transform: translateY(3px);
-  box-shadow: 0 1px 0 #7f1d1d;
-}
-
-/* 🎉 Animation popup */
-@keyframes bounceIn {
-  0% { transform: scale(0.5); opacity: 0; }
-  60% { transform: scale(1.1); }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-/* 🗡️ SLASH */
-.slash-line {
-  box-shadow:
-    0 0 10px rgba(255,255,255,0.8),
-    0 0 20px rgba(99,102,241,0.6),
-    0 0 40px rgba(147,51,234,0.5);
-
-  position: absolute;
-  height: 6px;
-
-  background: linear-gradient(90deg,
-    rgba(255,255,255,0),
-    rgba(255,255,255,0.9),
-    rgba(255,255,255,0)
-  );
-
-  border-radius: 10px;
-  pointer-events: none;
-
-  transform-origin: left center;
-
-  filter: blur(2px);
-  opacity: 0.9;
-
-  animation: slashFade 0.2s forwards;
-}
-
-@keyframes slashFade {
-  to {
-    opacity: 0;
-    transform: scaleX(1.3);
+  0% {
+    transform: translate(0, 0) scale(1.15);
   }
-}
-
-
-@keyframes shakeScreen {
-  0% { transform: translate(0); }
-  25% { transform: translate(-5px, 5px); }
-  50% { transform: translate(5px, -5px); }
-  75% { transform: translate(-5px, -5px); }
-  100% { transform: translate(0); }
+  25% {
+    transform: translate(-2px, 2px) scale(1.15);
+  }
+  50% {
+    transform: translate(2px, -2px) scale(1.15);
+  }
+  75% {
+    transform: translate(-2px, -2px) scale(1.15);
+  }
+  100% {
+    transform: translate(0, 0) scale(1.15);
+  }
 }
 
 .game-controls {
@@ -555,13 +355,12 @@ body {
   z-index: 1000;
 }
 
-/* 🔊 sound button */
 #soundBtn {
   width: 45px;
   height: 45px;
 
   background: radial-gradient(circle at top, #333, #111);
-  border: 2px solid rgba(255,255,255,0.2);
+  border: 2px solid rgba(255, 255, 255, 0.2);
 
   border-radius: 12px;
 
@@ -571,8 +370,8 @@ body {
   cursor: pointer;
 
   box-shadow:
-    inset 0 2px rgba(255,255,255,0.2),
-    0 4px 10px rgba(0,0,0,0.5);
+    inset 0 2px rgba(255, 255, 255, 0.2),
+    0 4px 10px rgba(0, 0, 0, 0.5);
 
   transition: all 0.2s ease;
 }
@@ -580,10 +379,355 @@ body {
 #soundBtn:hover {
   transform: scale(1.1);
   box-shadow:
-    0 0 10px rgba(255,255,255,0.5),
-    0 4px 15px rgba(0,0,0,0.6);
+    0 0 10px rgba(255, 255, 255, 0.5),
+    0 4px 15px rgba(0, 0, 0, 0.6);
 }
 
 #soundBtn:active {
   transform: scale(0.95);
+}
+
+.end-scene {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: black;
+}
+
+.end-actions {
+  margin-top: 10px;
+  pointer-events: auto;
+}
+
+.end-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.end-overlay {
+  position: absolute;
+  inset: 0;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.3),
+    rgba(0, 0, 0, 0.85)
+  );
+
+  color: white;
+  text-align: center;
+
+  gap: 20px;
+  padding-top: 40px;
+
+  animation: fadeIn 0.6s ease;
+
+  pointer-events: auto;
+}
+
+.end-overlay h2 {
+  font-size: 60px;
+  font-weight: 900;
+
+  margin: 0;
+  line-height: 1.2;
+
+  background: linear-gradient(90deg, #22c55e, #3b82f6, #a855f7);
+  background-size: 200%;
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  animation:
+    shineText 2s linear infinite,
+    titlePop 0.5s ease;
+
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+@keyframes titlePop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  80% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.end-overlay p {
+  font-size: 26px;
+  margin: 0;
+  color: #facc15;
+
+  text-shadow:
+    0 0 10px rgba(255, 255, 0, 0.5),
+    0 0 20px rgba(255, 255, 0, 0.3);
+}
+
+.end-overlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background: radial-gradient(circle, transparent 40%, rgba(0, 0, 0, 0.8) 100%);
+
+  pointer-events: none;
+}
+
+.end-actions button {
+  margin: 10px;
+  padding: 14px 30px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+
+  font-weight: bold;
+  font-size: 16px;
+
+  transition: all 0.25s ease;
+  pointer-events: auto;
+}
+
+.end-actions button:first-child {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+  box-shadow: 0 5px 0 #14532d;
+}
+
+.end-actions button:last-child {
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+  color: white;
+  box-shadow: 0 5px 0 #7f1d1d;
+}
+
+.end-actions button:hover {
+  box-shadow:
+    0 0 10px rgba(255, 255, 255, 0.4),
+    0 0 20px rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.end-actions button:active {
+  transform: translateY(3px);
+  box-shadow: none;
+}
+
+.hidden {
+  display: none;
+}
+
+@keyframes shineText {
+  from {
+    background-position: 0%;
+  }
+  to {
+    background-position: 200%;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+#endScore span {
+  font-size: 28px;
+  letter-spacing: 2px;
+
+  text-shadow:
+    0 0 10px currentColor,
+    0 0 20px currentColor,
+    0 0 40px currentColor;
+
+  animation: rankPop 0.5s ease;
+}
+
+@keyframes rankPop {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+#endScore {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.score-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+
+  font-size: 26px;
+  font-weight: bold;
+
+  text-shadow:
+    0 0 10px rgba(255, 255, 255, 0.3),
+    0 0 20px rgba(255, 255, 255, 0.2);
+}
+
+.score-line span,
+.score-line::before {
+  min-width: 30px;
+  text-align: center;
+}
+
+.score-line.rank {
+  font-size: 28px;
+  letter-spacing: 2px;
+}
+
+/* ===== RANK (TOP - TRÊN PERFECT) ===== */
+.rank-img {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  margin-bottom: 8px;
+
+  animation: rankDrop 0.5s ease;
+}
+
+/* ===== IMAGE RANK ===== */
+.rank-img img {
+  width: 120px;
+  border-radius: 10px;
+
+  filter: drop-shadow(0 0 12px rgba(255,255,255,0.6));
+}
+
+/* ===== VIDEO RANK (SSS) ===== */
+.rank-video {
+  width: 150px;
+  border-radius: 50px;
+
+  /* giảm nền trắng */
+  filter: brightness(1) contrast(1.4)
+          drop-shadow(0 0 15px rgba(255,255,255,0.7));
+}
+
+/* ===== TITLE UPGRADE (EDUPLAY STYLE) ===== */
+.end-overlay h2 {
+  font-size: 56px;
+  font-weight: 900;
+  letter-spacing: 2px;
+
+  margin: 10px 0;
+
+  /* gradient chính */
+  background: linear-gradient(
+    90deg,
+    #22c55e,
+    #3b82f6,
+    #a855f7,
+    #22c55e
+  );
+  background-size: 300%;
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  /* glow + depth */
+  text-shadow:
+    0 0 10px rgba(34,197,94,0.6),
+    0 0 20px rgba(59,130,246,0.6),
+    0 0 30px rgba(168,85,247,0.6),
+    0 4px 10px rgba(0,0,0,0.8);
+
+  /* animation */
+  animation:
+    gradientMove 3s linear infinite,
+    titlePop 0.5s ease,
+    titlePulse 1.5s ease-in-out infinite alternate;
+}
+
+/* ===== GRADIENT CHẠY ===== */
+@keyframes gradientMove {
+  0% { background-position: 0%; }
+  100% { background-position: 200%; }
+}
+
+/* ===== POP ===== */
+@keyframes titlePop {
+  0% {
+    transform: scale(0.5) translateY(-20px);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ===== NHỊP ĐẬP ===== */
+@keyframes titlePulse {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.05);
+  }
+}
+
+/* ===== SCORE ===== */
+#endScore {
+  margin-top: 5px;
+}
+
+.score-line {
+  font-size: 24px;
+  font-weight: bold;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  gap: 10px;
+
+  text-shadow:
+    0 0 10px rgba(255,255,255,0.3),
+    0 0 20px rgba(255,255,255,0.2);
+}
+
+/* ===== ANIMATION ===== */
+@keyframes rankDrop {
+  from {
+    transform: translateY(-40px) scale(0.7);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
 }

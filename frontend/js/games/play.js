@@ -9,7 +9,7 @@ const victoryVideos = [
   "../assets/videos/DoliaNKRD.mp4",
   "../assets/videos/Billow.mp4",
   "../assets/videos/Baron.mp4",
-  "../assets/videos/Victory.mp4",
+  "../assets/videos/Win.mp4",
 ];
 
 let lastVideo = -1;
@@ -305,12 +305,10 @@ function rollDice() {
     6: "rotateX(180deg) rotateY(0deg)",
   };
 
-  // ⏳ delay để nhìn như đang quay
   setTimeout(() => {
     dice.style.transform = finalRotation[roll];
   }, 100);
 
-  // 🎬 kết thúc
   setTimeout(() => {
     isRolling = false;
     movePlayer(roll);
@@ -481,7 +479,6 @@ function showVictory(playerName, playerIndex) {
   const box = document.getElementById("victoryBox");
   const winnerIcon = document.getElementById("winnerIcon");
 
-  // 🎯 nội dung
   winnerText.innerText = playerName + " chiến thắng!";
   if (winnerIcon) {
     winnerIcon.innerText = playerIcons[playerIndex];
@@ -489,14 +486,12 @@ function showVictory(playerName, playerIndex) {
 
   document.body.classList.add("modal-open");
 
-  // 🎲 random video
   const randomVideo = getRandomVideo();
 
   video.pause();
   video.src = randomVideo;
   video.currentTime = 0;
 
-  // 🎬 hiện video
   screen.classList.remove("hidden");
   screen.style.opacity = "1";
 
@@ -504,19 +499,14 @@ function showVictory(playerName, playerIndex) {
     document.body.addEventListener("click", () => video.play(), { once: true });
   });
 
-  // ❗ reset event
   video.onended = null;
 
   video.onended = () => {
-    // 🏆 hiện popup
     popup.classList.remove("hidden");
-
-    // animation
     box.classList.remove("victory-card");
     void box.offsetWidth;
     box.classList.add("victory-card");
 
-    // fade video
     screen.style.transition = "opacity 0.6s ease";
     screen.style.opacity = "0";
 
@@ -563,10 +553,8 @@ function showQuestion() {
 
   title.innerText = q.question;
 
-  // 🔥 TIMER
   timeLeft = q.time || 10;
 
-  // 👉 hiển thị timer
   title.innerHTML = `
     ${q.question}
     <div style="margin-top:8px; font-size:14px; color:red;">
@@ -643,11 +631,9 @@ function startTimer() {
 function handleTimeout() {
   const popup = document.getElementById("questionPopup");
 
-  // 🔒 disable click
   const buttons = popup.querySelectorAll("button");
   buttons.forEach((b) => (b.style.pointerEvents = "none"));
 
-  // 🔥 gọi chung logic
   handleAnswer(-1, -1, true);
 }
 
@@ -661,17 +647,18 @@ function handleAnswer(selected, correct, isTimeout = false) {
   const correctSound = document.getElementById("correctSound");
   const wrongSound = document.getElementById("wrongSound");
 
-  // 🔊 SOUND
   if (isCorrect) {
     correctSound.currentTime = 0;
     correctSound.play().catch(() => {});
-    launchConfettiBurst();
+
+    if (typeof launchConfetti === "function") {
+      launchConfetti(); 
+    }
   } else {
     wrongSound.currentTime = 0;
     wrongSound.play().catch(() => {});
   }
 
-  // 🎨 overlay kết quả
   const result = document.createElement("div");
 
   result.className = `
@@ -709,7 +696,6 @@ function handleAnswer(selected, correct, isTimeout = false) {
 
   popup.appendChild(result);
 
-  // 💥 RUNG khi sai hoặc timeout
   if (!isCorrect) {
     document.body.classList.add("shake");
     flashRed();
@@ -730,37 +716,6 @@ function handleAnswer(selected, correct, isTimeout = false) {
       nextTurn();
     }
   }, 1200);
-}
-
-function launchConfettiBurst() {
-  const centerX = window.innerWidth / 2;
-  const centerY = window.innerHeight / 2;
-
-  for (let i = 0; i < 40; i++) {
-    const piece = document.createElement("div");
-    piece.className = "confetti-pro";
-
-    // vị trí xuất phát (giữa)
-    piece.style.left = centerX + "px";
-    piece.style.top = centerY + "px";
-
-    // hướng bay
-    const angle = Math.random() * 2 * Math.PI;
-    const velocity = 6 + Math.random() * 6;
-
-    const dx = Math.cos(angle) * velocity;
-    const dy = Math.sin(angle) * velocity;
-
-    piece.style.setProperty("--dx", dx);
-    piece.style.setProperty("--dy", dy);
-
-    // màu random
-    piece.style.background = `hsl(${Math.random() * 360},100%,50%)`;
-
-    document.body.appendChild(piece);
-
-    setTimeout(() => piece.remove(), 1200);
-  }
 }
 
 function flashRed() {

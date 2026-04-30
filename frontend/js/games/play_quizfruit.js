@@ -49,7 +49,6 @@ if (soundBtn) {
     localStorage.setItem("muted", isMuted);
   };
 
-  // load trạng thái
   if (localStorage.getItem("muted") === "true") {
     isMuted = true;
     bgm.muted = true;
@@ -74,11 +73,6 @@ window.onload = () => {
   loadGame();
   startQuestion();
 };
-
-function confirmExit() {
-  bgm.pause();
-  window.location.href = "quizfruit.html";
-}
 
 function loadGame() {
   const id = new URLSearchParams(window.location.search).get("id");
@@ -120,7 +114,7 @@ function startQuestion() {
   }, 50);
 
   const maxTime = parseInt(game.time) || 10;
-  totalTime = maxTime * 1000; 
+  totalTime = maxTime * 1000;
   startTime = Date.now();
 
   runTimer();
@@ -246,7 +240,7 @@ function spawnAnswers(q) {
       alive: true,
 
       answer: answer,
-      isCorrect: q.correct === i || String(answer) === String(q.correct),
+      isCorrect: q.correct === i,
       type: fruitType,
     };
 
@@ -507,7 +501,6 @@ function createSplash(x, y, type) {
 
   gameArea.appendChild(splash);
 
-  // animation
   setTimeout(() => {
     splash.style.transform = "translate(-50%, -50%) scale(2)";
     splash.style.opacity = "0";
@@ -525,59 +518,12 @@ function closeExit() {
 }
 
 function endGame() {
-  const modal = document.createElement("div");
-  modal.className = "end-modal";
+  const total = game.questions.length;
+  const correct = score;
 
-  const finalScore = ((score / game.questions.length) * 10).toFixed(1);
+  bgm.pause();
 
-  const message =
-    finalScore >= 8
-      ? "Tuyệt vời! 🏆"
-      : finalScore >= 5
-        ? "Tốt lắm! 👍"
-        : "Cố gắng hơn nhé! 💪";
-
-  modal.innerHTML = `
-  <div class="end-box">
-    <h2 class="end-title">${message}</h2>
-    
-    <div class="end-score">${finalScore}/10</div>
-
-    <p class="end-sub">
-      Bạn đã chém ${game.questions.length} câu!
-    </p>
-
-    <div class="end-actions">
-      <button class="btn-replay" onclick="replayGame()">
-        🔄 Chơi lại
-      </button>
-      <button class="btn-exit" onclick="location.href='quizfruit.html'">
-        🚪 Thoát
-      </button>
-    </div>
-  </div>
-`;
-
-  document.body.appendChild(modal);
-  animateScore(finalScore);
-  flashWin();
-  if (typeof launchConfetti === "function") launchConfetti();
-  if (typeof playVictorySound === "function") playVictorySound();
-}
-
-function launchConfetti() {
-  for (let i = 0; i < 80; i++) {
-    const c = document.createElement("div");
-    c.className = "confetti";
-
-    c.style.left = Math.random() * 100 + "vw";
-    c.style.background = `hsl(${Math.random() * 360}, 100%, 60%)`;
-    c.style.animationDuration = 2 + Math.random() * 2 + "s";
-
-    document.body.appendChild(c);
-
-    setTimeout(() => c.remove(), 4000);
-  }
+  showEndScene(correct, total);
 }
 
 function animateScore(finalScore) {
@@ -606,13 +552,90 @@ function flashWin() {
   setTimeout(() => flash.remove(), 120);
 }
 
-function playVictorySound() {
-  const audio = new Audio("../assets/sounds/win.mp3");
-  audio.volume = 0.6;
-  audio.play();
+function showEndScene(correct, total) {
+  const scene = document.getElementById("endScene");
+  const video = document.getElementById("endVideo");
+  const overlay = document.getElementById("endOverlay");
+
+  const title = document.getElementById("endTitle");
+  const scoreEl = document.getElementById("endScore");
+
+  overlay.classList.add("hidden");
+  video.currentTime = 0;
+
+  const finalScore = (correct / total) * 10;
+
+  // ===== VIDEO WIN / LOSE =====
+  if (finalScore >= 9) {
+    video.src = "../assets/videos/victory.mp4";
+    title.innerText = finalScore === 10 ? "PERFECT!" : "CHIẾN THẮNG!";
+  } else {
+    video.src = "../assets/videos/defeat.mp4";
+    title.innerText = "THẤT BẠI!";
+  }
+
+  // ===== RANK =====
+  let rankImg = "";
+
+  if (finalScore === 10) rankImg = "T1limited.png";        // SSS
+  else if (finalScore >= 9) rankImg = "T15limited.png";   // SS
+  else if (finalScore >= 7) rankImg = "T25limited.png";   // S
+  else if (finalScore >= 5) rankImg = "T35limited.png";   // A
+  else rankImg = "T6limited.png";                         // B
+
+  // ===== MEDIA =====
+  let rankMedia = "";
+
+  if (finalScore === 10) {
+    rankMedia = `
+      <video class="rank-video" autoplay muted loop playsinline>
+        <source src="../assets/videos/T1Limited.mp4" type="video/mp4">
+      </video>
+    `;
+  } else {
+    rankMedia = `
+      <img src="../assets/images/${rankImg}" alt="rank">
+    `;
+  }
+
+  // ===== XÓA RANK CŨ (tránh duplicate) =====
+  document.querySelectorAll(".rank-img").forEach(el => el.remove());
+
+  // ===== CHÈN RANK LÊN TRÊN TITLE =====
+  const rankHTML = `
+    <div class="rank-img">
+      ${rankMedia}
+    </div>
+  `;
+  title.insertAdjacentHTML("beforebegin", rankHTML);
+
+  // ===== SCORE =====
+  scoreEl.innerHTML = `
+    <div class="score-line">🎯 ${correct}/${total} câu đúng</div>
+    <div class="score-line">⭐ ${finalScore.toFixed(1)}/10 điểm</div>
+  `;
+
+  scene.classList.remove("hidden");
+  video.play();
+
+  // ===== VIDEO END =====
+  video.onended = () => {
+    video.pause();
+    video.style.filter = "brightness(0.5) blur(3px)";
+    overlay.classList.remove("hidden");
+
+    if (finalScore >= 9 && typeof launchConfetti === "function") {
+      launchConfetti();
+    }
+  };
 }
 
 function replayGame() {
   sessionStorage.setItem("playMusic", "1");
   location.reload();
+}
+
+function confirmExit() {
+  bgm.pause();
+  window.location.href = "quizfruit.html";
 }
