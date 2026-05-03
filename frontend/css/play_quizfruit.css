@@ -1,7 +1,7 @@
 body {
   margin: 0;
   overflow: hidden;
-  background: url("../assets/images/bg_wood.png") center/cover no-repeat;
+  background: url("../assets/images/bg_wood1.png") center/cover no-repeat;
 }
 
 #gameArea {
@@ -627,11 +627,9 @@ body {
 /* ===== VIDEO RANK (SSS) ===== */
 .rank-video {
   width: 150px;
-  border-radius: 50px;
+  border-radius: 30px;
 
-  /* giảm nền trắng */
-  filter: brightness(1) contrast(1.4)
-          drop-shadow(0 0 15px rgba(255,255,255,0.7));
+  filter: drop-shadow(0 0 10px rgba(255,255,255,0.8));
 }
 
 /* ===== TITLE UPGRADE (EDUPLAY STYLE) ===== */
@@ -662,7 +660,6 @@ body {
     0 0 30px rgba(168,85,247,0.6),
     0 4px 10px rgba(0,0,0,0.8);
 
-  /* animation */
   animation:
     gradientMove 3s linear infinite,
     titlePop 0.5s ease,
@@ -731,3 +728,4 @@ body {
     opacity: 1;
   }
 }
+

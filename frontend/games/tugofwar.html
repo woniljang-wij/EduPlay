@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Kéo Co Kiến Thức</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../css/tugofwar.css" />
+    <link rel="stylesheet" href="../css/toast.css" />
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body class="min-h-screen flex font-[Be_Vietnam_Pro]">
+    <!-- BG -->
+    <video autoplay muted loop id="bgVideo">
+      <source src="../assets/videos/Tugofwar.mp4" type="video/mp4" />
+    </video>
+
+    <!-- SIDEBAR -->
+    <aside
+      class="w-72 bg-white/60 backdrop-blur-xl p-6 flex flex-col justify-between border-r border-white/30 shadow-xl"
+    >
+      <div>
+        <h2 class="text-xl font-bold mb-6">🪢 Kéo Co Kiến Thức</h2>
+
+        <div class="space-y-3">
+          <button
+            onclick="goIndex()"
+            class="w-full text-left px-4 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 font-semibold"
+          >
+            🏠 Trang chủ
+          </button>
+
+          <button
+            id="btn-home"
+            onclick="goHome()"
+            class="w-full text-left px-4 py-3 rounded-xl font-semibold"
+          >
+            📚 Bài của tôi
+          </button>
+
+          <button
+            id="btn-create"
+            onclick="goCreate()"
+            class="w-full text-left px-4 py-3 rounded-xl font-semibold"
+          >
+            ➕ Tạo bài mới
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="flex-1 p-6">
+      <!-- ===== LIST ===== -->
+      <div id="page-list">
+        <div class="container-box">
+          <h1 class="text-2xl font-bold mb-2">🪢 Bài chơi của tôi</h1>
+          <p class="text-gray-500 mb-6">Quản lý game kéo co</p>
+
+          <div
+            id="gameList"
+            class="col-span-full text-center py-20 text-gray-500"
+          >
+            <div class="text-5xl mb-3">🪢</div>
+
+            <p class="text-lg font-semibold mb-2">Chưa có bài chơi nào</p>
+
+            <button
+              onclick="goCreate()"
+              class="mt-5 px-6 py-3 rounded-xl text-white font-semibold bg-gradient-to-r from-pink-500 via-red-500 to-purple-600 shadow-lg hover:scale-105 transition"
+            >
+              ➕ Tạo bài đầu tiên
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="page-create" class="hidden">
+        <div class="container-box space-y-6">
+          <!-- HEADER -->
+          <div class="mb-4">
+            <h1 class="title-main">🪢 Tạo Game Kéo Co Kiến Thức</h1>
+            <p class="text-gray-500 text-sm mt-1">
+              Thiết lập trò chơi kéo co kiến thức
+            </p>
+          </div>
+
+          <!-- TITLE -->
+          <div class="form-section">
+            <h3 class="label-ui mb-3">📌 Tiêu đề bài chơi</h3>
+            <input class="input-ui" placeholder="Nhập tiêu đề..." />
+          </div>
+
+          <!-- CONFIG -->
+          <div class="form-section">
+            <h3 class="label-ui mb-6">⚙️ Cấu hình trò chơi</h3>
+
+            <div class="grid grid-cols-2 gap-8">
+              <!-- LEFT -->
+              <div class="space-y-4">
+                <div>
+                  <label class="label-ui">⏱ Thời gian thi đấu</label>
+                  <select class="input-ui">
+                    <option>30 giây</option>
+                    <option selected>60 giây</option>
+                    <option>90 giây</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="label-ui">🏆 Điểm thắng</label>
+                  <input class="input-ui" value="3" />
+                </div>
+
+                <div>
+                  <label class="label-ui">❄️ Đóng băng</label>
+                  <select class="input-ui">
+                    <option>1s</option>
+                    <option selected>3s</option>
+                    <option>5s</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="label-ui">👥 Đội 1</label>
+                  <input class="input-ui" value="Đội Xanh" />
+                </div>
+
+                <div>
+                  <label class="label-ui">👥 Đội 2</label>
+                  <input class="input-ui" value="Đội Đỏ" />
+                </div>
+              </div>
+
+              <!-- RIGHT -->
+              <div class="space-y-4">
+                <div class="config-card">
+                  <label class="flex gap-2 font-semibold">
+                    <input type="radio" name="mode" checked />
+                    🎯 Mặc định
+                  </label>
+                  <p class="text-sm text-gray-500 ml-6">Mỗi đội riêng</p>
+                </div>
+
+                <div class="config-card">
+                  <label class="flex gap-2 font-semibold">
+                    <input type="radio" name="mode" />
+                    ⚡ Cùng câu hỏi
+                  </label>
+                </div>
+
+                <div class="config-card">
+                  <label class="flex gap-2 font-semibold">
+                    <input type="radio" name="mode" />
+                    🚩 Chạm mốc thắng
+                  </label>
+                </div>
+
+                <div class="config-card">
+                  <label class="flex gap-2 font-semibold">
+                    <input type="radio" name="control" checked />
+                    🖥 Màn hình
+                  </label>
+
+                  <label class="flex gap-2 text-sm mt-2 ml-6">
+                    <input type="radio" name="control" />
+                    ⌨️ Bàn phím
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- MUSIC -->
+          <div class="form-section">
+            <h3 class="label-ui mb-4">🎵 Nhạc nền</h3>
+
+            <div id="musicList" class="flex gap-2 flex-wrap">
+              <button
+                class="music-btn active"
+                data-src="../assets/audio/music1.mp3"
+              >
+                Bài 1
+              </button>
+              <button class="music-btn" data-src="../assets/audio/music2.mp3">
+                Bài 2
+              </button>
+              <button class="music-btn" data-src="../assets/audio/music3.mp3">
+                Bài 3
+              </button>
+            </div>
+
+            <button id="uploadBtn" class="btn-outline mt-4">⬆️ Tải nhạc</button>
+
+            <input type="file" id="musicUpload" accept="audio/*" hidden />
+          </div>
+
+          <!-- QUESTIONS -->
+          <div class="form-section">
+            <h3 class="label-ui mb-4">❓ Bộ câu hỏi (0)</h3>
+
+            <div class="flex gap-3 mb-4">
+              <button class="btn-primary">🧠 Kho / AI</button>
+              <button class="btn-outline">📂 Có sẵn</button>
+              <button class="btn-outline">✏️ Nhập</button>
+            </div>
+
+            <div class="preview-box">📭 Chưa có câu hỏi</div>
+          </div>
+
+          <!-- ACTION -->
+          <div class="flex justify-end gap-3">
+            <button onclick="goHome()" class="btn-outline">❌ Hủy</button>
+            <button onclick="saveGame()" class="btn-primary">💾 Lưu bài chơi</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- TOAST -->
+    <div
+      id="toast"
+      class="fixed top-5 right-5 hidden z-[9999] px-5 py-3 rounded-xl shadow-lg text-white font-semibold"
+    ></div>
+
+    <script src="../js/games/toast.js"></script>
+    <script src="../js/games/tugofwar.js"></script>
+  </body>
+</html>

@@ -14,10 +14,16 @@
   </head>
 
   <body class="text-slate-800 font-[Be_Vietnam_Pro]">
-
     <video autoplay muted loop playsinline id="bgVideo">
       <source src="assets/videos/bg (1).mp4" type="video/mp4" />
     </video>
+
+    <!-- LOGO -->
+    <div class="logo-layer">
+      <video class="logo-floating" autoplay muted loop playsinline>
+        <source src="assets/videos/Logo.mp4" type="video/mp4" />
+      </video>
+    </div>
 
     <!-- NAVBAR -->
     <nav
@@ -26,13 +32,9 @@
       <div
         class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center"
       >
-        <!-- Logo -->
-        <div class="flex items-center space-x-2">
-          <span class="text-3xl">🎓</span>
-          <h1 class="logo-rainbow">EduPlay</h1>
-        </div>
+        <div class="nav-left-placeholder"></div>
 
-        <!-- Auth (Teacher only) -->
+        <!-- RIGHT -->
         <div class="flex items-center space-x-3">
           <div class="nav-auth flex items-center gap-4">
             <a href="login.html" class="btn-login"> Đăng nhập </a>
@@ -199,19 +201,20 @@
                 <div
                   class="icon w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center text-4xl mx-auto mb-6 shadow-lg text-white"
                 >
-                  🔤
+                  🪢
                 </div>
 
-                <h3 class="text-xl font-bold mb-3">Ô Chữ Bí Mật</h3>
+                <h3 class="text-xl font-bold mb-3">Kéo Co Kiến Thức</h3>
 
                 <p class="text-gray-500 mb-6">
-                  Giải các câu hỏi để mở khóa từng ô chữ và tìm ra từ khóa ẩn.
+                  Trả lời đúng để kéo dây về phía bạn, trả lời sai sẽ bị kéo
+                  ngược lại.
                 </p>
               </div>
 
               <button
-                class="game-btn require-login btn-crossword text-white px-5 py-2 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105"
-                data-url="games/crossword-puzzle.html"
+                class="game-btn require-login btn-tugofwar text-white px-5 py-2 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105"
+                data-url="games/tugofwar.html"
               >
                 Bắt đầu
               </button>
@@ -271,7 +274,7 @@
         © 2026 EduPlay - WIJ
       </div>
     </footer>
-    
+
     <div class="floating-particles"></div>
 
     <script src="js/main.js"></script>

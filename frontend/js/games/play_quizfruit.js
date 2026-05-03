@@ -565,7 +565,6 @@ function showEndScene(correct, total) {
 
   const finalScore = (correct / total) * 10;
 
-  // ===== VIDEO WIN / LOSE =====
   if (finalScore >= 9) {
     video.src = "../assets/videos/victory.mp4";
     title.innerText = finalScore === 10 ? "PERFECT!" : "CHIẾN THẮNG!";
@@ -574,34 +573,31 @@ function showEndScene(correct, total) {
     title.innerText = "THẤT BẠI!";
   }
 
-  // ===== RANK =====
-  let rankImg = "";
-
-  if (finalScore === 10) rankImg = "T1limited.png";        // SSS
-  else if (finalScore >= 9) rankImg = "T15limited.png";   // SS
-  else if (finalScore >= 7) rankImg = "T25limited.png";   // S
-  else if (finalScore >= 5) rankImg = "T35limited.png";   // A
-  else rankImg = "T6limited.png";                         // B
-
-  // ===== MEDIA =====
   let rankMedia = "";
 
   if (finalScore === 10) {
     rankMedia = `
-      <video class="rank-video" autoplay muted loop playsinline>
+      <video class="rank-video sss" autoplay muted loop playsinline>
         <source src="../assets/videos/T1Limited.mp4" type="video/mp4">
       </video>
     `;
-  } else {
+  } else if (finalScore >= 9) {
     rankMedia = `
-      <img src="../assets/images/${rankImg}" alt="rank">
+      <video class="rank-video ss" autoplay muted loop playsinline>
+        <source src="../assets/videos/T2Limited.mp4" type="video/mp4">
+      </video>
     `;
+
+  } else if (finalScore >= 7) {
+    rankMedia = `<img src="../assets/images/T25limited.png" alt="rank">`;
+  } else if (finalScore >= 5) {
+    rankMedia = `<img src="../assets/images/T35limited.png" alt="rank">`;
+  } else {
+    rankMedia = `<img src="../assets/images/T6limited.png" alt="rank">`;
   }
 
-  // ===== XÓA RANK CŨ (tránh duplicate) =====
-  document.querySelectorAll(".rank-img").forEach(el => el.remove());
+  document.querySelectorAll(".rank-img").forEach((el) => el.remove());
 
-  // ===== CHÈN RANK LÊN TRÊN TITLE =====
   const rankHTML = `
     <div class="rank-img">
       ${rankMedia}
@@ -609,7 +605,6 @@ function showEndScene(correct, total) {
   `;
   title.insertAdjacentHTML("beforebegin", rankHTML);
 
-  // ===== SCORE =====
   scoreEl.innerHTML = `
     <div class="score-line">🎯 ${correct}/${total} câu đúng</div>
     <div class="score-line">⭐ ${finalScore.toFixed(1)}/10 điểm</div>
@@ -618,7 +613,6 @@ function showEndScene(correct, total) {
   scene.classList.remove("hidden");
   video.play();
 
-  // ===== VIDEO END =====
   video.onended = () => {
     video.pause();
     video.style.filter = "brightness(0.5) blur(3px)";
@@ -626,6 +620,10 @@ function showEndScene(correct, total) {
 
     if (finalScore >= 9 && typeof launchConfetti === "function") {
       launchConfetti();
+    }
+
+    if (finalScore === 10 && typeof launchConfetti === "function") {
+      setTimeout(() => launchConfetti(), 200);
     }
   };
 }

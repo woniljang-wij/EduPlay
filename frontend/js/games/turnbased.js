@@ -67,30 +67,43 @@ function setActive(type) {
 
   home.classList.remove(
     "bg-gradient-to-r",
-    "from-blue-500",
-    "to-purple-500",
+    "from-emerald-400",
+    "via-green-500",
+    "to-lime-500",
     "text-white",
+    "shadow-lg",
+    "scale-105",
   );
+
   create.classList.remove(
     "bg-gradient-to-r",
-    "from-blue-500",
-    "to-purple-500",
+    "from-emerald-400",
+    "via-green-500",
+    "to-lime-500",
     "text-white",
+    "shadow-lg",
+    "scale-105",
   );
 
   if (type === "home") {
     home.classList.add(
       "bg-gradient-to-r",
-      "from-blue-500",
-      "to-purple-500",
+      "from-emerald-400",
+      "via-green-500",
+      "to-lime-500",
       "text-white",
+      "shadow-lg",
+      "scale-105",
     );
   } else {
     create.classList.add(
       "bg-gradient-to-r",
-      "from-blue-500",
-      "to-purple-500",
+      "from-emerald-400",
+      "via-green-500",
+      "to-lime-500",
       "text-white",
+      "shadow-lg",
+      "scale-105",
     );
   }
 }
@@ -200,22 +213,17 @@ function saveGame() {
   const titleInput = document.querySelector("#page-create input");
   const title = titleInput ? titleInput.value.trim() : "";
 
-  // ===== VALIDATE =====
-
-  // ❌ chưa nhập tiêu đề
   if (!title) {
     showToast("⚠️ Vui lòng nhập tiêu đề bài chơi!", "error");
     titleInput.focus();
     return;
   }
 
-  // ❌ chưa có câu hỏi
   if (!tempQuestions || tempQuestions.length === 0) {
     showToast("⚠️ Phải có ít nhất 1 câu hỏi!", "error");
     return;
   }
 
-  // ❌ check từng câu hỏi
   for (let i = 0; i < tempQuestions.length; i++) {
     const q = tempQuestions[i];
 
@@ -224,13 +232,12 @@ function saveGame() {
       return;
     }
 
-    if (!q.answers || q.answers.some(a => !a || a.trim() === "")) {
+    if (!q.answers || q.answers.some((a) => !a || a.trim() === "")) {
       showToast(`⚠️ Câu ${i + 1} chưa đủ đáp án!`, "error");
       return;
     }
   }
 
-  // ===== LẤY DATA =====
   const players = [];
   document.querySelectorAll("#playerInputs input").forEach((input) => {
     players.push(input.value.trim() || "Người chơi");
@@ -281,7 +288,6 @@ function saveGame() {
     showToast("🎉 Lưu thành công!", "success");
   }
 
-  // ===== SAVE =====
   localStorage.setItem("games", JSON.stringify(games));
 
   updateQuestionCount();
@@ -303,9 +309,13 @@ function renderGames() {
       <div class="col-span-full text-center py-20">
       <div class="text-5xl mb-3">🎲</div>
         <h2 class="text-xl font-semibold mb-4">Chưa có bài chơi nào</h2>
-        <button onclick="goCreate()" class="bg-green-500 text-white px-5 py-2 rounded-xl">
-          ➕ Tạo bài đầu tiên
-        </button>
+
+      <button onclick="goCreate()"
+       class="px-6 py-3 rounded-xl text-white font-semibold
+       bg-gradient-to-r from-emerald-400 via-green-500 to-lime-500
+       shadow-lg hover:scale-105 transition">
+        ➕ Tạo bài đầu tiên
+      </button>
       </div>
     `;
     return;
@@ -576,7 +586,9 @@ function addQuestionForm() {
   updateQuestionCount2();
 
   setTimeout(() => {
-    const last = document.querySelector("#questionList .new-question:last-child");
+    const last = document.querySelector(
+      "#questionList .new-question:last-child",
+    );
 
     if (last) {
       last.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -616,7 +628,7 @@ function saveAllQuestions() {
       inputs[4].value.trim(),
     ];
 
-    if (answers.some(a => !a)) {
+    if (answers.some((a) => !a)) {
       showToast(`⚠️ Câu ${i + 1} chưa đủ đáp án!`, "error");
       return;
     }
@@ -987,7 +999,7 @@ let undoTimer = null;
 
 function deleteGame(id) {
   let games = JSON.parse(localStorage.getItem("games")) || [];
-  const game = games.find(g => g.id === id);
+  const game = games.find((g) => g.id === id);
 
   if (!game) return;
 
@@ -995,15 +1007,19 @@ function deleteGame(id) {
   deletedGame = game;
 
   // ❌ xóa
-  games = games.filter(g => g.id !== id);
+  games = games.filter((g) => g.id !== id);
   localStorage.setItem("games", JSON.stringify(games));
 
   renderGames();
 
   // 💥 toast + undo thật sự
-  showUndoToast("🗑 Đã xóa bài chơi", () => {
-    undoDelete();
-  }, 4000);
+  showUndoToast(
+    "🗑 Đã xóa bài chơi",
+    () => {
+      undoDelete();
+    },
+    4000,
+  );
 
   // ⏳ timeout clear
   clearTimeout(undoTimer);
@@ -1027,15 +1043,3 @@ function undoDelete() {
 
   deletedGame = null;
 }
-
-window.addEventListener("load", () => {
-  const transition = document.getElementById("pageTransition");
-
-  requestAnimationFrame(() => {
-    transition.classList.add("play");
-  });
-
-  setTimeout(() => {
-    transition.remove();
-  }, 2000);
-});

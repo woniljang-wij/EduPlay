@@ -87,7 +87,7 @@ body::after {
   background: radial-gradient(circle, #a78bfa, transparent);
 
   mix-blend-mode: screen;
-  
+
   opacity: 0.8;
 
   box-shadow:
@@ -299,8 +299,8 @@ body::before {
   animation: btnFlow 2.6s linear infinite;
 }
 
-.btn-crossword {
-  background: linear-gradient(90deg, #a855f7, #d946ef, #ec4899, #a855f7);
+.btn-tugofwar {
+  background: linear-gradient(90deg, #ec4899, #f472b6, #a855f7, #ec4899);
   background-size: 300% 100%;
   animation: btnFlow 2.4s linear infinite;
 }
@@ -440,71 +440,75 @@ body::before {
   }
 }
 
-.logo-rainbow {
-  font-size: 26px;
-  font-weight: 800;
-  letter-spacing: -0.5px;
+/* ===== LOGO LAYER ===== */
+.logo-layer {
+  position: fixed;
+  top: 38px;
+  left: 28px;
 
-  background:
-    /* ✨ lớp ánh sáng chạy */
-    linear-gradient(
-      120deg,
-      transparent 40%,
-      rgba(255, 255, 255, 0.35) 50%,
-      transparent 60%
-    ),
-    /* 🌈 gradient chính */
-    linear-gradient(90deg, #6366f1, #8b5cf6, #a78bfa, #60a5fa, #34d399, #6366f1);
+  transform: translateY(-50%);
+  z-index: 9999;
 
-  background-size:
-    200% 100%,
-    200% 100%;
-  background-position:
-    -150% 0,
-    0 0;
+  pointer-events: auto; /* cần để hover */
 
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-
-  animation:
-    logoShine 0.5s linear infinite,
-    rainbowFlow 2s linear infinite;
-
-  /* glow dịu */
-  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.25))
-    drop-shadow(0 0 12px rgba(139, 92, 246, 0.35));
+  position: fixed;
 }
 
-/* hover giữ nguyên nhưng mượt hơn */
-.logo-rainbow:hover {
-  transform: scale(1.05);
+/* ===== VIDEO LOGO ===== */
+.logo-floating {
+  height: 65px;
 
-  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.6))
-    drop-shadow(0 0 25px rgba(139, 92, 246, 0.9))
-    drop-shadow(0 0 40px rgba(59, 130, 246, 0.6));
+  object-fit: contain;
+
+  border-radius: 40px;
+  background: none;
+  padding: 0;
+
+  transition: all 0.3s ease;
+
+  filter:
+    drop-shadow(0 4px 10px rgba(0,0,0,0.2))
+    drop-shadow(0 0 10px rgba(139, 92, 246, 0.25));
+
+  animation: logoPulse 3s ease-in-out infinite;
 }
 
-@keyframes logoShine {
-  0% {
-    background-position:
-      -150% 0,
-      0 0;
+@keyframes logoPulse {
+  0%,100% {
+    filter:
+      drop-shadow(0 4px 10px rgba(0,0,0,0.2))
+      drop-shadow(0 0 10px rgba(139, 92, 246, 0.25));
   }
-  100% {
-    background-position:
-      150% 0,
-      200% 0;
+  50% {
+    filter:
+      drop-shadow(0 6px 16px rgba(0,0,0,0.25))
+      drop-shadow(0 0 16px rgba(139, 92, 246, 0.4));
   }
 }
 
-/* 🔥 animation seamless */
-@keyframes rainbowFlow {
-  0% {
-    background-position: 0% center;
-  }
-  100% {
-    background-position: 200% center;
-  }
+.logo-floating:hover {
+  transform: scale(1.06);
+
+  filter:
+    drop-shadow(0 8px 20px rgba(0,0,0,0.3))
+    drop-shadow(0 0 22px rgba(139, 92, 246, 0.5));
+}
+
+.logo-layer::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+
+  border-radius: 48px;
+  pointer-events: none;
+
+  background: radial-gradient(
+    circle,
+    rgba(139,92,246,0.18),
+    transparent 70%
+  );
+
+  filter: blur(8px);
 }
 
 /* ===== WRAPPER ===== */
@@ -512,6 +516,10 @@ body::before {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.nav-left-placeholder {
+  width: 120px; 
 }
 
 /* ===== USER CHIP ===== */
