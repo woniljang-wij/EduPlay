@@ -72,7 +72,29 @@ function bindMusicButtons() {
   document.querySelectorAll(".music-btn").forEach((btn) => {
     btn.onclick = () => {
       const src = btn.dataset.src;
-      playMusic(src);
+
+      currentAudio.pause();
+
+      document
+        .querySelectorAll(".music-btn[data-custom='true'] span:first-child")
+        .forEach((el) => (el.innerHTML = "▶"));
+
+      currentBtn = null;
+      currentControl = null;
+
+      if (btn.dataset.custom === "true") {
+        currentAudio = new Audio(src);
+        currentAudio.loop = true;
+        currentAudio.volume = 0.7;
+        currentAudio.play().catch(() => {});
+
+        const control = btn.querySelector("span");
+        if (control) control.innerHTML = "⏸";
+
+        currentBtn = btn;
+        currentControl = control;
+      }
+
       setActiveMusicButton(btn);
     };
   });
@@ -95,30 +117,176 @@ function setActiveMusicButton(activeBtn) {
   if (activeBtn) activeBtn.classList.add("active");
 }
 
-// ===== UPLOAD MUSIC =====
+// ===== MUSIC SYSTEM =====
+let currentControl = null;
+let currentBtn = null;
+
+let deletedMusic = null;
+let undoMusicTimer = null;
+
 document.getElementById("uploadBtn").onclick = () => {
   document.getElementById("musicUpload").click();
 };
 
 document.getElementById("musicUpload").addEventListener("change", function (e) {
   const file = e.target.files[0];
-  if (!file || !file.type.startsWith("audio/")) return;
+  if (!file) return;
+
+  if (!file.type.startsWith("audio/")) {
+    showToast("❌ Chỉ chấp nhận file âm thanh!", "error");
+    return;
+  }
+
+  const MAX_SIZE = 20 * 1024 * 1024;
+  if (file.size > MAX_SIZE) {
+    showToast("⚠️ File quá lớn! Tối đa 20MB", "error");
+    return;
+  }
+
+  const existed = [...document.querySelectorAll(".music-btn")].some(
+    (btn) => btn.dataset.name === file.name,
+  );
+
+  if (existed) {
+    showToast("⚠️ Nhạc này đã tồn tại!", "info");
+    return;
+  }
 
   const url = URL.createObjectURL(file);
 
+  // ===== BUTTON =====
   const btn = document.createElement("button");
-  btn.className = "music-btn";
-  btn.textContent = file.name;
-  btn.dataset.src = url;
+  btn.type = "button";
+  btn.className = `
+    music-btn inline-flex items-center gap-2
+    px-4 py-2 rounded-full
+    border border-gray-300
+    bg-white text-gray-700
+    hover:bg-gray-100
+    transition-all text-sm
+  `;
 
-  btn.onclick = () => {
-    playMusic(url);
-    setActiveMusicButton(btn);
+  btn.dataset.src = url;
+  btn.dataset.name = file.name;
+  btn.dataset.custom = "true";
+
+  // ===== ICON PLAY =====
+  const control = document.createElement("span");
+  control.innerHTML = "▶";
+  control.className = "text-green-500 text-xs cursor-pointer";
+
+  control.onclick = (ev) => {
+    ev.stopPropagation();
+
+    document
+      .querySelectorAll(".music-btn span:first-child")
+      .forEach((el) => (el.innerHTML = "▶"));
+
+    if (currentBtn === btn) {
+      currentAudio.pause();
+
+      document
+        .querySelectorAll(".music-btn[data-custom='true'] span:first-child")
+        .forEach((el) => (el.innerHTML = "▶"));
+
+      currentBtn = null;
+      currentControl = null;
+      return;
+    }
+
+    currentAudio.pause();
+
+    currentAudio = new Audio(url);
+    currentAudio.loop = true;
+    currentAudio.volume = 0.7;
+    currentAudio.play().catch(() => {});
+
+    control.innerHTML = "⏸";
+
+    currentBtn = btn;
+    currentControl = control;
   };
 
+  const name = document.createElement("span");
+  name.textContent = file.name;
+
+  const deleteBtn = document.createElement("span");
+  deleteBtn.innerHTML = "✖";
+  deleteBtn.className = "text-red-400 text-xs cursor-pointer";
+
+  deleteBtn.onclick = (ev) => {
+    ev.stopPropagation();
+
+    const parent = btn.parentElement;
+
+    deletedMusic = {
+      element: btn,
+      parent: parent,
+      url: url,
+    };
+
+    currentAudio.pause();
+
+    btn.remove();
+
+    showUndoToast("🗑 Đã xóa nhạc", () => undoDeleteMusic(), 5000);
+
+    clearTimeout(undoMusicTimer);
+    undoMusicTimer = setTimeout(() => {
+      if (deletedMusic?.url) URL.revokeObjectURL(deletedMusic.url);
+      deletedMusic = null;
+    }, 5000);
+  };
+
+  // ===== SELECT =====
+  btn.onclick = () => {
+    if (btn.dataset.custom !== "true") {
+      setActiveMusicButton(btn);
+      return;
+    }
+
+    setActiveMusicButton(btn);
+
+    document
+      .querySelectorAll(".music-btn[data-custom='true'] span:first-child")
+      .forEach((el) => (el.innerHTML = "▶"));
+
+    currentAudio.pause();
+
+    currentAudio = new Audio(url);
+    currentAudio.loop = true;
+    currentAudio.volume = 0.7;
+    currentAudio.play().catch(() => {});
+
+    control.innerHTML = "⏸";
+
+    currentBtn = btn;
+    currentControl = control;
+  };
+
+  btn.appendChild(control);
+  btn.appendChild(name);
+  btn.appendChild(deleteBtn);
+
   document.getElementById("musicList").appendChild(btn);
-  btn.click();
+
+  // 🔥 AUTO ACTIVE NGAY
+  setActiveMusicButton(btn);
+
+  const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+  showToast(`🎵 ${file.name} (${sizeMB}MB)`, "success");
+
+  e.target.value = "";
 });
+
+function undoDeleteMusic() {
+  if (!deletedMusic) return;
+
+  deletedMusic.parent.appendChild(deletedMusic.element);
+  showToast("↩ Đã khôi phục", "success");
+
+  deletedMusic = null;
+}
 
 // ===== SAVE GAME =====
 function saveGame() {

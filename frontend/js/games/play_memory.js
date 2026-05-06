@@ -32,7 +32,13 @@ if (questions.length < total) {
 
 const imageUrl = game.image;
 const answer = game.answer || game.name || "???";
+const theme = game.theme || "blue";
 timerDuration = parseInt(game.time) || 0;
+
+const guessDuration = parseInt(game.guessTime) || 0;
+
+let guessTimer = null;
+let guessRemain = guessDuration;
 
 // ===== STATE =====
 let opened = Array(total).fill(false);
@@ -82,8 +88,17 @@ function renderGrid() {
     for (let i = 0; i < total; i++) {
       const tile = document.createElement("div");
 
-      tile.className = "tile";
-      tile.innerText = i + 1;
+      tile.className = `tile theme-${theme}`;
+
+      tile.innerHTML = `
+    <div class="tile-glow"></div>
+
+    <div class="tile-content">
+      <span>${i + 1}</span>
+    </div>
+
+    <div class="tile-border"></div>
+  `;
 
       tile.onclick = () => handleTileClick(i);
 
@@ -134,7 +149,17 @@ function showQuestion(index) {
 
     answersBox.appendChild(btn);
   });
-  startQuestionTimer();
+
+  // ===== TIMER UI =====
+  const timerWrap = document.querySelector(".timer-wrap");
+
+  if (timerDuration <= 0) {
+    timerWrap.style.display = "none";
+  } else {
+    timerWrap.style.display = "block";
+    startQuestionTimer();
+  }
+
   document.getElementById("questionModal").classList.remove("hidden");
 }
 
@@ -223,7 +248,9 @@ function openTile(index) {
 
   updateProgress();
 
-  if (doneCount === total) showWin();
+  if (doneCount === total) {
+    startGuessCountdown();
+  }
 }
 
 // ===== PROGRESS =====
@@ -235,17 +262,107 @@ function updateProgress() {
   document.getElementById("progressBar").style.width = percent + "%";
 }
 
-// ===== WIN =====
-function showWin() {
-  document.getElementById("winBox").classList.remove("hidden");
+// ===== START FINAL GUESS =====
+function startGuessCountdown() {
+  if (guessDuration <= 0) {
+    openGuess();
+    return;
+  }
+
+  openGuess();
+
+  guessRemain = guessDuration;
+
+  const wrap = document.getElementById("guessCountdown");
+
+  const text = document.getElementById("guessCountdownText");
+
+  const ring = document.querySelector(".guess-ring");
+
+  wrap.classList.remove("hidden");
+
+  text.innerText = guessRemain;
+
+  clearInterval(guessTimer);
+
+  guessTimer = setInterval(() => {
+    guessRemain--;
+
+    text.innerText = guessRemain;
+
+    // low time
+    if (guessRemain <= 3) {
+      ring.classList.add("low");
+
+      const beep = new Audio("../assets/sounds/warning.mp3");
+
+      beep.volume = 0.4;
+      beep.play();
+    }
+
+    // lose
+    if (guessRemain <= 0) {
+      clearInterval(guessTimer);
+
+      wrap.classList.add("hidden");
+
+      showLose();
+    }
+  }, 1000);
+}
+
+// ===== LOSE =====
+function showLose() {
+  closeGuess();
+
+  showToast("❌ Hết thời gian giải mã!", "error");
+
+  const audio = new Audio("../assets/sounds/lose.mp3");
+
+  audio.volume = 0.6;
+  audio.play();
+
+  revealAll();
+
+  const box = document.getElementById("resultBox");
+
+  const card = box.querySelector(".result-card");
+
+  card.classList.add("lose-mode");
+
+  document.getElementById("resultIcon").innerText = "💀";
+
+  document.getElementById("resultTitle").innerText = "THẤT BẠI";
+
   document.getElementById("finalAnswer").innerText = answer;
 
+  box.classList.remove("hidden");
+}
+
+// ===== WIN =====
+function showWin() {
+  const box = document.getElementById("resultBox");
+
+  const card = box.querySelector(".result-card");
+
+  card.classList.remove("lose-mode");
+
+  document.getElementById("resultIcon").innerText = "👑";
+
+  document.getElementById("resultTitle").innerText = "CHIẾN THẮNG";
+
+  document.getElementById("finalAnswer").innerText = answer;
+
+  box.classList.remove("hidden");
+
   if (typeof launchConfetti === "function") {
-    launchConfetti(); 
+    launchConfetti();
   }
 
   const audio = new Audio("../assets/sounds/win.mp3");
+
   audio.volume = 0.6;
+
   audio.play();
 }
 
@@ -274,9 +391,16 @@ function submitGuess() {
   if (input === correct) {
     showToast("🎉 Chính xác!", "success");
 
+    // stop countdown
+    clearInterval(guessTimer);
+
+    // hide timer UI
+    document.getElementById("guessCountdown")?.classList.add("hidden");
+
     revealAll();
 
     closeGuess();
+
     showWin();
   } else {
     showToast("Sai rồi!", "error");

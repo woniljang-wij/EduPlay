@@ -82,6 +82,8 @@ function editMemoryGame(id) {
   document.getElementById("answer").value = game.answer;
   document.getElementById("grid").value = game.grid;
   document.getElementById("time").value = game.time;
+  document.getElementById("guessTime").value =
+  game.guessTime || 0;
 
   document.getElementById("previewImg").src = game.image;
   document.getElementById("previewBox").classList.remove("hidden");
@@ -102,6 +104,9 @@ function saveMemoryGame() {
   const grid = parseInt(document.getElementById("grid").value);
   const timeRaw = document.getElementById("time").value.trim();
   const time = timeRaw === "" ? 0 : parseInt(timeRaw);
+  const guessTimeRaw = document.getElementById("guessTime").value.trim();
+
+  const guessTime = guessTimeRaw === "" ? 0 : parseInt(guessTimeRaw);
 
   const imgType = document.querySelector(
     "input[name='imgType']:checked",
@@ -153,68 +158,123 @@ function saveMemoryGame() {
 
 function saveGameWithImage(image) {
   const title = document.getElementById("title").value.trim();
+
   const answer = document.getElementById("answer").value.trim();
+
   const grid = parseInt(document.getElementById("grid").value);
+
   const timeRaw = document.getElementById("time").value.trim();
+
   const time = timeRaw === "" ? 0 : parseInt(timeRaw);
+
+  // ===== GUESS TIME =====
+  const guessTimeRaw = document.getElementById("guessTime").value.trim();
+
+  const guessTime = guessTimeRaw === "" ? 0 : parseInt(guessTimeRaw);
 
   let games = JSON.parse(localStorage.getItem("memoryGames")) || [];
 
-  // ===== EDIT =====
+  // =========================================
+  // EDIT
+  // =========================================
+
   if (window.editingId) {
     games = games.map((g) => {
       if (g.id === window.editingId) {
         return {
           ...g,
+
           title,
           answer,
           image,
+
           grid,
+
           time,
+
+          // ===== FIX =====
+          guessTime,
+
           questions: tempQuestions,
+
           theme: selectedTheme,
         };
       }
+
       return g;
     });
 
     showToast("✅ Đã cập nhật!", "success");
+
     window.editingId = null;
-  } else {
-    // ===== CREATE =====
+  }
+
+  // =========================================
+  // CREATE
+  // =========================================
+  else {
     games.push({
       id: Date.now(),
+
       title,
+
       answer,
+
       image,
+
       grid,
+
       time,
+
+      // ===== FIX =====
+      guessTime,
+
       questions: tempQuestions,
+
       theme: selectedTheme,
     });
 
     showToast("🎉 Lưu thành công!", "success");
   }
 
-  // ===== SAVE =====
+  // =========================================
+  // SAVE
+  // =========================================
+
   localStorage.setItem("memoryGames", JSON.stringify(games));
 
-  // ===== UI =====
+  // =========================================
+  // UI
+  // =========================================
+
   goHome();
+
   renderMemoryGames();
 
-  // ===== RESET =====
+  // =========================================
+  // RESET
+  // =========================================
+
   document.getElementById("title").value = "";
+
   document.getElementById("answer").value = "";
+
   document.getElementById("time").value = "";
+
+  document.getElementById("guessTime").value = "";
+
   document.getElementById("imageUrl").value = "";
+
   document.getElementById("imageFile").value = "";
 
   document.getElementById("previewBox").classList.add("hidden");
+
   document.getElementById("previewImg").src = "";
 
   tempQuestions = [];
+
   renderQuestionPreview();
+
   updateQuestionCount();
 
   selectedTheme = "blue";
@@ -224,7 +284,10 @@ function saveGameWithImage(image) {
   });
 
   const defaultBtn = document.querySelector('[data-color="blue"]');
-  if (defaultBtn) defaultBtn.classList.add("ring-2");
+
+  if (defaultBtn) {
+    defaultBtn.classList.add("ring-2");
+  }
 }
 
 // ===== RENDER LIST =====

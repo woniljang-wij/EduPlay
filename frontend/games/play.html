@@ -6,51 +6,63 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
 
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
     <link rel="stylesheet" href="../css/confetti.css" />
     <link rel="stylesheet" href="../css/play.css" />
     <link rel="stylesheet" href="../css/toast.css" />
   </head>
 
-  <body class="min-h-screen p-6 relative overflow-hidden">
-    <!-- 🎥 BACKGROUND VIDEO -->
-<video
-  autoplay
-  muted
-  loop
-  playsinline
-  class="fixed inset-0 w-full h-full object-cover -z-10"
->
-  <source src="../assets/videos/bg.mp4" type="video/mp4" />
-</video>
-
-    <div class="max-w-6xl mx-auto bg-white rounded-3xl shadow-xl p-6">
-
-      <!-- INFO -->
-      <div id="gameInfo" class="mb-6 game-info-card"></div>
-
-      <!-- LAYOUT -->
-      <div class="grid grid-cols-3 gap-6 items-stretch">
-
-      <!-- MAP -->
-      <div class="col-span-2 flex">
-      <div id="board" class="relative w-full h-full">
-      <video
-       autoplay
-       muted
-       loop
+  <body class="min-h-screen p-6 relative">
+    <!-- BACKGROUND -->
+    <video
+      autoplay
+      muted
+      loop
       playsinline
-      class="absolute inset-0 w-full h-full object-cover rounded-2xl shadow-lg pointer-events-none"
-      >
-      <source src="../assets/videos/map.mp4" type="video/mp4" />
-      </video>
+      class="fixed inset-0 w-full h-full object-cover -z-10"
+    >
+      <source src="../assets/videos/bg.mp4" type="video/mp4" />
+    </video>
 
-            <!-- CELLS -->
+    <!-- MAIN BOX -->
+    <div
+      class="max-w-6xl mx-auto -mt-4 bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl rounded-[32px] shadow-[0_30px_80px_rgba(0,0,0,0.4)] border border-white/30 p-6 relative overflow-hidden"
+    >
+      <!-- glow -->
+      <div
+        class="absolute -top-20 -left-20 w-60 h-60 bg-blue-400/20 blur-3xl rounded-full"
+      ></div>
+      <div
+        class="absolute -bottom-20 -right-20 w-60 h-60 bg-purple-400/20 blur-3xl rounded-full"
+      ></div>
+
+      <div id="gameInfo" class="mb-2 game-info-card"></div>
+
+      <div class="grid grid-cols-3 gap-6 items-start mt-6">
+        <!-- MAP -->
+        <div class="col-span-2 flex">
+          <div
+            id="board"
+            class="relative w-full h-[495px] max-h-[70vh] mx-auto"
+          >
+            <video
+              autoplay
+              muted
+              loop
+              playsinline
+              class="absolute inset-0 w-full h-full object-cover rounded-2xl shadow-lg pointer-events-none"
+            >
+              <source src="../assets/videos/map.mp4" type="video/mp4" />
+            </video>
+
             <div
               id="cellLayer"
               class="absolute inset-0 w-full h-full pointer-events-none"
             ></div>
-
-            <!-- PLAYERS -->
             <div
               id="playerLayer"
               class="absolute inset-0 w-full h-full pointer-events-none"
@@ -58,232 +70,191 @@
           </div>
         </div>
 
-<!-- SIDE PANEL -->
-<div class="flex flex-col gap-4">
+        <!-- SIDE PANEL -->
+        <div class="flex flex-col gap-3 justify-between h-[495px]">
+          <!-- DICE -->
+          <div class="side-card">
+            <div class="dice-wrapper flex justify-center mb-4">
+              <div id="dice3D" class="dice3d">
+                <div class="face front">
+                  <span class="dot center red"></span>
+                </div>
+                <div class="face back">
+                  <span class="dot tl"></span><span class="dot tr"></span>
+                  <span class="dot bl"></span><span class="dot br"></span>
+                  <span class="dot ml"></span><span class="dot mr"></span>
+                </div>
+                <div class="face right">
+                  <span class="dot tl"></span><span class="dot center"></span
+                  ><span class="dot br"></span>
+                </div>
+                <div class="face left">
+                  <span class="dot tl red"></span
+                  ><span class="dot tr red"></span>
+                  <span class="dot bl red"></span
+                  ><span class="dot br red"></span>
+                </div>
+                <div class="face top">
+                  <span class="dot tl"></span><span class="dot tr"></span>
+                  <span class="dot center"></span><span class="dot bl"></span
+                  ><span class="dot br"></span>
+                </div>
+                <div class="face bottom">
+                  <span class="dot tl"></span><span class="dot br"></span>
+                </div>
+              </div>
+            </div>
 
-  <!-- DICE -->
-  <div class="bg-white/70 backdrop-blur p-6 rounded-2xl text-center shadow-xl border border-white/40">
-    
-    <!-- DICE WRAPPER -->
-    <div class="dice-wrapper flex justify-center mb-4">
-      <div id="dice3D" class="dice3d">
+            <button id="rollBtn" onclick="rollDice()" class="btn-roll">
+              <span>🎲</span>
+              <span>Tung xúc xắc</span>
+            </button>
+          </div>
 
-        <!-- 1 -->
-        <div class="face front">
-          <span class="dot center red"></span>
+          <!-- MUSIC -->
+          <div class="side-card">
+            <p class="mb-2 font-semibold">🎵 Nhạc nền:</p>
+
+            <div class="flex gap-2 flex-wrap" id="musicList">
+              <button
+                class="music-btn music-1"
+                data-src="../assets/sounds/bai1.mp3"
+              >
+                Bài 1
+              </button>
+              <button
+                class="music-btn music-2"
+                data-src="../assets/sounds/bai2.mp3"
+              >
+                Bài 2
+              </button>
+              <button
+                class="music-btn music-3"
+                data-src="../assets/sounds/bai3.mp3"
+              >
+                Bài 3
+              </button>
+              <button
+                class="music-btn music-4"
+                data-src="../assets/sounds/bai4.mp3"
+              >
+                Bài 4
+              </button>
+              <button
+                class="music-btn music-5"
+                data-src="../assets/sounds/bai5.mp3"
+              >
+                Bài 5
+              </button>
+            </div>
+
+            <audio id="bgMusic" loop></audio>
+          </div>
+
+          <!-- ACTION -->
+          <div class="side-card">
+            <div class="actions-row">
+              <button id="soundBtn" onclick="toggleSound()" class="btn-icon">
+                🔊
+              </button>
+
+              <button
+                id="fullscreenBtn"
+                onclick="toggleFullscreen()"
+                class="btn-main"
+              >
+                <span class="fs-icon">⛶</span>
+                <span class="fs-text">Toàn màn hình</span>
+              </button>
+            </div>
+
+            <button onclick="goHome()" class="btn-exit">← Thoát</button>
+          </div>
         </div>
-
-        <!-- 6 -->
-        <div class="face back">
-          <span class="dot tl"></span>
-          <span class="dot tr"></span>
-          <span class="dot bl"></span>
-          <span class="dot br"></span>
-          <span class="dot ml"></span>
-          <span class="dot mr"></span>
-        </div>
-
-        <!-- 3 -->
-        <div class="face right">
-          <span class="dot tl"></span>
-          <span class="dot center"></span>
-          <span class="dot br"></span>
-        </div>
-
-        <!-- 4 -->
-        <div class="face left">
-          <span class="dot tl red"></span>
-          <span class="dot tr red"></span>
-          <span class="dot bl red"></span>
-          <span class="dot br red"></span>
-        </div>
-
-        <!-- 5 -->
-        <div class="face top">
-          <span class="dot tl"></span>
-          <span class="dot tr"></span>
-          <span class="dot center"></span>
-          <span class="dot bl"></span>
-          <span class="dot br"></span>
-        </div>
-
-        <!-- 2 -->
-        <div class="face bottom">
-          <span class="dot tl"></span>
-          <span class="dot br"></span>
-        </div>
-
       </div>
     </div>
 
-    <!-- BUTTON -->
-    <button
-      id="rollBtn"
-      onclick="rollDice()"
-      class="bg-gradient-to-r from-green-400 to-emerald-500 
-text-white px-5 py-3 rounded-xl w-full 
-font-semibold shadow-lg 
-transition-all duration-300 
-hover:scale-105 hover:shadow-xl 
-active:scale-95"
-    >
-      🎲 Tung xúc xắc
-    </button>
-  </div>
+    <!-- VIDEO FULL -->
+    <div id="victoryScreen" class="fixed inset-0 hidden z-[9999]">
+      <div class="absolute inset-0 bg-black"></div>
 
-  <!-- 🎵 MUSIC -->
-  <div class="bg-gray-100 p-4 rounded-2xl shadow">
-    <p class="mb-2 font-semibold">🎵 Nhạc nền:</p>
-
-    <div class="flex gap-2 flex-wrap" id="musicList">
-      <button class="music-btn px-3 py-1 rounded-full border" data-src="../assets/sounds/bai1.mp3">Bài 1</button>
-      <button class="music-btn px-3 py-1 rounded-full border" data-src="../assets/sounds/bai2.mp3">Bài 2</button>
-      <button class="music-btn px-3 py-1 rounded-full border" data-src="../assets/sounds/bai3.mp3">Bài 3</button>
-      <button class="music-btn px-3 py-1 rounded-full border" data-src="../assets/sounds/bai4.mp3">Bài 4</button>
-      <button class="music-btn px-3 py-1 rounded-full border" data-src="../assets/sounds/bai5.mp3">Bài 5</button>
+      <video
+        id="victoryVideo"
+        class="absolute inset-0 w-full h-full object-cover"
+        autoplay
+        muted
+        playsinline
+      ></video>
     </div>
 
-    <audio id="bgMusic" loop></audio>
-  </div>
-
-  <!-- 🎮 CONTROL -->
-<div class="bg-gray-100 p-4 rounded-2xl shadow flex flex-col gap-2">
-
-  <!-- HÀNG 1 -->
-  <div class="flex gap-2">
-
-    <!-- 🔊 SOUND -->
-    <button
-      onclick="toggleSound()"
-      id="soundBtn"
-      class="w-12 flex items-center justify-center border rounded-lg hover:bg-gray-200 transition"
+    <!-- POPUP FULL -->
+    <div
+      id="victoryPopup"
+      class="fixed inset-0 hidden z-[10000] flex items-center justify-center bg-black/60 backdrop-blur-2xl"
     >
-      🔊
-    </button>
+      <div
+        id="victoryBox"
+        class="victory-card bg-white/90 p-10 rounded-[2rem] w-[500px] max-w-[90%] text-center shadow-2xl relative overflow-hidden"
+      >
+        <!-- 🌟 GLOW nền -->
+        <div
+          class="absolute -top-20 -left-20 w-40 h-40 bg-yellow-300/30 blur-3xl rounded-full"
+        ></div>
+        <div
+          class="absolute -bottom-20 -right-20 w-40 h-40 bg-orange-300/30 blur-3xl rounded-full"
+        ></div>
 
-    <!-- 🖥️ FULLSCREEN -->
-    <button
-      onclick="toggleFullscreen()"
-      class="flex-1 border rounded-lg px-3 py-2 hover:bg-gray-200 transition"
-    >
-      ⛶ Toàn màn hình
-    </button>
+        <!-- 🏆 ICON -->
+        <div class="mb-6">
+          <span id="winnerIcon" class="text-7xl block trophy-icon">🏆</span>
+        </div>
 
-  </div>
+        <!-- TEXT -->
+        <h2
+          id="winnerText"
+          class="text-4xl font-bold mb-4 bg-gradient-to-r from-yellow-500 via-orange-500 to-yellow-500 bg-clip-text text-transparent"
+        >
+          Chiến Thắng!
+        </h2>
 
-  <!-- HÀNG 2 -->
-  <button
-    onclick="goHome()"
-    class="border rounded-lg px-3 py-2 hover:bg-gray-200 transition text-blue-500"
-  >
-    ← Thoát
-  </button>
-</div>
+        <p class="mb-6 text-gray-600">Chúc mừng bạn đã chinh phục!</p>
 
-<!-- 🎬 VICTORY VIDEO FULL SCREEN -->
-<div id="victoryScreen"
-  class="fixed inset-0 bg-black hidden z-[9999]">
+        <!-- BUTTON -->
+        <div class="flex gap-4 justify-center">
+          <button onclick="goHome()" class="btn-secondary px-6 py-2 rounded-xl">
+            Trở về
+          </button>
 
-  <video id="victoryVideo"
-    class="w-full h-full object-cover"
-    muted playsinline>
-  </video>
-
-</div>
-
-
-<!-- 🏆 RESULT POPUP -->
-<div id="victoryPopup"
-  class="fixed inset-0 flex items-center justify-center hidden z-[10000] bg-slate-900/40 backdrop-blur-xl">
-
-  <div id="victoryBox"
-    class="victory-card relative overflow-hidden
-           bg-white/90 p-10 text-center
-           shadow-[0_20px_50px_rgba(0,0,0,0.3)]
-           w-[500px] max-w-[90%]
-           mx-auto rounded-[2rem]
-           border border-white/50">
-
-    <!-- glow nền -->
-    <div class="absolute -top-24 -left-24 w-48 h-48 bg-yellow-400/20 rounded-full blur-3xl"></div>
-    <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-orange-400/20 rounded-full blur-3xl"></div>
-
-    <div class="relative z-10">
-
-      <!-- icon -->
-      <div class="trophy-wrapper mb-6">
-        <span id="winnerIcon" class="text-7xl block trophy-icon">🏆</span>
-        <div class="confetti-burst"></div>
+          <button
+            onclick="restartGame()"
+            class="btn-primary px-6 py-2 rounded-xl"
+          >
+            Chơi lại
+          </button>
+        </div>
       </div>
+    </div>
 
-      <!-- title -->
-      <h2 id="winnerText"
-        class="text-4xl font-black
-               bg-gradient-to-r from-yellow-600 via-orange-500 to-yellow-600
-               bg-clip-text text-transparent
-               mb-2 uppercase tracking-tight">
-        Chiến Thắng!
-      </h2>
-
-      <!-- desc -->
-      <p class="mb-8 text-gray-500 font-medium text-lg italic">
-        Chúc mừng bạn đã chinh phục đỉnh cao!
-      </p>
-
-      <!-- buttons -->
-      <div class="flex justify-center gap-4 flex-wrap">
-
-        <button onclick="goHome()"
-          class="btn-secondary px-8 py-3 rounded-2xl font-bold transition-all duration-300">
-          QUAY LẠI
-        </button>
-
-        <button onclick="restartGame()"
-          class="btn-primary px-8 py-3
-                 bg-gradient-to-r from-orange-500 to-yellow-500
-                 text-white rounded-2xl font-bold
-                 shadow-lg shadow-orange-200
-                 transition-all duration-300">
-          CHƠI LẠI
-        </button>
-
+    <!-- QUESTION -->
+    <div
+      id="questionPopup"
+      class="fixed inset-0 hidden items-center justify-center z-[9999] bg-black/40 backdrop-blur"
+    >
+      <div class="w-[500px] max-w-[90%] rounded-3xl overflow-hidden shadow-2xl">
+        <div class="bg-green-500 text-white p-4">❓ Câu hỏi</div>
+        <div class="bg-white p-6">
+          <p id="qTitle"></p>
+          <div id="answers"></div>
+        </div>
       </div>
-
-    </div>
-  </div>
-</div>
-</div>
-
-<div id="questionPopup"
-  class="fixed inset-0 hidden items-center justify-center z-[9999] bg-black/40 backdrop-blur">
-
-  <div class="w-[500px] max-w-[90%] rounded-3xl overflow-hidden shadow-2xl animate-fadeIn">
-
-    <!-- HEADER -->
-    <div class="bg-gradient-to-r from-green-400 to-emerald-500 text-white p-4 flex items-center gap-2">
-      <span class="text-xl">❓</span>
-      <h2 class="font-bold text-lg">Câu hỏi chướng ngại vật</h2>
     </div>
 
-    <!-- BODY -->
-    <div class="bg-white p-6">
+    <audio id="correctSound" src="../assets/sounds/correct.mp3"></audio>
+    <audio id="wrongSound" src="../assets/sounds/wrong.mp3"></audio>
+    <audio id="diceSound" src="../assets/sounds/dice.mp3"></audio>
 
-      <p id="qTitle"
-        class="text-lg font-semibold mb-6 text-gray-800 leading-relaxed">
-      </p>
-
-      <div id="answers" class="space-y-3"></div>
-
-    </div>
-  </div>
-</div>
-
-<audio id="correctSound" src="../assets/sounds/correct.mp3"></audio>
-<audio id="wrongSound" src="../assets/sounds/wrong.mp3"></audio>
-<audio id="diceSound" src="../assets/sounds/dice.mp3"></audio>
-<!-- SCRIPT -->
- <script src="../js/games/toast.js" defer></script>
- <script src="../js/games/confetti.js"></script>
-<script src="../js/games/play.js" defer></script>
-</body>
+    <script src="../js/games/toast.js" defer></script>
+    <script src="../js/games/confetti.js"></script>
+    <script src="../js/games/play.js" defer></script>
+  </body>
 </html>

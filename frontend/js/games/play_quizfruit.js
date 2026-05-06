@@ -3,13 +3,17 @@ const urlParams = new URLSearchParams(window.location.search);
 const gameId = urlParams.get("id");
 
 const gameArea = document.getElementById("gameArea");
+
+document.addEventListener("dragstart", (e) => {
+  e.preventDefault();
+});
+
+document.addEventListener("selectstart", (e) => {
+  e.preventDefault();
+});
+
 const slashSound = new Audio("../assets/sounds/slash.mp3");
 slashSound.volume = 0.5;
-
-let isMouseDown = false;
-
-document.addEventListener("mousedown", () => (isMouseDown = true));
-document.addEventListener("mouseup", () => (isMouseDown = false));
 
 let fruits = [];
 let mouseTrail = [];
@@ -22,6 +26,25 @@ let startTime;
 let totalTime;
 let rafTimer;
 let isMuted = false;
+let endVideoSkipped = false;
+
+let isMouseDown = false;
+
+document.addEventListener("mousedown", (e) => {
+  if (e.button !== 0) return;
+
+  const modal = document.getElementById("exitModal");
+
+  if (modal && modal.style.display === "flex") {
+    return;
+  }
+
+  isMouseDown = true;
+});
+
+document.addEventListener("mouseup", () => {
+  isMouseDown = false;
+});
 
 let speedConfig = {
   fast: 1.5,
@@ -141,7 +164,14 @@ function runTimer() {
     if (remaining <= 0) {
       cancelAnimationFrame(rafTimer);
       clearInterval(spawnLoop);
-      nextQuestion();
+
+      showEffect("timeout");
+      shakeScreen();
+
+      setTimeout(() => {
+        nextQuestion();
+      }, 900);
+
       return;
     }
 
@@ -193,17 +223,34 @@ function updateTimerSmooth(percent) {
   const offset = circumference - circumference * percent;
 
   t.innerHTML = `
-    <svg viewBox="0 0 100 100">
-      <circle cx="50" cy="50" r="45" class="bg"/>
-      <circle cx="50" cy="50" r="45" class="progress"/>
-    </svg>
-    <div class="timer-text">${timeLeft}</div>
-  `;
+  <div class="timer-ring-spin"></div>
 
+  <svg viewBox="0 0 100 100">
+    <circle cx="50" cy="50" r="45" class="bg"/>
+    <circle cx="50" cy="50" r="45" class="progress"/>
+  </svg>
+
+  <div class="timer-core">
+    <div class="timer-text">${timeLeft}</div>
+  </div>
+
+  <div class="timer-particle"
+    style="
+      animation-duration: 4s;
+    ">
+  </div>
+
+  <div class="timer-particle"
+    style="
+      animation-duration: 5s;
+      width:8px;
+      height:8px;
+    ">
+  </div>
+`;
   const progress = t.querySelector(".progress");
   progress.style.strokeDashoffset = offset;
 
-  // 🔥 danger
   if (percent <= 0.3) {
     t.classList.add("danger");
   } else {
@@ -218,29 +265,45 @@ function spawnAnswers(q) {
     const fruitType = fruitTypes[i];
 
     const fruit = document.createElement("div");
+
     fruit.className = "fruit";
 
     fruit.innerHTML = `
-      <img src="../assets/images/${fruitType}">
+      <img
+        src="../assets/images/${fruitType}"
+        draggable="false"
+      >
     `;
+
+    const img = fruit.querySelector("img");
+
+    img.draggable = false;
 
     gameArea.appendChild(fruit);
 
     const x = Math.random() * window.innerWidth;
-    const y = window.innerHeight;
+
+    const y = window.innerHeight + 50;
 
     const vx = (Math.random() - 0.5) * 8 * speedMultiplier;
+
     const vy = (-20 - Math.random() * 10) * speedMultiplier;
+
     const obj = {
       el: fruit,
+
       x,
       y,
+
       vx,
       vy,
+
       alive: true,
 
       answer: answer,
+
       isCorrect: q.correct === i,
+
       type: fruitType,
     };
 
@@ -326,36 +389,141 @@ document.addEventListener("mousemove", (e) => {
 });
 
 function createSlashLine(p1, p2) {
-  const slash = document.createElement("div");
-  slash.className = "slash-line";
+  const line = document.createElement("div");
+
+  line.className = "slash-line";
 
   const dx = p2.x - p1.x;
   const dy = p2.y - p1.y;
+
   const length = Math.sqrt(dx * dx + dy * dy);
 
-  const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+  const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
 
-  slash.style.width = length + "px";
-  slash.style.left = p1.x + "px";
-  slash.style.top = p1.y + "px";
-  slash.style.transform = `rotate(${angle}deg)`;
+  line.style.width = length + "px";
 
-  gameArea.appendChild(slash);
+  line.style.left = p1.x + "px";
+  line.style.top = p1.y + "px";
 
-  setTimeout(() => slash.remove(), 200);
+  line.style.transform = `
+    rotate(${angle}deg)
+  `;
+
+  gameArea.appendChild(line);
+
+  setTimeout(() => {
+    line.remove();
+  }, 180);
 }
 
-//vệt chém
-function createSlash(x, y) {
-  const slash = document.createElement("div");
-  slash.className = "slash";
+function spawnJuiceExplosion(x, y, color) {
+  // 🔥 GIỌT NHỎ
+  for (let i = 0; i < 35; i++) {
+    createJuiceDrop(x, y, color, false);
+  }
 
-  slash.style.left = x + "px";
-  slash.style.top = y + "px";
+  // 🔥 GIỌT TO
+  for (let i = 0; i < 10; i++) {
+    createJuiceDrop(x, y, color, true);
+  }
 
-  gameArea.appendChild(slash);
+  // 🔥 VẾT NƯỚC TRUNG TÂM
+  createGroundSplash(x, y, color);
+}
 
-  setTimeout(() => slash.remove(), 300);
+function createJuiceDrop(x, y, color, big = false) {
+  const drop = document.createElement("div");
+
+  drop.className = "juice-drop";
+
+  const size = big ? 18 + Math.random() * 20 : 5 + Math.random() * 10;
+
+  drop.style.width = size + "px";
+  drop.style.height = size + "px";
+
+  drop.style.left = x + "px";
+  drop.style.top = y + "px";
+
+  drop.style.background = color;
+
+  gameArea.appendChild(drop);
+
+  const angle = Math.random() * Math.PI * 2;
+
+  const speed = big ? 10 + Math.random() * 10 : 6 + Math.random() * 12;
+
+  let px = 0;
+  let py = 0;
+
+  let vx = Math.cos(angle) * speed;
+
+  let vy = Math.sin(angle) * speed;
+
+  let life = 0;
+
+  const gravity = 0.55;
+
+  const maxLife = 30 + Math.random() * 20;
+
+  function loop() {
+    life++;
+
+    vy += gravity;
+
+    px += vx;
+    py += vy;
+
+    vx *= 0.985;
+
+    const opacity = 1 - life / maxLife;
+
+    drop.style.opacity = opacity;
+
+    drop.style.transform = `
+      translate(${px}px, ${py}px)
+      scale(${opacity})
+    `;
+
+    if (life === maxLife - 1) {
+      createGroundSplash(x + px, y + py, color);
+    }
+
+    if (life < maxLife) {
+      requestAnimationFrame(loop);
+    } else {
+      drop.remove();
+    }
+  }
+
+  requestAnimationFrame(loop);
+}
+
+function createGroundSplash(x, y, color) {
+  const splash = document.createElement("div");
+
+  splash.className = "ground-splash";
+
+  const width = 120 + Math.random() * 90;
+
+  const height = 80 + Math.random() * 60;
+
+  splash.style.width = width + "px";
+
+  splash.style.height = height + "px";
+
+  splash.style.left = x - width / 2 + "px";
+
+  splash.style.top = y - height / 2 + "px";
+
+  splash.style.setProperty("--juice-color", color);
+
+  splash.style.setProperty("--rot", `${Math.random() * 360}deg`);
+
+  gameArea.appendChild(splash);
+
+  setTimeout(() => {
+    splash.remove();
+  }, 2000);
 }
 
 // 🎯 check chém
@@ -393,14 +561,30 @@ function sliceFruit(fruit) {
 
   if (fruit.isCorrect) {
     score++;
-    showEffect("ĐÚNG ✅");
+
+    showEffect("good");
   } else {
-    showEffect("SAI ❌");
+    showEffect("bad");
   }
 
   createHalf(fruit, -5);
   createHalf(fruit, 5);
-  createSplash(fruit.x, fruit.y, fruit.type);
+
+  let juiceColor = "#ff3b3b";
+
+  if (fruit.type.includes("grape")) {
+    juiceColor = "#9333ea";
+  }
+
+  if (fruit.type.includes("pear")) {
+    juiceColor = "#84cc16";
+  }
+
+  if (fruit.type.includes("tomato")) {
+    juiceColor = "#ff2d2d";
+  }
+
+  spawnJuiceExplosion(fruit.x, fruit.y, juiceColor);
 
   clearInterval(timer);
   clearInterval(spawnLoop);
@@ -421,31 +605,100 @@ function sliceFruit(fruit) {
   }, 800);
 }
 
-function showEffect(text) {
+function showEffect(type) {
+  const goodTexts = ["PERFECT", "GREAT", "CORRECT"];
+
+  const badTexts = ["MISS", "WRONG", "OOPS"];
+
+  const timeoutTexts = ["TIME OUT"];
+
   const e = document.createElement("div");
-  e.innerText = text;
-  e.style.position = "absolute";
-  e.style.top = "40%";
-  e.style.left = "50%";
-  e.style.transform = "translate(-50%, -50%)";
-  e.style.fontSize = "40px";
-  e.style.color = "white";
 
-  gameArea.appendChild(e);
+  e.className = `hit-effect ${type}`;
 
-  setTimeout(() => e.remove(), 800);
+  if (type === "good") {
+    e.innerText = goodTexts[Math.floor(Math.random() * goodTexts.length)];
+  } else if (type === "timeout") {
+    e.innerText = timeoutTexts[Math.floor(Math.random() * timeoutTexts.length)];
+  } else {
+    e.innerText = badTexts[Math.floor(Math.random() * badTexts.length)];
+  }
+
+  document.body.appendChild(e);
+  createHitBurst(type);
+  requestAnimationFrame(() => {
+    e.classList.add("show");
+  });
+
+  setTimeout(() => {
+    e.classList.add("hide");
+  }, 900);
+
+  setTimeout(() => {
+    e.remove();
+  }, 1500);
 }
 
-// ✂️ tạo 2 nửa
+function createHitBurst(type) {
+  const burst = document.createElement("div");
+
+  burst.className = `hit-burst ${type}`;
+
+  burst.style.left = "50%";
+  burst.style.top = "50%";
+
+  document.body.appendChild(burst);
+
+  // ========================
+  // LIGHT RAYS
+  // ========================
+
+  for (let i = 0; i < 10; i++) {
+    const ray = document.createElement("div");
+
+    ray.className = `hit-ray ${type}`;
+
+    ray.style.setProperty("--rot", `${i * 36}deg`);
+
+    burst.appendChild(ray);
+  }
+
+  // ========================
+  // PARTICLES
+  // ========================
+
+  for (let i = 0; i < 22; i++) {
+    const p = document.createElement("div");
+
+    p.className = `hit-particle ${type}`;
+
+    const angle = Math.random() * Math.PI * 2;
+
+    const dist = 80 + Math.random() * 120;
+
+    p.style.setProperty("--x", `${Math.cos(angle) * dist}px`);
+
+    p.style.setProperty("--y", `${Math.sin(angle) * dist}px`);
+
+    burst.appendChild(p);
+  }
+
+  setTimeout(() => {
+    burst.remove();
+  }, 900);
+}
+
 function createHalf(fruit, dir) {
   const half = document.createElement("img");
 
-  // 🔥 dùng lại ảnh gốc
   half.src = `../assets/images/${fruit.type}`;
 
   half.className = "half";
 
-  // 🔥 phân trái / phải bằng CSS
+  half.draggable = false;
+
+  half.style.pointerEvents = "none";
+
   if (dir < 0) {
     half.classList.add("left");
   } else {
@@ -456,65 +709,58 @@ function createHalf(fruit, dir) {
 
   let x = fruit.x;
   let y = fruit.y;
-  let vx = dir * 4; // bay mạnh hơn
-  let vy = -8; // nảy lên mạnh hơn
+
+  let vx = dir * 5;
+  let vy = -10;
+
   let rotation = Math.random() * 360;
 
   function loop() {
-    vy += 0.5;
+    vy += 0.55;
+
     x += vx;
     y += vy;
+
     rotation += 8;
 
-    half.style.transform = `translate(${x}px, ${y}px) rotate(${rotation}deg)`;
+    half.style.transform = `
+      translate(${x}px, ${y}px)
+      rotate(${rotation}deg)
+    `;
 
-    if (y > window.innerHeight + 100) {
+    if (y > window.innerHeight + 200) {
       half.remove();
+
       return;
     }
 
     requestAnimationFrame(loop);
   }
 
-  loop();
-}
-
-// 💦 splash
-function createSplash(x, y, type) {
-  const splash = document.createElement("div");
-  splash.className = "splash";
-
-  let color = "red";
-
-  if (type.includes("grape")) color = "#a020f0";
-  if (type.includes("pear")) color = "#7CFC00";
-  if (type.includes("watermelon")) color = "#ff3b3b";
-  if (type.includes("tomato")) color = "#ff0000";
-
-  splash.style.background = `radial-gradient(circle, ${color}, transparent)`;
-
-  splash.style.left = x + "px";
-  splash.style.top = y + "px";
-
-  splash.style.transform = "translate(-50%, -50%) scale(0.5)";
-  splash.style.opacity = "1";
-
-  gameArea.appendChild(splash);
-
-  setTimeout(() => {
-    splash.style.transform = "translate(-50%, -50%) scale(2)";
-    splash.style.opacity = "0";
-  }, 10);
-
-  setTimeout(() => splash.remove(), 400);
+  requestAnimationFrame(loop);
 }
 
 function openExit() {
-  document.getElementById("exitModal").style.display = "flex";
+  isMouseDown = false;
+  mouseTrail = [];
+
+  const modal = document.getElementById("exitModal");
+
+  modal.style.display = "flex";
+
+  requestAnimationFrame(() => {
+    modal.classList.add("show");
+  });
 }
 
 function closeExit() {
-  document.getElementById("exitModal").style.display = "none";
+  const modal = document.getElementById("exitModal");
+
+  modal.classList.remove("show");
+
+  setTimeout(() => {
+    modal.style.display = "none";
+  }, 250);
 }
 
 function endGame() {
@@ -522,6 +768,8 @@ function endGame() {
   const correct = score;
 
   bgm.pause();
+
+  document.querySelector(".game-controls").style.display = "none";
 
   showEndScene(correct, total);
 }
@@ -552,24 +800,47 @@ function flashWin() {
   setTimeout(() => flash.remove(), 120);
 }
 
+function shakeScreen() {
+  document.body.classList.add("screen-shake");
+
+  setTimeout(() => {
+    document.body.classList.remove("screen-shake");
+  }, 450);
+}
+
 function showEndScene(correct, total) {
   const scene = document.getElementById("endScene");
+
   const video = document.getElementById("endVideo");
+
   const overlay = document.getElementById("endOverlay");
 
   const title = document.getElementById("endTitle");
+
   const scoreEl = document.getElementById("endScore");
 
   overlay.classList.add("hidden");
+
   video.currentTime = 0;
+
+  endVideoSkipped = false;
 
   const finalScore = (correct / total) * 10;
 
   if (finalScore >= 9) {
-    video.src = "../assets/videos/victory.mp4";
+    const victoryVideos = [
+      "../assets/videos/Victory.mp4",
+      "../assets/videos/Victory1.mp4",
+    ];
+
+    const randomIndex = Math.floor(Math.random() * victoryVideos.length);
+
+    video.src = victoryVideos[randomIndex];
+
     title.innerText = finalScore === 10 ? "PERFECT!" : "CHIẾN THẮNG!";
   } else {
-    video.src = "../assets/videos/defeat.mp4";
+    video.src = "../assets/videos/Defeat.mp4";
+
     title.innerText = "THẤT BẠI!";
   }
 
@@ -577,45 +848,74 @@ function showEndScene(correct, total) {
 
   if (finalScore === 10) {
     rankMedia = `
-      <video class="rank-video sss" autoplay muted loop playsinline>
-        <source src="../assets/videos/T1Limited.mp4" type="video/mp4">
+      <video class="rank-video sss"
+        autoplay
+        muted
+        loop
+        playsinline>
+
+        <source
+          src="../assets/videos/T1Limited.mp4"
+          type="video/mp4">
       </video>
     `;
   } else if (finalScore >= 9) {
     rankMedia = `
-      <video class="rank-video ss" autoplay muted loop playsinline>
-        <source src="../assets/videos/T2Limited.mp4" type="video/mp4">
+      <video class="rank-video ss"
+        autoplay
+        muted
+        loop
+        playsinline>
+
+        <source
+          src="../assets/videos/T2Limited.mp4"
+          type="video/mp4">
       </video>
     `;
-
   } else if (finalScore >= 7) {
-    rankMedia = `<img src="../assets/images/T25limited.png" alt="rank">`;
+    rankMedia = `<img src="../assets/images/T25limited.png">`;
   } else if (finalScore >= 5) {
-    rankMedia = `<img src="../assets/images/T35limited.png" alt="rank">`;
+    rankMedia = `<img src="../assets/images/T35limited.png">`;
   } else {
-    rankMedia = `<img src="../assets/images/T6limited.png" alt="rank">`;
+    rankMedia = `<img src="../assets/images/T6limited.png">`;
   }
 
   document.querySelectorAll(".rank-img").forEach((el) => el.remove());
 
-  const rankHTML = `
-    <div class="rank-img">
-      ${rankMedia}
-    </div>
-  `;
-  title.insertAdjacentHTML("beforebegin", rankHTML);
+  title.insertAdjacentHTML(
+    "beforebegin",
+    `
+      <div class="rank-img">
+        ${rankMedia}
+      </div>
+    `,
+  );
 
   scoreEl.innerHTML = `
-    <div class="score-line">🎯 ${correct}/${total} câu đúng</div>
-    <div class="score-line">⭐ ${finalScore.toFixed(1)}/10 điểm</div>
+    <div class="score-line">
+      🎯 ${correct}/${total} câu đúng
+    </div>
+
+    <div class="score-line">
+      ⭐ ${finalScore.toFixed(1)}/10 điểm
+    </div>
   `;
 
   scene.classList.remove("hidden");
+
   video.play();
 
-  video.onended = () => {
+  function finishEndVideo() {
+    if (endVideoSkipped) return;
+
+    endVideoSkipped = true;
+
     video.pause();
+
+    video.currentTime = Math.max(0, video.duration - 0.05);
+
     video.style.filter = "brightness(0.5) blur(3px)";
+
     overlay.classList.remove("hidden");
 
     if (finalScore >= 9 && typeof launchConfetti === "function") {
@@ -623,12 +923,23 @@ function showEndScene(correct, total) {
     }
 
     if (finalScore === 10 && typeof launchConfetti === "function") {
-      setTimeout(() => launchConfetti(), 200);
+      setTimeout(() => {
+        launchConfetti();
+      }, 200);
     }
+  }
+
+  video.onended = () => {
+    finishEndVideo();
+  };
+
+  scene.onclick = () => {
+    finishEndVideo();
   };
 }
 
 function replayGame() {
+  document.querySelector(".game-controls").style.display = "none";
   sessionStorage.setItem("playMusic", "1");
   location.reload();
 }

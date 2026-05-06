@@ -41,10 +41,8 @@ const gameInfo = document.getElementById("gameInfo");
 let obstacleCells = [];
 let questions = [];
 
-const dice = document.getElementById("dice");
 const playerLayer = document.getElementById("playerLayer");
 const cellLayer = document.getElementById("cellLayer");
-const diceFaces = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
 const rollBtn = document.getElementById("rollBtn");
 let isRolling = false;
 let timer = null;
@@ -125,38 +123,90 @@ if (game) {
   gameInfo.innerHTML = "Không tìm thấy game ❌";
 }
 
-// ===== INFO =====
 function updateInfo() {
   const playersHTML = game.players
     .map((p, i) => {
       return `
         <div class="
-  px-4 py-2 rounded-full
-  font-semibold text-sm
-  transition-all duration-300
-  ${
-    i === currentPlayer
-      ? "bg-green-500 text-white shadow-lg scale-110"
-      : "bg-gray-200 text-gray-700"
-  }
-">
-          ${playerIcons[i]} ${p}
+          player-badge
+          ${i === currentPlayer ? "player-active" : ""}
+        ">
+          <span class="player-icon">${playerIcons[i]}</span>
+          <span>${p}</span>
         </div>
       `;
     })
     .join("");
 
   gameInfo.innerHTML = `
-    <div class="game-title">🎮 ${game.title}</div>
+<div class="game-header-x10">
 
-    <div class="player-row">
+  <div class="header-top">
+
+    <div class="header-left">
+
+      <div class="hero-icon-wrap">
+        <div class="hero-glow"></div>
+
+        <div class="hero-icon">
+          🎲
+        </div>
+      </div>
+
+      <div class="hero-info">
+        <div class="hero-subtitle">
+          ◈ GAME THEO LƯỢT ◈
+        </div>
+
+        <div class="hero-title">
+          ${game.title}
+        </div>
+
+        <div class="hero-desc">
+          Chiến đấu vượt chướng ngại và trở thành người chiến thắng cuối cùng.
+        </div>
+      </div>
+
+    </div>
+
+    <div class="header-right">
+
+      <div class="obstacle-card-x10">
+
+        <div class="obstacle-icon">
+          🚧
+        </div>
+
+        <div class="obstacle-info">
+          <div class="obstacle-label">
+            Chướng ngại
+          </div>
+
+          <div class="obstacle-value">
+            ${game.obstacles}
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="player-section-x10">
+
+    <div class="player-section-title">
+      Người chơi
+    </div>
+
+    <div class="player-row-modern">
       ${playersHTML}
     </div>
 
-    <div class="game-meta">
-      <span>🚧 ${game.obstacles} chướng ngại</span>
-    </div>
-  `;
+  </div>
+
+</div>
+`;
 }
 
 // ===== CELLS =====
@@ -224,7 +274,6 @@ function renderCells() {
       cell.style.animation = "obstaclePulse 1.2s infinite";
     }
 
-    // ⭐ PLAYER ĐANG ĐỨNG TRÊN Ô
     if (positions.includes(index)) {
       cell.classList.add("ring-2", "ring-green-400", "scale-110");
     }
@@ -268,33 +317,29 @@ function rollDice() {
 
   isRolling = true;
 
-  const diceSound = document.getElementById("diceSound");
-  diceSound.currentTime = 0;
-  diceSound.play().catch(() => {});
-
-  const rollBtn = document.getElementById("rollBtn");
   const dice = document.getElementById("dice3D");
+  const rollBtn = document.getElementById("rollBtn");
+
+  // 🔊 SOUND DICE
+  const diceSound = document.getElementById("diceSound");
+  if (diceSound) {
+    diceSound.currentTime = 0;
+    diceSound.play().catch(() => {});
+  }
 
   rollBtn.disabled = true;
   rollBtn.innerText = "⏳ Đang tung...";
 
-  // 🎲 random kết quả
   let roll = Math.floor(Math.random() * 6) + 1;
 
-  // 💥 reset animation
-  dice.style.transition = "none";
+  const current = dice.style.transform || "";
 
-  // 🔥 random quay nhiều vòng (fake physics)
-  const randomX = 360 * (3 + Math.floor(Math.random() * 3));
-  const randomY = 360 * (3 + Math.floor(Math.random() * 3));
+  const spinX = 360 * 4 + Math.random() * 360;
+  const spinY = 360 * 4 + Math.random() * 360;
 
-  dice.style.transform = `rotateX(${randomX}deg) rotateY(${randomY}deg)`;
+  dice.style.transition = "transform 0.6s ease";
 
-  // 💫 force reflow
-  dice.offsetHeight;
-
-  // 🚀 easing mượt khi dừng
-  dice.style.transition = "transform 0.7s cubic-bezier(0.22, 1, 0.36, 1)";
+  dice.style.transform = `${current} rotateX(${spinX}deg) rotateY(${spinY}deg)`;
 
   const finalRotation = {
     1: "rotateX(0deg) rotateY(0deg)",
@@ -306,13 +351,14 @@ function rollDice() {
   };
 
   setTimeout(() => {
+    dice.style.transition = "transform 0.7s cubic-bezier(0.22,1,0.36,1)";
     dice.style.transform = finalRotation[roll];
-  }, 100);
+  }, 200);
 
   setTimeout(() => {
     isRolling = false;
     movePlayer(roll);
-  }, 800);
+  }, 900);
 }
 
 function createTrailEffect(pos) {
@@ -359,18 +405,22 @@ function movePlayer(steps) {
       return;
     }
 
+    if (pos >= pathLength - 1) {
+      clearInterval(moveInterval);
+      afterMove();
+      return;
+    }
+
     if (steps <= 0) {
       clearInterval(moveInterval);
       afterMove();
       return;
     }
 
-    if (pos < pathLength - 1) {
-      pos++;
-      positions[currentPlayer] = pos;
-      renderPlayersOnMap();
-      createTrailEffect(pos);
-    }
+    pos++;
+    positions[currentPlayer] = pos;
+    renderPlayersOnMap();
+    createTrailEffect(pos);
 
     steps--;
   }, 250);
@@ -429,10 +479,10 @@ function updateMusicUI() {
   musicButtons.forEach((btn) => {
     const btnFile = btn.dataset.src.split("/").pop();
 
+    btn.classList.remove("active");
+
     if (btnFile === currentFile) {
-      btn.classList.add("bg-green-500", "text-white");
-    } else {
-      btn.classList.remove("bg-green-500", "text-white");
+      btn.classList.add("active");
     }
   });
 }
@@ -441,8 +491,16 @@ setTimeout(updateMusicUI, 100);
 
 musicButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
-    music.src = btn.dataset.src;
-    music.play();
+    const newSrc = btn.dataset.src;
+
+    if (!music.paused) {
+      music.pause();
+      music.currentTime = 0;
+    }
+
+    music.src = newSrc;
+
+    music.play().catch(() => {});
 
     updateMusicUI();
   });
@@ -465,14 +523,9 @@ function startGameMusic() {
 }
 
 function showVictory(playerName, playerIndex) {
-  if (
-    isGameOver &&
-    document.getElementById("victoryScreen").classList.contains("hidden") ===
-      false
-  )
-    return;
-
   const screen = document.getElementById("victoryScreen");
+
+  if (!screen.classList.contains("hidden")) return;
   const video = document.getElementById("victoryVideo");
   const popup = document.getElementById("victoryPopup");
   const winnerText = document.getElementById("winnerText");
@@ -495,14 +548,19 @@ function showVictory(playerName, playerIndex) {
   screen.classList.remove("hidden");
   screen.style.opacity = "1";
 
-  video.play().catch(() => {
-    document.body.addEventListener("click", () => video.play(), { once: true });
-  });
+  video.muted = true;
+  video.play().catch(() => {});
 
   video.onended = null;
 
   video.onended = () => {
+    console.log("VIDEO END");
+
     popup.classList.remove("hidden");
+    popup.classList.add("flex");
+
+    void popup.offsetWidth;
+
     box.classList.remove("victory-card");
     void box.offsetWidth;
     box.classList.add("victory-card");
@@ -531,10 +589,15 @@ function toggleSound() {
 }
 
 function toggleFullscreen() {
+  const btn = document.getElementById("fullscreenBtn");
+  const text = btn.querySelector(".fs-text");
+
   if (!document.fullscreenElement) {
     document.documentElement.requestFullscreen();
+    text.innerText = "Thu nhỏ";
   } else {
     document.exitFullscreen();
+    text.innerText = "Toàn màn hình";
   }
 }
 
@@ -609,7 +672,6 @@ function startTimer() {
   timer = setInterval(() => {
     timeLeft--;
 
-    // update UI
     const title = document.getElementById("qTitle");
     if (title) {
       const text = title.innerText.split("\n")[0];
@@ -652,7 +714,7 @@ function handleAnswer(selected, correct, isTimeout = false) {
     correctSound.play().catch(() => {});
 
     if (typeof launchConfetti === "function") {
-      launchConfetti(); 
+      launchConfetti();
     }
   } else {
     wrongSound.currentTime = 0;

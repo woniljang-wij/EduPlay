@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <title>EduPlay - Memory</title>
-    
+
     <link rel="stylesheet" href="../css/confetti.css" />
     <link rel="stylesheet" href="../css/play_memory.css" />
     <link rel="stylesheet" href="../css/toast.css" />
@@ -12,7 +12,7 @@
   <body>
     <!-- BACKGROUND -->
     <video id="bgVideo" autoplay muted loop>
-      <source src="../assets/videos/bg.mp4" type="video/mp4" />
+      <source src="../assets/videos/bgmemory.mp4" type="video/mp4" />
     </video>
 
     <!-- ===== TOP PANEL ===== -->
@@ -87,12 +87,35 @@
       </div>
     </div>
 
-    <!-- ===== WIN ===== -->
-    <div id="winBox" class="win hidden">
-      <div class="win-card">
-        <h2>🎉 Tên ảnh:</h2>
-        <p id="finalAnswer"></p>
-        <button onclick="location.reload()">↺ Chơi lại</button>
+    <!-- ===== RESULT POPUP ===== -->
+    <div id="resultBox" class="result-popup hidden">
+      <div class="result-card">
+        <div class="result-glow"></div>
+
+        <div id="resultIcon" class="result-icon">👑</div>
+
+        <h2 id="resultTitle">CHIẾN THẮNG</h2>
+
+        <p class="result-label">Đáp án:</p>
+
+        <div id="finalAnswer" class="result-answer">...</div>
+
+        <div class="result-actions">
+          <button class="result-btn replay-btn" onclick="location.reload()">
+            ↺ Chơi lại
+          </button>
+
+          <button class="result-btn back-btn" onclick="goBack()">
+            ⬅ Quay lại
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GUESS COUNTDOWN -->
+    <div id="guessCountdown" class="guess-countdown hidden">
+      <div class="guess-ring">
+        <span id="guessCountdownText">10</span>
       </div>
     </div>
 

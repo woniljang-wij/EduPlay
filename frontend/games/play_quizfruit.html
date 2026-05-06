@@ -10,41 +10,75 @@
   </head>
 
   <body>
+    <!-- VIDEO BG -->
+    <video id="bgVideo" autoplay muted loop playsinline>
+      <source src="../assets/videos/bgwood.mp4" type="video/mp4" />
+    </video>
+
+    <!-- GAME -->
     <div id="gameArea"></div>
 
+    <!-- TIMER SVG GRADIENT -->
+    <svg width="0" height="0" style="position: absolute">
+      <defs>
+        <!-- NORMAL -->
+        <linearGradient id="timerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ffffff" />
+          <stop offset="100%" stop-color="#00f5ff" />
+        </linearGradient>
+
+        <!-- LOW TIME -->
+        <linearGradient id="dangerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ffffff" />
+          <stop offset="100%" stop-color="#ff3355" />
+        </linearGradient>
+      </defs>
+    </svg>
+
+    <!-- END SCENE -->
     <div id="endScene" class="end-scene hidden">
-      <!-- VIDEO -->
       <video id="endVideo" class="end-video"></video>
 
-      <!-- OVERLAY SAU KHI VIDEO KẾT THÚC -->
       <div id="endOverlay" class="end-overlay hidden">
         <h2 id="endTitle"></h2>
+
         <p id="endScore"></p>
 
         <div class="end-actions">
           <button onclick="replayGame()">Chơi lại</button>
+
           <button onclick="confirmExit()">Thoát</button>
         </div>
       </div>
     </div>
 
+    <!-- CONTROLS -->
     <div class="game-controls">
       <button id="soundBtn">🔊</button>
+
       <button id="exitBtn" onclick="openExit()">THOÁT</button>
     </div>
 
+    <!-- EXIT -->
     <div id="exitModal" class="exit-modal">
       <div class="exit-box">
-        <p>Bạn muốn thoát game?</p>
+        <h2>PAUSE</h2>
+
+        <p>Bạn muốn thoát khỏi trận đấu?</p>
+
         <div class="exit-actions">
-          <button onclick="confirmExit()" class="btn-exit">Thoát</button>
-          <button onclick="closeExit()" class="btn-cancel">Ở lại</button>
+          <button onclick="confirmExit()" class="btn-exit">THOÁT</button>
+
+          <button onclick="closeExit()" class="btn-cancel">TIẾP TỤC</button>
         </div>
       </div>
     </div>
 
+    <!-- JS -->
     <script src="../js/games/toast.js" defer></script>
+
     <script src="../js/games/confetti.js"></script>
+
     <script src="../js/games/play_quizfruit.js" defer></script>
   </body>
 </html>

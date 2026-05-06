@@ -6,6 +6,13 @@ function goIndex() {
 let editingId = null;
 
 function goCreate(isEdit = false) {
+
+  const draft = JSON.parse(sessionStorage.getItem(DRAFT_KEY));
+
+  if (draft && draft.length > 0) {
+    tempQuestions = draft;
+  }
+
   if (!isEdit) {
     history.pushState({}, "", "/frontend/games/turnbased.html?mode=create");
   }
@@ -15,16 +22,20 @@ function goCreate(isEdit = false) {
 
   setActive("create");
 
+  // ===== CREATE MODE =====
   if (!isEdit) {
     editingId = null;
-    tempQuestions = [];
 
     const titleInput = document.querySelector(
-      "input[placeholder='Tiêu đề bài chơi']",
+      "input[placeholder='Tiêu đề bài chơi']"
     );
-    if (titleInput) titleInput.value = "";
+
+    if (titleInput) {
+      titleInput.value = "";
+    }
 
     const playerCount = document.getElementById("playerCount");
+
     if (playerCount) {
       playerCount.value = 2;
       renderPlayers(2);
@@ -32,18 +43,20 @@ function goCreate(isEdit = false) {
 
     const slider = document.getElementById("slider");
     const value = document.getElementById("value");
+
     if (slider && value) {
       slider.value = 1;
       value.innerText = 1;
     }
 
     const firstBtn = document.querySelector(".music-btn");
+
     if (firstBtn) {
       selectedMusic = firstBtn.dataset.src;
 
-      document
-        .querySelectorAll(".music-btn")
-        .forEach((b) => b.classList.remove("bg-green-500", "text-white"));
+      document.querySelectorAll(".music-btn").forEach((b) => {
+        b.classList.remove("bg-green-500", "text-white");
+      });
 
       firstBtn.classList.add("bg-green-500", "text-white");
     }
@@ -289,6 +302,7 @@ function saveGame() {
   }
 
   localStorage.setItem("games", JSON.stringify(games));
+  sessionStorage.removeItem(DRAFT_KEY);
 
   updateQuestionCount();
   goHome();
@@ -402,9 +416,13 @@ function editGame(id) {
     `/frontend/games/turnbased.html?mode=edit&id=${id}`,
   );
 
-  // ===== TITLE =====
-  document.querySelector("input[placeholder='Tiêu đề bài chơi']").value =
-    game.title;
+  const titleInput = document.querySelector(
+    "input[placeholder='Tiêu đề bài chơi']",
+  );
+
+  if (titleInput) {
+    titleInput.value = game.title;
+  }
 
   // ===== PLAYER =====
   document.getElementById("playerCount").value = game.players.length;
@@ -462,6 +480,11 @@ function closeAssign() {
 // ===== QUESTION SYSTEM =====
 let tempQuestions = [];
 let backupQuestions = [];
+const DRAFT_KEY = "turnbased_temp";
+
+function saveDraft() {
+  sessionStorage.setItem(DRAFT_KEY, JSON.stringify(tempQuestions));
+}
 
 function openQuestionManager() {
   backupQuestions = JSON.parse(JSON.stringify(tempQuestions));
@@ -656,7 +679,7 @@ function saveAllQuestions() {
   }
 
   tempQuestions = newQuestions;
-
+  saveDraft();
   closeQuestionManager();
   updateQuestionCount();
   renderQuestionPreview();
@@ -669,6 +692,7 @@ function updateQuestionCount() {
   if (el) {
     el.innerText = `Câu hỏi (${tempQuestions.length})`;
   }
+  saveDraft();
 }
 
 function updateQuestionCount2() {
@@ -775,12 +799,12 @@ function moveQuestion(index, direction) {
 
   if (newIndex < 0 || newIndex >= tempQuestions.length) return;
 
-  // swap
   [tempQuestions[index], tempQuestions[newIndex]] = [
     tempQuestions[newIndex],
     tempQuestions[index],
   ];
 
+  saveDraft();
   renderQuestionPreview();
   updateQuestionCount();
 }
@@ -945,6 +969,36 @@ function reopenQuestionManager() {
   updateQuestionCount2();
 }
 
+function updateQuestion(index, key, value) {
+  if (!tempQuestions[index]) {
+    tempQuestions[index] = {
+      question: "",
+      answers: ["", "", "", ""],
+      correct: 0,
+      time: "",
+    };
+  }
+
+  tempQuestions[index][key] = value;
+
+  saveDraft();
+}
+
+function updateAnswer(index, answerIndex, value) {
+  if (!tempQuestions[index]) {
+    tempQuestions[index] = {
+      question: "",
+      answers: ["", "", "", ""],
+      correct: 0,
+      time: "",
+    };
+  }
+
+  tempQuestions[index].answers[answerIndex] = value;
+
+  saveDraft();
+}
+
 function deleteQuestion(index) {
   const rows = document.querySelectorAll("#questionPreview .border-t");
 
@@ -960,6 +1014,7 @@ function deleteQuestion(index) {
     tempQuestions.splice(index, 1);
     renderQuestionPreview();
     updateQuestionCount();
+    saveDraft();
   }
 
   showToast("🗑 Đã xóa câu hỏi " + (index + 1));

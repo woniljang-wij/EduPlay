@@ -17,7 +17,7 @@ function playSound(type) {
   const sound = sounds[type] || sounds.info;
 
   try {
-    sound.pause();        // 🔥 fix overlap
+    sound.pause();   
     sound.currentTime = 0;
     sound.play();
   } catch (e) {
@@ -29,7 +29,6 @@ function playSound(type) {
 function showToast(message, type = "success", duration = 2500) {
   let container = document.getElementById("toast-container") || createContainer();
 
-  // 🔥 reset toast cũ
   if (currentToast) {
     clearTimeout(toastTimer);
     currentToast.remove();
@@ -38,7 +37,7 @@ function showToast(message, type = "success", duration = 2500) {
 
   const toast = document.createElement("div");
   toast.className = `toast toast-${type}`;
-
+  
   toast.innerHTML = `
     <div class="toast-message">${message}</div>
     <div class="toast-close">&times;</div>
@@ -103,7 +102,6 @@ function removeToast(el) {
   el.classList.add("hide");
 
   setTimeout(() => {
-    // 🔥 remove luôn particle còn sót
     el.querySelectorAll(".toast-firework").forEach(p => p.remove());
 
     el.remove();
