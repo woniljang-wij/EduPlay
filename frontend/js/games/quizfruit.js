@@ -58,13 +58,18 @@ function goCreate(isEdit) {
   setActive("create");
 
   if (!isEdit) {
+    editingId = null;
+
     document.getElementById("title").value = "";
     document.getElementById("time").value = 25;
-    document.getElementById("hideCamera").checked = false;
-    document.getElementById("noCamera").checked = false;
 
     selectedSpeed = "medium";
+
     tempQuestions = [];
+
+    renderQuestions();
+
+    history.pushState({}, "", "/frontend/games/quizfruit.html?mode=create");
   }
 
   document.querySelectorAll(".speed-btn").forEach((btn) => {
@@ -77,22 +82,36 @@ function goCreate(isEdit) {
 
 function goCreateNew() {
   editingId = null;
-  goCreate();
+  tempQuestions = [];
+
+  goCreate(false);
+
+  renderQuestions();
 }
 
 function goHome() {
   const list = document.getElementById("page-list");
   const create = document.getElementById("page-create");
 
+  editingId = null;
+
+  tempQuestions = [];
+
+  history.pushState({}, "", "/frontend/games/quizfruit.html");
+
   create.classList.add("hidden");
   list.classList.remove("hidden");
 
   const box = list.querySelector(".container-box");
+
   box.classList.remove("fade-anim");
+
   void box.offsetWidth;
+
   box.classList.add("fade-anim");
 
   setActive("home");
+
   renderGames();
 }
 

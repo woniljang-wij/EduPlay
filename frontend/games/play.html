@@ -16,7 +16,9 @@
     <link rel="stylesheet" href="../css/toast.css" />
   </head>
 
-  <body class="min-h-screen p-6 relative">
+  <body
+    class="h-screen overflow-hidden relative flex items-center justify-center p-6"
+  >
     <!-- BACKGROUND -->
     <video
       autoplay
@@ -30,7 +32,7 @@
 
     <!-- MAIN BOX -->
     <div
-      class="max-w-6xl mx-auto -mt-4 bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl rounded-[32px] shadow-[0_30px_80px_rgba(0,0,0,0.4)] border border-white/30 p-6 relative overflow-hidden"
+      class="w-full max-w-[1135px] h-fit scale-[0.92] origin-center bg-gradient-to-br from-[#dfe7ff]/95 to-[#ffd9ef]/90 backdrop-blur-xl rounded-[38px] shadow-[0_25px_80px_rgba(0,0,0,.35)] border border-white/40 p-4"
     >
       <!-- glow -->
       <div
@@ -187,49 +189,63 @@
       ></video>
     </div>
 
-    <!-- POPUP FULL -->
+    <!-- ===================================== -->
+    <!-- ULTRA VICTORY POPUP X10THINK -->
+    <!-- ===================================== -->
+
     <div
       id="victoryPopup"
-      class="fixed inset-0 hidden z-[10000] flex items-center justify-center bg-black/60 backdrop-blur-2xl"
+      class="fixed inset-0 hidden z-[10000] flex items-center justify-center overflow-hidden"
     >
+      <!-- DARK BG -->
       <div
-        id="victoryBox"
-        class="victory-card bg-white/90 p-10 rounded-[2rem] w-[500px] max-w-[90%] text-center shadow-2xl relative overflow-hidden"
-      >
-        <!-- 🌟 GLOW nền -->
-        <div
-          class="absolute -top-20 -left-20 w-40 h-40 bg-yellow-300/30 blur-3xl rounded-full"
-        ></div>
-        <div
-          class="absolute -bottom-20 -right-20 w-40 h-40 bg-orange-300/30 blur-3xl rounded-full"
-        ></div>
+        class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.08),rgba(0,0,0,0.88))] backdrop-blur-xl"
+      ></div>
 
-        <!-- 🏆 ICON -->
-        <div class="mb-6">
-          <span id="winnerIcon" class="text-7xl block trophy-icon">🏆</span>
+      <!-- PARTICLES -->
+      <div class="victory-particles"></div>
+
+      <!-- CARD -->
+      <div id="victoryBox" class="victory-card-x10 relative">
+        <!-- glow -->
+        <div class="victory-glow glow-1"></div>
+        <div class="victory-glow glow-2"></div>
+
+        <!-- shine -->
+        <div class="victory-shine"></div>
+
+        <!-- crown -->
+        <div class="victory-crown">👑</div>
+
+        <!-- icon -->
+        <div class="victory-avatar-wrap">
+          <div class="avatar-ring"></div>
+
+          <div id="winnerIcon" class="victory-avatar">🐸</div>
         </div>
 
-        <!-- TEXT -->
-        <h2
-          id="winnerText"
-          class="text-4xl font-bold mb-4 bg-gradient-to-r from-yellow-500 via-orange-500 to-yellow-500 bg-clip-text text-transparent"
-        >
-          Chiến Thắng!
-        </h2>
+        <!-- text -->
+        <div class="victory-content">
+          <div class="victory-subtitle">✦ EDUPLAY CHAMPION ✦</div>
 
-        <p class="mb-6 text-gray-600">Chúc mừng bạn đã chinh phục!</p>
+          <h2 id="winnerText" class="victory-title">CHIẾN THẮNG!</h2>
 
-        <!-- BUTTON -->
-        <div class="flex gap-4 justify-center">
-          <button onclick="goHome()" class="btn-secondary px-6 py-2 rounded-xl">
-            Trở về
+          <p class="victory-desc">
+            Bạn đã vượt qua mọi thử thách và trở thành người chiến thắng cuối
+            cùng.
+          </p>
+        </div>
+
+        <!-- actions -->
+        <div class="victory-actions">
+          <button onclick="goHome()" class="victory-btn btn-back">
+            <span>←</span>
+            <span>Trở về</span>
           </button>
 
-          <button
-            onclick="restartGame()"
-            class="btn-primary px-6 py-2 rounded-xl"
-          >
-            Chơi lại
+          <button onclick="restartGame()" class="victory-btn btn-replay">
+            <span>🎮</span>
+            <span>Chơi lại</span>
           </button>
         </div>
       </div>

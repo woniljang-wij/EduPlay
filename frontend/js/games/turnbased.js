@@ -6,11 +6,9 @@ function goIndex() {
 let editingId = null;
 
 function goCreate(isEdit = false) {
-
-  const draft = JSON.parse(sessionStorage.getItem(DRAFT_KEY));
-
-  if (draft && draft.length > 0) {
-    tempQuestions = draft;
+  if (!isEdit) {
+    tempQuestions = [];
+    sessionStorage.removeItem(DRAFT_KEY);
   }
 
   if (!isEdit) {
@@ -26,9 +24,7 @@ function goCreate(isEdit = false) {
   if (!isEdit) {
     editingId = null;
 
-    const titleInput = document.querySelector(
-      "input[placeholder='Tiêu đề bài chơi']"
-    );
+    const titleInput = document.getElementById("gameTitleInput");
 
     if (titleInput) {
       titleInput.value = "";
@@ -129,13 +125,28 @@ function renderPlayers(count) {
   if (!playerInputs) return;
 
   playerInputs.innerHTML = "";
+
   const icons = ["🐸", "🐱", "🐶", "🦊", "🐼", "🐵", "🐯"];
 
   for (let i = 1; i <= count; i++) {
-    const input = document.createElement("input");
-    input.className = "w-full p-3 border rounded-xl";
-    input.placeholder = `${icons[i - 1]} Người ${i}`;
-    playerInputs.appendChild(input);
+    const wrapper = document.createElement("div");
+
+    wrapper.className =
+      "flex items-center gap-3 w-full px-4 py-3 border rounded-xl bg-white";
+
+    wrapper.innerHTML = `
+      <span class="text-xl shrink-0 leading-none flex items-center">
+        ${icons[i - 1]}
+      </span>
+
+      <input
+      type="text"
+      class="flex-1 outline-none bg-transparent leading-none pt-[1px]"
+        placeholder="Người ${i}"
+      />
+    `;
+
+    playerInputs.appendChild(wrapper);
   }
 }
 
@@ -223,7 +234,7 @@ function generateObstacles(count, maxCell = 48) {
 
 // ===== SAVE GAME =====
 function saveGame() {
-  const titleInput = document.querySelector("#page-create input");
+  const titleInput = document.getElementById("gameTitleInput");
   const title = titleInput ? titleInput.value.trim() : "";
 
   if (!title) {
@@ -252,8 +263,9 @@ function saveGame() {
   }
 
   const players = [];
+
   document.querySelectorAll("#playerInputs input").forEach((input) => {
-    players.push(input.value.trim() || "Người chơi");
+    players.push(input.value.trim() || "");
   });
 
   const obstacles = parseInt(document.getElementById("slider").value);
@@ -416,9 +428,7 @@ function editGame(id) {
     `/frontend/games/turnbased.html?mode=edit&id=${id}`,
   );
 
-  const titleInput = document.querySelector(
-    "input[placeholder='Tiêu đề bài chơi']",
-  );
+  const titleInput = document.getElementById("gameTitleInput");
 
   if (titleInput) {
     titleInput.value = game.title;
@@ -431,7 +441,17 @@ function editGame(id) {
   setTimeout(() => {
     const inputs = document.querySelectorAll("#playerInputs input");
     inputs.forEach((input, index) => {
-      input.value = game.players[index] || "";
+      let name = game.players[index] || "";
+
+      const icons = ["🐸", "🐱", "🐶", "🦊", "🐼", "🐵", "🐯"];
+
+      icons.forEach((icon) => {
+        if (name.startsWith(icon)) {
+          name = name.replace(icon, "").trim();
+        }
+      });
+
+      input.value = name;
     });
   }, 50);
 

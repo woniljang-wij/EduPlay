@@ -35,19 +35,58 @@
       </defs>
     </svg>
 
-    <!-- END SCENE -->
     <div id="endScene" class="end-scene hidden">
+      <!-- VIDEO -->
       <video id="endVideo" class="end-video"></video>
 
+      <!-- DARK FX -->
+      <div class="end-dark"></div>
+
+      <!-- PARTICLES -->
+      <div class="end-particles"></div>
+
+      <!-- LIGHT -->
+      <div class="end-light"></div>
+
+      <!-- RESULT UI -->
       <div id="endOverlay" class="end-overlay hidden">
-        <h2 id="endTitle"></h2>
+        <!-- RANK -->
+        <div id="rankHolder" class="rank-holder"></div>
 
-        <p id="endScore"></p>
+        <!-- TITLE -->
+        <h2 id="endTitle" class="end-title"></h2>
 
+        <!-- SUB -->
+        <div class="victory-sub">BATTLE RESULT</div>
+
+        <!-- SCORE PANEL -->
+        <div class="result-panel">
+          <div class="result-row">
+            <div class="result-icon">🎯</div>
+
+            <div class="result-label">Chính xác</div>
+
+            <div id="correctText" class="result-value">0/0</div>
+          </div>
+
+          <div class="result-row">
+            <div class="result-icon">⭐</div>
+
+            <div class="result-label">Điểm số</div>
+
+            <div id="scoreText" class="result-value gold">0</div>
+          </div>
+        </div>
+
+        <!-- BUTTONS -->
         <div class="end-actions">
-          <button onclick="replayGame()">Chơi lại</button>
+          <button class="ultra-btn replay-btn" onclick="replayGame()">
+            <span>CHƠI LẠI</span>
+          </button>
 
-          <button onclick="confirmExit()">Thoát</button>
+          <button class="ultra-btn exit-btn2" onclick="confirmExit()">
+            <span>THOÁT</span>
+          </button>
         </div>
       </div>
     </div>

@@ -10,24 +10,78 @@ function goIndex() {
 function goHome() {
   document.activeElement.blur();
 
+  // reset edit state
+  window.editingId = null;
+
+  // reset temp questions
+  tempQuestions = [];
+
+  // reset form
+  document.getElementById("title").value = "";
+  document.getElementById("answer").value = "";
+
+  document.getElementById("time").value = "";
+  document.getElementById("guessTime").value = "";
+
+  document.getElementById("imageUrl").value = "";
+  document.getElementById("imageFile").value = "";
+
+  // reset image preview
+  document.getElementById("previewImg").src = "";
+
+  document.getElementById("previewBox").classList.add("hidden");
+
+  // reset questions
+  renderQuestionPreview();
+
+  updateQuestionCount();
+
+  // reset URL
+  history.pushState({}, "", "/frontend/games/memory.html");
+
   document.getElementById("page-list").classList.remove("hidden");
+
   document.getElementById("page-create").classList.add("hidden");
 
   setActive("btn-home");
+
+  renderMemoryGames();
 }
 
 // ===== PAGE CREATE =====
-function goCreate() {
+function goCreate(isEdit = false) {
   document.activeElement.blur();
 
   document.getElementById("page-create").classList.remove("hidden");
+
   document.getElementById("page-list").classList.add("hidden");
 
   setActive("btn-create");
 
-  tempQuestions = [];
-  renderQuestionPreview();
-  updateQuestionCount();
+  if (!isEdit) {
+    window.editingId = null;
+
+    tempQuestions = [];
+
+    document.getElementById("title").value = "";
+    document.getElementById("answer").value = "";
+
+    document.getElementById("time").value = "";
+    document.getElementById("guessTime").value = "";
+
+    document.getElementById("imageUrl").value = "";
+    document.getElementById("imageFile").value = "";
+
+    document.getElementById("previewImg").src = "";
+
+    document.getElementById("previewBox").classList.add("hidden");
+
+    renderQuestionPreview();
+
+    updateQuestionCount();
+
+    history.pushState({}, "", "/frontend/games/memory.html?mode=create");
+  }
 }
 
 // ===== ACTIVE MENU =====
@@ -76,14 +130,13 @@ function editMemoryGame(id) {
   const game = games.find((g) => g.id === id);
   if (!game) return;
 
-  goCreate();
+  goCreate(true);
 
   document.getElementById("title").value = game.title;
   document.getElementById("answer").value = game.answer;
   document.getElementById("grid").value = game.grid;
   document.getElementById("time").value = game.time;
-  document.getElementById("guessTime").value =
-  game.guessTime || 0;
+  document.getElementById("guessTime").value = game.guessTime || 0;
 
   document.getElementById("previewImg").src = game.image;
   document.getElementById("previewBox").classList.remove("hidden");

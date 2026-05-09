@@ -126,15 +126,32 @@ if (game) {
 function updateInfo() {
   const playersHTML = game.players
     .map((p, i) => {
+      let cleanName = p || "";
+
+      const icons = ["🐸", "🐱", "🐶", "🦊", "🐼", "🐵", "🐯"];
+
+      icons.forEach((icon) => {
+        if (cleanName.startsWith(icon)) {
+          cleanName = cleanName.replace(icon, "").trim();
+        }
+      });
+
       return `
-        <div class="
-          player-badge
-          ${i === currentPlayer ? "player-active" : ""}
-        ">
-          <span class="player-icon">${playerIcons[i]}</span>
-          <span>${p}</span>
-        </div>
-      `;
+      <div class="
+        player-badge
+        ${i === currentPlayer ? "player-active" : ""}
+      ">
+
+        <span class="player-icon">
+          ${playerIcons[i]}
+        </span>
+
+        <span>
+          ${cleanName}
+        </span>
+
+      </div>
+    `;
     })
     .join("");
 
@@ -302,8 +319,13 @@ function renderPlayersOnMap() {
     el.style.top = y + "%";
 
     el.style.transform = `translate(-50%, -50%)`;
-    el.style.marginLeft = i * 10 + "px";
-    el.style.marginTop = i * 6 + "px";
+    if (positions.filter((p) => p === pos).length > 1) {
+      el.style.marginLeft = i * 10 + "px";
+      el.style.marginTop = i * 6 + "px";
+    } else {
+      el.style.marginLeft = "0px";
+      el.style.marginTop = "0px";
+    }
 
     el.innerHTML = `<span class="player-icon">${playerIcons[i]}</span>`;
 

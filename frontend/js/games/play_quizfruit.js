@@ -19,7 +19,6 @@ let fruits = [];
 let mouseTrail = [];
 let currentIndex = 0;
 let score = 0;
-let timer;
 let timeLeft = 0;
 let isProcessing = false;
 let startTime;
@@ -27,10 +26,17 @@ let totalTime;
 let rafTimer;
 let isMuted = false;
 let endVideoSkipped = false;
+let bgmStarted = false;
 
 let isMouseDown = false;
 
 document.addEventListener("mousedown", (e) => {
+  if (!bgmStarted && !isMuted) {
+    bgmStarted = true;
+
+    bgm.play().catch(() => {});
+  }
+
   if (e.button !== 0) return;
 
   const modal = document.getElementById("exitModal");
@@ -85,14 +91,6 @@ window.onload = () => {
     bgm.play().catch(() => {});
     sessionStorage.removeItem("playMusic");
   }
-  document.addEventListener(
-    "mousedown",
-    () => {
-      bgm.play().catch(() => {});
-    },
-    { once: true },
-  );
-
   loadGame();
   startQuestion();
 };
@@ -117,7 +115,6 @@ let spawnLoop;
 
 function startQuestion() {
   clearFruits();
-  clearInterval(timer);
   clearInterval(spawnLoop);
   cancelAnimationFrame(rafTimer);
 
@@ -315,7 +312,6 @@ function spawnAnswers(q) {
 
 function nextQuestion() {
   clearInterval(spawnLoop);
-  clearInterval(timer);
 
   currentIndex++;
 
@@ -586,7 +582,6 @@ function sliceFruit(fruit) {
 
   spawnJuiceExplosion(fruit.x, fruit.y, juiceColor);
 
-  clearInterval(timer);
   clearInterval(spawnLoop);
   cancelAnimationFrame(rafTimer);
   mouseTrail = [];
@@ -774,32 +769,6 @@ function endGame() {
   showEndScene(correct, total);
 }
 
-function animateScore(finalScore) {
-  const el = document.querySelector(".end-score");
-  let current = 0;
-
-  const interval = setInterval(() => {
-    current += 0.2;
-    if (current >= finalScore) {
-      current = finalScore;
-      clearInterval(interval);
-    }
-    el.textContent = current.toFixed(1) + "/10";
-  }, 30);
-}
-
-function flashWin() {
-  const flash = document.createElement("div");
-  flash.style.position = "fixed";
-  flash.style.inset = 0;
-  flash.style.background = "white";
-  flash.style.opacity = "0.5";
-  flash.style.zIndex = 9998;
-
-  document.body.appendChild(flash);
-  setTimeout(() => flash.remove(), 120);
-}
-
 function shakeScreen() {
   document.body.classList.add("screen-shake");
 
@@ -817,9 +786,21 @@ function showEndScene(correct, total) {
 
   const title = document.getElementById("endTitle");
 
-  const scoreEl = document.getElementById("endScore");
+  const correctText = document.getElementById("correctText");
+
+  const scoreText = document.getElementById("scoreText");
+
+  const rankHolder = document.getElementById("rankHolder");
+
+  const darkFx = scene.querySelector(".end-dark");
 
   overlay.classList.add("hidden");
+
+  darkFx.classList.remove("active");
+
+  video.classList.remove("freeze");
+
+  video.pause();
 
   video.currentTime = 0;
 
@@ -837,18 +818,21 @@ function showEndScene(correct, total) {
 
     video.src = victoryVideos[randomIndex];
 
-    title.innerText = finalScore === 10 ? "PERFECT!" : "CHIẾN THẮNG!";
+    title.innerText = finalScore === 10 ? "PERFECT!" : "VICTORY!";
   } else {
     video.src = "../assets/videos/Defeat.mp4";
 
-    title.innerText = "THẤT BẠI!";
+    title.innerText = "DEFEAT!";
   }
+
+  video.load();
 
   let rankMedia = "";
 
   if (finalScore === 10) {
     rankMedia = `
-      <video class="rank-video sss"
+      <video
+        class="rank-video sss"
         autoplay
         muted
         loop
@@ -857,11 +841,13 @@ function showEndScene(correct, total) {
         <source
           src="../assets/videos/T1Limited.mp4"
           type="video/mp4">
+
       </video>
     `;
   } else if (finalScore >= 9) {
     rankMedia = `
-      <video class="rank-video ss"
+      <video
+        class="rank-video ss"
         autoplay
         muted
         loop
@@ -870,40 +856,38 @@ function showEndScene(correct, total) {
         <source
           src="../assets/videos/T2Limited.mp4"
           type="video/mp4">
+
       </video>
     `;
   } else if (finalScore >= 7) {
-    rankMedia = `<img src="../assets/images/T25limited.png">`;
+    rankMedia = `
+      <img
+        class="rank-image"
+        src="../assets/images/T25limited.png">
+    `;
   } else if (finalScore >= 5) {
-    rankMedia = `<img src="../assets/images/T35limited.png">`;
+    rankMedia = `
+      <img
+        class="rank-image"
+        src="../assets/images/T35limited.png">
+    `;
   } else {
-    rankMedia = `<img src="../assets/images/T6limited.png">`;
+    rankMedia = `
+      <img
+        class="rank-image"
+        src="../assets/images/T6limited.png">
+    `;
   }
 
-  document.querySelectorAll(".rank-img").forEach((el) => el.remove());
+  rankHolder.innerHTML = rankMedia;
 
-  title.insertAdjacentHTML(
-    "beforebegin",
-    `
-      <div class="rank-img">
-        ${rankMedia}
-      </div>
-    `,
-  );
+  correctText.innerText = `${correct}/${total}`;
 
-  scoreEl.innerHTML = `
-    <div class="score-line">
-      🎯 ${correct}/${total} câu đúng
-    </div>
-
-    <div class="score-line">
-      ⭐ ${finalScore.toFixed(1)}/10 điểm
-    </div>
-  `;
+  scoreText.innerText = Number.isInteger(finalScore)
+    ? `${finalScore}/10`
+    : `${finalScore.toFixed(1)}/10`;
 
   scene.classList.remove("hidden");
-
-  video.play();
 
   function finishEndVideo() {
     if (endVideoSkipped) return;
@@ -912,9 +896,13 @@ function showEndScene(correct, total) {
 
     video.pause();
 
-    video.currentTime = Math.max(0, video.duration - 0.05);
+    if (!isNaN(video.duration)) {
+      video.currentTime = Math.max(0, video.duration - 0.05);
+    }
 
-    video.style.filter = "brightness(0.5) blur(3px)";
+    video.classList.add("freeze");
+
+    darkFx.classList.add("active");
 
     overlay.classList.remove("hidden");
 
@@ -925,16 +913,31 @@ function showEndScene(correct, total) {
     if (finalScore === 10 && typeof launchConfetti === "function") {
       setTimeout(() => {
         launchConfetti();
-      }, 200);
+      }, 250);
     }
+
+    scene.classList.add("result-show");
+
+    setTimeout(() => {
+      scene.classList.remove("result-show");
+    }, 1000);
   }
+
+  video
+    .play()
+    .then(() => {})
+    .catch(() => {
+      finishEndVideo();
+    });
 
   video.onended = () => {
     finishEndVideo();
   };
 
   scene.onclick = () => {
-    finishEndVideo();
+    if (!endVideoSkipped) {
+      finishEndVideo();
+    }
   };
 }
 

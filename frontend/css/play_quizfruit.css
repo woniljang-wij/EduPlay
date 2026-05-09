@@ -4,23 +4,6 @@ body {
   background: black;
 }
 
-body::after {
-  content: "";
-
-  position: fixed;
-  inset: 0;
-
-  pointer-events: none;
-
-  background: radial-gradient(
-    circle at top,
-    rgba(255, 255, 180, 0.15),
-    transparent 40%
-  );
-
-  z-index: -5;
-}
-
 #bgVideo {
   position: fixed;
   inset: 0;
@@ -48,7 +31,6 @@ body::after {
 .fruit {
   position: absolute;
   width: 250px;
-  pointer-events: auto;
   transform: translate(-50%, -50%);
   pointer-events: none;
 }
@@ -655,16 +637,6 @@ div {
   }
 }
 
-@keyframes titleGradient {
-  from {
-    background-position: 0%;
-  }
-
-  to {
-    background-position: 200%;
-  }
-}
-
 @keyframes modalBtnShine {
   0% {
     left: -120%;
@@ -1028,16 +1000,6 @@ div {
 }
 
 /* =========================================
-   NUMBER POP
-========================================= */
-
-.timer-text.pop {
-  animation:
-    timerNumberPop 0.22s ease,
-    numberPulse 1s ease-in-out infinite;
-}
-
-/* =========================================
    PARTICLES
 ========================================= */
 
@@ -1098,26 +1060,6 @@ div {
 }
 
 /* =========================================
-   CRITICAL
-========================================= */
-
-.timer-circle.critical .timer-core {
-  animation: criticalPulse 0.35s infinite alternate;
-
-  box-shadow:
-    0 0 22px rgba(255, 0, 60, 0.7),
-    0 0 45px rgba(255, 0, 60, 0.35),
-    inset 0 0 25px rgba(255, 0, 60, 0.22);
-}
-
-.timer-circle.critical .timer-text {
-  text-shadow:
-    0 0 10px #fff,
-    0 0 20px #ff3355,
-    0 0 50px #ff0033;
-}
-
-/* =========================================
    ANIMATIONS
 ========================================= */
 
@@ -1163,26 +1105,6 @@ div {
   }
 }
 
-@keyframes timerNumberPop {
-  0% {
-    transform: scale(0.4);
-
-    opacity: 0.5;
-
-    filter: blur(6px);
-  }
-
-  60% {
-    transform: scale(1.25);
-
-    filter: blur(0);
-  }
-
-  100% {
-    transform: scale(1);
-  }
-}
-
 @keyframes timerFloat {
   0% {
     transform: translateY(0);
@@ -1218,20 +1140,6 @@ div {
     transform: translate(0);
   }
 }
-
-@keyframes criticalPulse {
-  from {
-    transform: scale(1);
-  }
-
-  to {
-    transform: scale(1.12);
-  }
-}
-
-/* =========================================
-   PARTICLE ORBIT
-========================================= */
 
 @keyframes particleOrbit {
   0% {
@@ -1466,24 +1374,141 @@ div {
   }
 }
 
+/* =========================================
+   ULTRA END SCENE X10THINK
+========================================= */
+
 .end-scene {
   position: fixed;
   inset: 0;
-  z-index: 99999;
-  background: black;
+
+  z-index: 999999;
+
+  overflow: hidden;
+
+  background: #000;
 }
 
-.end-actions {
-  margin-top: 10px;
-  pointer-events: auto;
-}
+/* VIDEO */
 
 .end-video {
+  position: absolute;
+  inset: 0;
+
   width: 100%;
   height: 100%;
+
   object-fit: cover;
-  pointer-events: none;
+
+  transform: scale(1.02);
+
+  transition:
+    filter 0.7s ease,
+    transform 0.7s ease;
 }
+
+/* =========================================
+   VIDEO FREEZE AFTER END
+========================================= */
+
+.end-video.freeze {
+  filter: brightness(0.38) saturate(1.05) blur(3px);
+
+  transform: scale(1.05);
+}
+
+/* DARK FX */
+.end-dark {
+  position: absolute;
+  inset: 0;
+
+  background: radial-gradient(
+    circle at center,
+    rgba(0, 255, 255, 0.03),
+    rgba(0, 0, 0, 0.15)
+  );
+
+  pointer-events: none;
+
+  opacity: 0;
+
+  transition:
+    opacity 0.6s ease,
+    backdrop-filter 0.6s ease;
+}
+
+.end-dark.active {
+  opacity: 1;
+
+  backdrop-filter: blur(4px);
+
+  background: radial-gradient(
+    circle at center,
+    rgba(0, 255, 255, 0.08),
+    rgba(0, 0, 0, 0.72)
+  );
+}
+
+/* LIGHT */
+
+.end-light {
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  width: 900px;
+  height: 900px;
+
+  transform: translate(-50%, -50%);
+
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.08),
+    rgba(0, 255, 255, 0.06),
+    transparent 70%
+  );
+
+  filter: blur(30px);
+
+  animation: endLight 5s ease-in-out infinite;
+}
+
+/* PARTICLES */
+
+.end-particles {
+  position: absolute;
+  inset: 0;
+
+  overflow: hidden;
+}
+
+.end-particles::before,
+.end-particles::after {
+  content: "";
+
+  position: absolute;
+  inset: -20%;
+
+  background-image: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.7) 1px,
+    transparent 1px
+  );
+
+  background-size: 120px 120px;
+
+  opacity: 0.25;
+
+  animation: particleFloat 16s linear infinite;
+}
+
+.end-particles::after {
+  animation-direction: reverse;
+  opacity: 0.12;
+}
+
+/* OVERLAY */
 
 .end-overlay {
   position: absolute;
@@ -1494,268 +1519,370 @@ div {
   justify-content: center;
   align-items: center;
 
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.3),
-    rgba(0, 0, 0, 0.85)
+  gap: 20px;
+
+  z-index: 10;
+
+  animation: endFade 1s ease;
+}
+
+/* =========================================
+   RANK HOLDER
+========================================= */
+
+.rank-holder {
+  position: relative;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  margin-bottom: 10px;
+
+  animation: rankEnter 1s cubic-bezier(0.17, 0.89, 0.32, 1.4);
+}
+
+.rank-holder::before {
+  content: "";
+
+  position: absolute;
+
+  width: 260px;
+  height: 260px;
+
+  border-radius: 50%;
+
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.12),
+    rgba(0, 255, 255, 0.12),
+    transparent 70%
   );
 
-  color: white;
-  text-align: center;
+  filter: blur(18px);
 
-  gap: 20px;
-  padding-top: 40px;
-
-  animation: fadeIn 0.6s ease;
-
-  pointer-events: auto;
+  animation: rankGlow 3s ease-in-out infinite;
 }
 
-@keyframes titlePop {
-  0% {
-    transform: scale(0.6);
-    opacity: 0;
-  }
-  80% {
-    transform: scale(1.1);
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
+/* RANK */
 
-.end-overlay p {
-  font-size: 26px;
-  margin: 0;
-  color: #facc15;
-
-  text-shadow:
-    0 0 10px rgba(255, 255, 0, 0.5),
-    0 0 20px rgba(255, 255, 0, 0.3);
-}
-
-.end-overlay::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-
-  background: radial-gradient(circle, transparent 40%, rgba(0, 0, 0, 0.8) 100%);
-
-  pointer-events: none;
-}
-
-.end-actions button {
-  margin: 10px;
-  padding: 14px 30px;
-  border-radius: 14px;
-  border: none;
-  cursor: pointer;
-
-  font-weight: bold;
-  font-size: 16px;
-
-  transition: all 0.25s ease;
-  pointer-events: auto;
-}
-
-.end-actions button:first-child {
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-  color: white;
-  box-shadow: 0 5px 0 #14532d;
-}
-
-.end-actions button:last-child {
-  background: linear-gradient(135deg, #ef4444, #b91c1c);
-  color: white;
-  box-shadow: 0 5px 0 #7f1d1d;
-}
-
-.end-actions button:hover {
-  box-shadow:
-    0 0 10px rgba(255, 255, 255, 0.4),
-    0 0 20px rgba(255, 255, 255, 0.2);
-  transform: scale(1.1);
-}
-
-.end-actions button:active {
-  transform: translateY(3px);
-  box-shadow: none;
-}
-
-.hidden {
-  display: none;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-#endScore span {
-  font-size: 28px;
-  letter-spacing: 2px;
-
-  text-shadow:
-    0 0 10px currentColor,
-    0 0 20px currentColor,
-    0 0 40px currentColor;
-
-  animation: rankPop 0.5s ease;
-}
-
-@keyframes rankPop {
-  0% {
-    transform: scale(0.3);
-    opacity: 0;
-  }
-  70% {
-    transform: scale(1.2);
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-#endScore {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-
-.score-line {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  gap: 10px;
-
-  font-size: 26px;
-  font-weight: bold;
-
-  text-shadow:
-    0 0 10px rgba(255, 255, 255, 0.3),
-    0 0 20px rgba(255, 255, 255, 0.2);
-}
-
-.score-line span,
-.score-line::before {
-  min-width: 30px;
-  text-align: center;
-}
-
-.score-line.rank {
-  font-size: 28px;
-  letter-spacing: 2px;
-}
-
-/* ===== RANK (TOP - TRÊN PERFECT) ===== */
-.rank-img {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  margin-bottom: 8px;
-
-  animation: rankDrop 0.5s ease;
-}
-
-/* ===== IMAGE RANK ===== */
-.rank-img img {
-  width: 120px;
-  border-radius: 10px;
-
-  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.6));
-}
-
-/* ===== VIDEO RANK (SSS) ===== */
-.rank-video {
-  width: 150px;
+.rank-image {
+  width: 180px;
   border-radius: 30px;
 
-  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+  position: relative;
+  z-index: 2;
+
+  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.7))
+    drop-shadow(0 0 50px rgba(0, 255, 255, 0.5));
 }
 
-/* ===== TITLE UPGRADE (EDUPLAY STYLE) ===== */
-.end-overlay h2 {
-  font-size: 56px;
-  font-weight: 900;
-  letter-spacing: 2px;
+.rank-holder img,
+.rank-holder video {
+  width: 180px;
 
-  margin: 10px 0;
+  border-radius: 30px;
 
-  /* gradient chính */
-  background: linear-gradient(90deg, #22c55e, #3b82f6, #a855f7, #22c55e);
-  background-size: 300%;
+  position: relative;
+  z-index: 2;
+
+  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.7))
+    drop-shadow(0 0 50px rgba(0, 255, 255, 0.5));
+}
+
+/* TITLE */
+.end-title {
+  margin: 0;
+
+  font-size: 88px;
+  font-weight: 1000;
+
+  letter-spacing: 4px;
+
+  text-transform: uppercase;
+
+  background: linear-gradient(
+    90deg,
+    #ffffff 0%,
+    #dffcff 12%,
+    #8cf7ff 28%,
+    #6ee7ff 42%,
+    #9d8bff 58%,
+    #d6c8ff 74%,
+    #ffffff 100%
+  );
+
+  background-size: 200% auto;
+
+  background-position: 0% center;
 
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 
-  /* glow + depth */
   text-shadow:
-    0 0 10px rgba(34, 197, 94, 0.6),
-    0 0 20px rgba(59, 130, 246, 0.6),
-    0 0 30px rgba(168, 85, 247, 0.6),
-    0 4px 10px rgba(0, 0, 0, 0.8);
+    0 0 15px rgba(255, 255, 255, 0.5),
+    0 0 40px rgba(0, 255, 255, 0.45),
+    0 0 70px rgba(0, 245, 255, 0.2);
 
   animation:
-    gradientMove 3s linear infinite,
-    titlePop 0.5s ease,
-    titlePulse 1.5s ease-in-out infinite alternate;
+    seamlessGradient 2s linear infinite,
+    titleFloat 2.5s ease-in-out infinite alternate;
+
+  will-change: background-position;
 }
 
-/* ===== GRADIENT CHẠY ===== */
-@keyframes gradientMove {
-  0% {
-    background-position: 0%;
+@keyframes seamlessGradient {
+  from {
+    background-position: 0% center;
   }
-  100% {
-    background-position: 200%;
+
+  to {
+    background-position: 200% center;
   }
 }
 
-/* ===== POP ===== */
-@keyframes titlePop {
-  0% {
-    transform: scale(0.5) translateY(-20px);
+/* SUB */
+
+.victory-sub {
+  color: rgba(255, 255, 255, 0.65);
+
+  font-size: 15px;
+  font-weight: 800;
+
+  letter-spacing: 5px;
+}
+
+/* PANEL */
+
+.result-panel {
+  width: 500px;
+
+  padding: 28px;
+
+  border-radius: 34px;
+
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.08),
+    rgba(0, 0, 0, 0.55)
+  );
+
+  border: 1px solid rgba(255, 255, 255, 0.1);
+
+  backdrop-filter: blur(18px);
+
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.55),
+    inset 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.result-row {
+  display: flex;
+  align-items: center;
+
+  padding: 18px 0;
+}
+
+.result-row + .result-row {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.result-icon {
+  width: 60px;
+
+  font-size: 28px;
+}
+
+.result-label {
+  flex: 1;
+
+  font-size: 20px;
+  font-weight: 700;
+
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.result-value {
+  font-size: 30px;
+  font-weight: 1000;
+
+  color: white;
+
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.result-value.gold {
+  color: #ffe066;
+
+  text-shadow:
+    0 0 12px rgba(255, 224, 102, 0.8),
+    0 0 25px rgba(255, 224, 102, 0.5);
+}
+
+/* BUTTONS */
+
+.end-actions {
+  display: flex;
+  gap: 18px;
+
+  margin-top: 10px;
+}
+
+.ultra-btn {
+  position: relative;
+
+  overflow: hidden;
+
+  min-width: 200px;
+  height: 68px;
+
+  border: none;
+  border-radius: 24px;
+
+  cursor: pointer;
+
+  font-size: 18px;
+  font-weight: 1000;
+
+  letter-spacing: 1px;
+
+  color: white;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+
+  isolation: isolate;
+}
+
+.ultra-btn span {
+  position: relative;
+  z-index: 3;
+}
+
+.ultra-btn::before {
+  content: "";
+
+  position: absolute;
+
+  top: -50%;
+  left: -120%;
+
+  width: 60%;
+  height: 220%;
+
+  transform: rotate(20deg);
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+
+  filter: blur(8px);
+
+  animation: btnSweep 4s linear infinite;
+}
+
+.replay-btn {
+  background: linear-gradient(180deg, #39ff88, #10b981, #047857);
+
+  box-shadow: 0 10px 35px rgba(16, 185, 129, 0.4);
+}
+
+.exit-btn2 {
+  background: linear-gradient(180deg, #ff6b6b, #ef4444, #991b1b);
+
+  box-shadow: 0 10px 35px rgba(255, 0, 80, 0.35);
+}
+
+.ultra-btn:hover {
+  transform: translateY(-4px) scale(1.04);
+}
+
+/* =========================================
+   ANIMATIONS
+========================================= */
+
+@keyframes endFade {
+  from {
     opacity: 0;
+    transform: scale(1.04);
   }
-  70% {
-    transform: scale(1.15);
-  }
-  100% {
+
+  to {
+    opacity: 1;
     transform: scale(1);
+  }
+}
+
+@keyframes rankEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(-80px) scale(0.5) rotate(-10deg);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(0);
+  }
+}
+
+@keyframes rankGlow {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: scale(1.15);
     opacity: 1;
   }
 }
 
-/* ===== NHỊP ĐẬP ===== */
-@keyframes titlePulse {
+@keyframes titleFloat {
   from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes btnSweep {
+  0% {
+    left: -120%;
+  }
+
+  100% {
+    left: 180%;
+  }
+}
+
+@keyframes particleFloat {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(-120px);
+  }
+}
+
+@keyframes endLight {
+  0% {
     transform: translate(-50%, -50%) scale(1);
   }
 
-  to {
-    transform: translate(-50%, -50%) scale(1.05);
+  100% {
+    transform: translate(-50%, -50%) scale(1.15);
   }
 }
 
-/* ===== ANIMATION ===== */
-@keyframes rankDrop {
-  from {
-    transform: translateY(-40px) scale(0.7);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0) scale(1);
-    opacity: 1;
-  }
+.hidden {
+  display: none !important;
 }
 
 /* =========================================
@@ -2166,8 +2293,7 @@ img::selection {
 
   animation:
     hitGradient 0.8s linear infinite,
-    badImpact 0.3s ease,
-    titlePulse 0.5s infinite alternate;
+    badImpact 0.3s ease;
 }
 
 .screen-shake {

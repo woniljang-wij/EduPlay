@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Đua Thuyền Rồng</title>
+
+    <link rel="stylesheet" href="../css/toast.css" />
+    <link rel="stylesheet" href="../css/play_dragonboat.css" />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <header class="topbar">
+      <!-- BACKGROUND FX -->
+      <div class="topbar-glow left"></div>
+      <div class="topbar-glow right"></div>
+
+      <!-- LEFT -->
+      <div class="top-left">
+        <div class="game-badge">🐉</div>
+
+        <div class="logo-wrap">
+          <div class="logo-sub">EDUPLAY • DRAGON RACE</div>
+
+          <div class="logo" id="gameTitle">Đua Thuyền Rồng</div>
+        </div>
+      </div>
+
+      <!-- CENTER -->
+      <div class="top-center">
+        <!-- BLUE -->
+        <div class="score blue-score">
+          <div class="team-dot blue"></div>
+
+          <span class="team-blue-name"> Đội Xanh </span>
+
+          <b id="blueScore">0</b>
+        </div>
+
+        <!-- TIMER -->
+        <div class="timer-box">
+          <div class="timer-ring"></div>
+
+          <div class="timer-icon">⏰</div>
+
+          <span id="timer">15:00</span>
+        </div>
+
+        <!-- RED -->
+        <div class="score red-score">
+          <b id="redScore">0</b>
+
+          <span class="team-red-name"> Đội Đỏ </span>
+
+          <div class="team-dot red"></div>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="top-right">
+        <div class="top-actions">
+          <button id="musicBtn" class="hud-btn">🔊</button>
+
+          <button id="fullscreenBtn" class="hud-btn">⛶ Toàn Màn Hình</button>
+
+          <button id="exitBtn" class="hud-btn danger">✖ Thoát</button>
+        </div>
+      </div>
+
+      <!-- MUSIC -->
+      <audio id="bgMusic" loop></audio>
+    </header>
+    
+    <!-- RACE -->
+    <section class="race-section">
+      <div class="race-track">
+        <!-- BG -->
+        <video class="river-bg" autoplay muted loop playsinline>
+          <source src="../assets/videos/bgdragonboat.mp4" type="video/mp4" />
+        </video>
+
+        <!-- START -->
+        <div class="start-text">XUẤT PHÁT</div>
+
+        <!-- FINISH -->
+        <div class="finish-text">ĐÍCH</div>
+
+        <!-- RACER BLUE -->
+        <div class="racer blue-racer"></div>
+
+        <!-- RACER RED -->
+        <div class="racer red-racer"></div>
+      </div>
+    </section>
+
+    <!-- QUESTIONS -->
+    <section class="question-layout">
+      <!-- BLUE -->
+      <div class="question-panel blue-panel">
+        <div class="question-box blue-question">Câu hỏi đội xanh</div>
+
+        <div class="answers blue-answers"></div>
+      </div>
+
+      <!-- RED -->
+      <div class="question-panel red-panel">
+        <div class="question-box red-question">Câu hỏi đội đỏ</div>
+
+        <div class="answers red-answers"></div>
+      </div>
+    </section>
+
+    <!-- WIN POPUP -->
+    <div class="winner-popup hidden" id="winnerPopup">
+      <div class="winner-card">
+        <div class="winner-crown">👑</div>
+
+        <div class="winner-title">CHIẾN THẮNG</div>
+
+        <div class="winner-team" id="winnerTeam">Đội Xanh</div>
+
+        <div class="winner-sub">đã về đích đầu tiên!</div>
+
+        <div class="winner-actions">
+          <button id="replayBtn" class="winner-btn replay-btn">
+            🔄 Chơi Lại
+          </button>
+
+          <button id="backBtn" class="winner-btn back-btn">🏠 Trở Về</button>
+        </div>
+      </div>
+    </div>
+    <audio id="victorySound"></audio>
+
+    <!-- TOAST -->
+    <div
+      id="toast"
+      class="fixed top-5 right-5 hidden z-[999999] px-5 py-3 rounded-xl shadow-lg text-white font-semibold"
+    ></div>
+
+    <script src="../js/games/toast.js" defer></script>
+    <script src="../js/games/play_dragonboat.js"></script>
+  </body>
+</html>
