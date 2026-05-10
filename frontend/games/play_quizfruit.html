@@ -2,6 +2,19 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
+
+    <script>
+      const params = new URLSearchParams(window.location.search);
+
+      const roomCode = params.get("room");
+
+      const user = localStorage.getItem("user");
+
+      if (!roomCode && !user) {
+        location.replace("../login.html");
+      }
+    </script>
+    
     <title>Fruit Ninja Demo</title>
 
     <link rel="stylesheet" href="../css/confetti.css" />

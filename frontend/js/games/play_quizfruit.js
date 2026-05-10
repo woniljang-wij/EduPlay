@@ -96,12 +96,30 @@ window.onload = () => {
 };
 
 function loadGame() {
-  const id = new URLSearchParams(window.location.search).get("id");
+  const params = new URLSearchParams(window.location.search);
 
-  let games = JSON.parse(localStorage.getItem("fruitGames") || "[]");
+  const id = params.get("id");
+  const room = params.get("room");
 
-  game = games.find((g) => String(g.id) === String(id));
+  // ===== CHƠI THƯỜNG =====
+  if (id) {
+    let games = JSON.parse(localStorage.getItem("fruitGames") || "[]");
 
+    game = games.find((g) => String(g.id) === String(id));
+  }
+
+  // ===== CHƠI BẰNG ROOM =====
+  else if (room) {
+    let rooms = JSON.parse(localStorage.getItem("fruit_rooms") || "[]");
+
+    const roomData = rooms.find((r) => r.roomCode === room);
+
+    if (roomData) {
+      game = roomData.gameData;
+    }
+  }
+
+  // ===== KHÔNG TÌM THẤY =====
   if (!game) {
     alert("Không tìm thấy game!");
     window.location.href = "quizfruit.html";
@@ -949,5 +967,20 @@ function replayGame() {
 
 function confirmExit() {
   bgm.pause();
-  window.location.href = "quizfruit.html";
+
+  const params = new URLSearchParams(window.location.search);
+
+  const roomCode = params.get("room");
+
+  // ===== HỌC SINH =====
+  if (roomCode) {
+    sessionStorage.removeItem("joined_room");
+
+    window.location.href = "/frontend/index.html";
+  }
+
+  // ===== GIÁO VIÊN =====
+  else {
+    window.location.href = "/frontend/games/quizfruit.html";
+  }
 }

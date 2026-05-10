@@ -2,6 +2,37 @@ body {
   font-family: "Inter", sans-serif;
 }
 
+.bg-video {
+  position: fixed;
+
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+
+  transform: scale(1.08);
+
+  z-index: -10;
+}
+
+.main-shell-x10 {
+  position: relative;
+
+  overflow: hidden;
+
+  border-radius: 50px;
+
+  background-image: url("../assets/images/footer.png");
+
+  background-size: cover;
+
+  background-position: center;
+
+  background-repeat: no-repeat;
+}
+
 /* ===== DICE 3D ===== */
 .dice-wrapper {
   perspective: 1000px;
@@ -20,7 +51,7 @@ body {
 
   backface-visibility: hidden;
 
-  margin: 0 auto 20px;
+  margin: 0 auto 8px;
 
   transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
 
@@ -443,27 +474,79 @@ body {
 }
 
 .btn-roll {
+  position: relative;
+
   width: 100%;
-  padding: 14px;
+  height: 50px;
+
+  margin: 0 auto;
+
+  border: none;
   border-radius: 16px;
 
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-  color: white;
-  font-weight: 700;
-
   display: flex;
+  align-items: center;
   justify-content: center;
   gap: 8px;
 
-  transition: 0.25s;
+  overflow: hidden;
+  isolation: isolate;
+
+  background: linear-gradient(135deg, #22c55e, #34d399, #16a34a);
+
+  background-size: 200% 200%;
+
+  color: white;
+
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 8px 18px rgba(34, 197, 94, 0.22),
+    inset 0 1px rgba(255, 255, 255, 0.22);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+
+  animation: rollGradient 5s linear infinite;
 }
 
 .btn-roll:hover {
-  transform: translateY(-3px);
+  transform: translateY(-3px) scale(1.01);
+
+  filter: brightness(1.04);
+
+  box-shadow:
+    0 14px 30px rgba(34, 197, 94, 0.36),
+    inset 0 1px rgba(255, 255, 255, 0.3);
 }
 
 .btn-roll:active {
   transform: scale(0.96);
+}
+
+.btn-roll span {
+  position: relative;
+  z-index: 2;
+}
+
+@keyframes rollGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 /* ===== ROW ===== */
@@ -1363,4 +1446,30 @@ body {
   to {
     background-position: 0% 0%;
   }
+}
+
+.setup-input {
+  width: 100%;
+
+  height: 56px;
+
+  padding: 0 18px;
+
+  border-radius: 18px;
+
+  border: 1px solid #ddd;
+
+  font-size: 16px;
+  font-weight: 600;
+
+  transition: 0.25s;
+}
+
+.setup-input:focus {
+  outline: none;
+
+  border-color: #8b5cf6;
+
+  box-shadow:
+    0 0 0 4px rgba(139,92,246,.15);
 }

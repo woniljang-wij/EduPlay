@@ -2,6 +2,19 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
+
+    <script>
+      const checkParams = new URLSearchParams(window.location.search);
+
+      const checkRoomCode = checkParams.get("room");
+
+      const user = localStorage.getItem("user");
+
+      if (!checkRoomCode && !user) {
+        location.replace("../login.html");
+      }
+    </script>
+
     <title>Chơi Game</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -20,19 +33,13 @@
     class="h-screen overflow-hidden relative flex items-center justify-center p-6"
   >
     <!-- BACKGROUND -->
-    <video
-      autoplay
-      muted
-      loop
-      playsinline
-      class="fixed inset-0 w-full h-full object-cover -z-10"
-    >
+    <video autoplay muted loop playsinline class="bg-video">
       <source src="../assets/videos/bg.mp4" type="video/mp4" />
     </video>
 
     <!-- MAIN BOX -->
     <div
-      class="w-full max-w-[1135px] h-fit scale-[0.92] origin-center bg-gradient-to-br from-[#dfe7ff]/95 to-[#ffd9ef]/90 backdrop-blur-xl rounded-[38px] shadow-[0_25px_80px_rgba(0,0,0,.35)] border border-white/40 p-4"
+      class="main-shell-x10 w-full max-w-[1135px] h-fit scale-[0.92] origin-center rounded-[38px] shadow-[0_25px_80px_rgba(0,0,0,.35)] border border-white/40 p-4"
     >
       <!-- glow -->
       <div
@@ -173,6 +180,37 @@
             <button onclick="goHome()" class="btn-exit">← Thoát</button>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- ===== JOIN PLAYER SCREEN ===== -->
+    <div
+      id="playerSetup"
+      class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-md"
+    >
+      <div
+        class="w-full max-w-md rounded-[38px] bg-white p-8 shadow-2xl animate-fadeIn"
+      >
+        <div class="text-center">
+          <div class="text-5xl mb-4">🎮</div>
+
+          <h2 id="setupGameTitle" class="text-3xl font-black text-gray-800">
+            EduPlay
+          </h2>
+
+          <p class="text-gray-500 mt-2">Nhập tên cho từng người chơi</p>
+        </div>
+
+        <!-- PLAYERS -->
+        <div id="setupInputs" class="mt-8 flex flex-col gap-4"></div>
+
+        <!-- BUTTON -->
+        <button
+          id="startRoomBtn"
+          class="mt-6 w-full h-14 rounded-2xl bg-gradient-to-r from-green-400 to-emerald-500 text-white font-black text-lg shadow-lg transition hover:scale-[1.02]"
+        >
+          ▶ BẮT ĐẦU CHƠI
+        </button>
       </div>
     </div>
 

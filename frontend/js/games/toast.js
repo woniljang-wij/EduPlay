@@ -7,9 +7,9 @@ let undoCallback = null;
 
 // ===== SOUND =====
 const sounds = {
-  success: new Audio("../assets/sounds/success.mp3"),
-  error: new Audio("../assets/sounds/error.mp3"),
-  info: new Audio("../assets/sounds/info.mp3")
+  success: new Audio("/frontend/assets/sounds/success.mp3"),
+  error: new Audio("/frontend/assets/sounds/error.mp3"),
+  info: new Audio("/frontend/assets/sounds/info.mp3"),
 };
 
 // 🔊 play sound
@@ -17,7 +17,7 @@ function playSound(type) {
   const sound = sounds[type] || sounds.info;
 
   try {
-    sound.pause();   
+    sound.pause();
     sound.currentTime = 0;
     sound.play();
   } catch (e) {
@@ -27,7 +27,8 @@ function playSound(type) {
 
 // ===== MAIN =====
 function showToast(message, type = "success", duration = 2500) {
-  let container = document.getElementById("toast-container") || createContainer();
+  let container =
+    document.getElementById("toast-container") || createContainer();
 
   if (currentToast) {
     clearTimeout(toastTimer);
@@ -37,7 +38,7 @@ function showToast(message, type = "success", duration = 2500) {
 
   const toast = document.createElement("div");
   toast.className = `toast toast-${type}`;
-  
+
   toast.innerHTML = `
     <div class="toast-message">${message}</div>
     <div class="toast-close">&times;</div>
@@ -60,7 +61,8 @@ function showToast(message, type = "success", duration = 2500) {
 
 // ===== UNDO =====
 function showUndoToast(message, onUndo, duration = 4000) {
-  let container = document.getElementById("toast-container") || createContainer();
+  let container =
+    document.getElementById("toast-container") || createContainer();
 
   if (currentToast) {
     clearTimeout(toastTimer);
@@ -82,7 +84,7 @@ function showUndoToast(message, onUndo, duration = 4000) {
 
   playSound("error");
   createFirework(toast, "error");
-  
+
   toast.querySelector(".toast-undo").onclick = () => {
     if (undoCallback) undoCallback();
     undoCallback = null;
@@ -102,7 +104,7 @@ function removeToast(el) {
   el.classList.add("hide");
 
   setTimeout(() => {
-    el.querySelectorAll(".toast-firework").forEach(p => p.remove());
+    el.querySelectorAll(".toast-firework").forEach((p) => p.remove());
 
     el.remove();
     if (currentToast === el) currentToast = null;
@@ -122,7 +124,7 @@ function createFirework(toast, type) {
   const colors = {
     success: ["#22c55e", "#4ade80", "#bbf7d0"],
     error: ["#ef4444", "#f87171", "#fecaca"],
-    info: ["#3b82f6", "#60a5fa", "#bfdbfe"]
+    info: ["#3b82f6", "#60a5fa", "#bfdbfe"],
   };
 
   const particleColors = colors[type] || colors.info;

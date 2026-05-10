@@ -478,25 +478,6 @@ function editGame(id) {
   });
 }
 
-function openAssign(gameId) {
-  const games = JSON.parse(localStorage.getItem("games")) || [];
-  const game = games.find((g) => g.id === gameId);
-
-  if (!game) return;
-
-  document.getElementById("assignTitle").innerText = game.title;
-
-  const modal = document.getElementById("assignModal");
-  modal.classList.remove("hidden");
-  modal.classList.add("flex");
-}
-
-function closeAssign() {
-  const modal = document.getElementById("assignModal");
-  modal.classList.add("hidden");
-  modal.classList.remove("flex");
-}
-
 // ===== QUESTION SYSTEM =====
 let tempQuestions = [];
 let backupQuestions = [];
@@ -838,30 +819,6 @@ function refreshQuestionIndex() {
     const deleteBtn = item.querySelector("button");
     deleteBtn.setAttribute("onclick", `deleteQuestionForm(${i}, this)`);
   });
-}
-
-function createAssign() {
-  const name = document.getElementById("assignName").value;
-  const title = document.getElementById("assignTitle").innerText;
-
-  if (!name.trim()) {
-    showToast("⚠️ Nhập tên trước đã!", "error");
-    return;
-  }
-
-  let assigns = JSON.parse(localStorage.getItem("assigns")) || [];
-
-  assigns.push({
-    id: Date.now(),
-    title,
-    name,
-  });
-
-  localStorage.setItem("assigns", JSON.stringify(assigns));
-
-  showToast("🎉 Giao bài thành công!");
-
-  closeAssign();
 }
 
 let editingQuestionIndex = null;

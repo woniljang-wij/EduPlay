@@ -25,10 +25,13 @@ function getRandomVideo() {
   return victoryVideos[index];
 }
 
-const params = new URLSearchParams(window.location.search);
-const id = Number(params.get("id"));
-const autoPlay = params.get("autoplay");
-if (autoPlay) {
+const urlParams = new URLSearchParams(window.location.search);
+
+const roomCode = urlParams.get("room");
+
+const autoPlay = urlParams.get("autoplay");
+
+if (autoPlay || roomCode) {
   setTimeout(() => {
     startGameMusic();
   }, 300);
@@ -36,7 +39,40 @@ if (autoPlay) {
 
 const games = JSON.parse(localStorage.getItem("games")) || [];
 
-const game = games.find((g) => g.id === id);
+const rooms = JSON.parse(localStorage.getItem("turn_rooms")) || [];
+
+let game = null;
+
+if (roomCode) {
+  const room = rooms.find((r) => r.roomCode === roomCode);
+
+  if (!room) {
+    showToast("Phòng không tồn tại!", "error");
+
+    throw new Error("ROOM_NOT_FOUND");
+  }
+
+  game = room.gameData;
+
+  setupRoomPlayers(game);
+} else {
+  const id = Number(urlParams.get("id"));
+
+  game = games.find((g) => g.id === id);
+
+  if (!game) {
+    showToast("Không tìm thấy game!", "error");
+
+    setTimeout(() => {
+      window.location.href = "../games/turnbased.html";
+    }, 1500);
+
+    throw new Error("GAME_NOT_FOUND");
+  }
+
+  startNormalGame();
+}
+
 const gameInfo = document.getElementById("gameInfo");
 let obstacleCells = [];
 let questions = [];
@@ -50,6 +86,80 @@ let timeLeft = 0;
 // ===== STATE =====
 let positions = [];
 let currentPlayer = 0;
+
+function setupRoomPlayers(gameData) {
+  const setupScreen = document.getElementById("playerSetup");
+
+  const inputsWrap = document.getElementById("setupInputs");
+
+  const title = document.getElementById("setupGameTitle");
+
+  const startBtn = document.getElementById("startRoomBtn");
+
+  title.innerText = gameData.title;
+
+  inputsWrap.innerHTML = "";
+
+  const totalPlayers = Array.isArray(gameData.players)
+    ? gameData.players.length
+    : Number(gameData.players || 2);
+
+  for (let i = 0; i < totalPlayers; i++) {
+    const input = document.createElement("input");
+
+    input.type = "text";
+
+    input.className = "setup-input";
+
+    input.placeholder = `👤 Người chơi ${i + 1}`;
+
+    inputsWrap.appendChild(input);
+  }
+
+  startBtn.onclick = () => {
+    const inputs = inputsWrap.querySelectorAll("input");
+
+    const playerNames = [];
+
+    let valid = true;
+
+    inputs.forEach((input, i) => {
+      const value = input.value.trim();
+
+      if (!value) valid = false;
+
+      playerNames.push(value);
+    });
+
+    if (!valid) {
+      showToast("Nhập đủ tên người chơi!", "error");
+
+      return;
+    }
+
+    gameData.players = playerNames;
+
+    setupScreen.remove();
+    showToast("Vào phòng thành công!", "success");
+    startNormalGame();
+  };
+}
+
+function startNormalGame() {
+  if (!game) return;
+
+  positions = new Array(game.players.length).fill(0);
+
+  obstacleCells = game.obstacleCells || [];
+
+  questions = game.questions || [];
+
+  updateInfo();
+
+  renderCells();
+
+  renderPlayersOnMap();
+}
 
 const playerIcons = ["🐸", "🐱", "🐶", "🦊", "🐼", "🐵", "🐯"];
 
@@ -108,20 +218,6 @@ const path = [
   { x: 76, y: 81 },
   { x: 85, y: 82 },
 ];
-
-// ===== INIT =====
-if (game) {
-  positions = new Array(game.players.length).fill(0);
-
-  obstacleCells = game.obstacleCells || [];
-  questions = game.questions || [];
-
-  updateInfo();
-  renderCells();
-  renderPlayersOnMap();
-} else {
-  gameInfo.innerHTML = "Không tìm thấy game ❌";
-}
 
 function updateInfo() {
   const playersHTML = game.players
@@ -531,17 +627,23 @@ musicButtons.forEach((btn) => {
 function startGameMusic() {
   const music = document.getElementById("bgMusic");
 
-  music.muted = true;
+  if (!music) return;
 
-  music
-    .play()
-    .then(() => {
-      setTimeout(() => {
-        music.muted = false;
-        music.volume = 0.5;
-      }, 200);
-    })
-    .catch(() => {});
+  music.volume = 0.5;
+
+  const playPromise = music.play();
+
+  if (playPromise !== undefined) {
+    playPromise.catch(() => {
+      document.body.addEventListener(
+        "click",
+        () => {
+          music.play().catch(() => {});
+        },
+        { once: true },
+      );
+    });
+  }
 }
 
 function showVictory(playerName, playerIndex) {
@@ -830,5 +932,12 @@ function restartGame() {
 
 function goHome() {
   document.body.classList.remove("modal-open");
-  window.location.href = "/frontend/games/turnbased.html";
+
+  if (roomCode) {
+    sessionStorage.removeItem("joined_room");
+
+    window.location.href = "/frontend/index.html";
+  } else {
+    window.location.href = "/frontend/games/turnbased.html";
+  }
 }

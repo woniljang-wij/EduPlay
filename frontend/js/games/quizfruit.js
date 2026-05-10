@@ -255,7 +255,7 @@ function renderGames() {
           ▶ Chơi
         </button>
 
-        <button onclick="assignGame(${g.id})"
+        <button onclick="openAssign(${g.id}, 'quizfruit')"
           class="px-4 py-2 border rounded-xl text-purple-600 hover:bg-purple-50">
           📋 Giao
         </button>
@@ -294,11 +294,6 @@ function playGame(id) {
   sessionStorage.setItem("playMusic", "true");
 
   window.location.href = `play_quizfruit.html?id=${id}`;
-}
-
-// ===== ASSIGN =====
-function assignGame(id) {
-  showToast("📋 Giao bài " + id);
 }
 
 // ===== SHARE =====

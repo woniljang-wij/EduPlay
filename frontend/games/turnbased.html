@@ -2,6 +2,13 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
+
+    <script>
+      if (!localStorage.getItem("user")) {
+        location.replace("../login.html");
+      }
+    </script>
+
     <title>Game Theo Lượt</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link
@@ -10,6 +17,7 @@
     />
     <link rel="stylesheet" href="../css/turnbased.css" />
     <link rel="stylesheet" href="../css/toast.css" />
+    <link rel="stylesheet" href="../css/assign.css" />
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
       rel="stylesheet"
@@ -195,36 +203,93 @@
       </div>
     </main>
 
-    <!-- ===== MODAL GIAO ===== -->
-    <div
-      id="assignModal"
-      class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50"
-    >
-      <div class="bg-white rounded-2xl w-[420px] p-6 shadow-xl">
-        <h2 class="text-xl font-semibold mb-4">📋 Giao bài tập</h2>
+    <!-- ===== ASSIGN MODAL ===== -->
+    <div id="assignModal" class="assign-overlay hidden">
+      <div class="assign-modal">
+        <!-- HEADER -->
+        <div class="assign-header">
+          <div class="assign-icon">📋</div>
 
-        <div class="bg-gray-100 rounded-xl p-4 mb-4">
-          <p id="assignTitle" class="font-semibold">Tên game</p>
+          <div>
+            <h2>Giao bài tập</h2>
+            <p>Tạo mã phòng cho học sinh tham gia</p>
+          </div>
         </div>
 
-        <input
-          id="assignName"
-          placeholder="Tên gợi nhớ"
-          class="w-full p-3 border rounded-xl mb-4"
-        />
+        <!-- GAME INFO -->
+        <div class="assign-game">
+          <div class="assign-game-icon">🎲</div>
 
-        <div class="flex justify-end gap-3">
-          <button onclick="closeAssign()" class="px-4 py-2 border rounded">
-            HỦY
-          </button>
+          <div>
+            <div id="assignTitle" class="assign-game-title">Game</div>
 
-          <button
-            onclick="createAssign()"
-            class="px-4 py-2 bg-purple-500 text-white rounded"
-          >
-            TẠO
+            <div class="assign-game-type">Game Theo Lượt</div>
+          </div>
+        </div>
+
+        <!-- INPUT -->
+        <div class="assign-group">
+          <label>Tên gợi nhớ</label>
+
+          <input id="assignName" type="text" placeholder="VD: Nhóm lớp 5A" />
+        </div>
+
+        <!-- EXPIRE -->
+        <div class="assign-group">
+          <label>Thời hạn mã</label>
+
+          <div class="assign-time-list">
+            <button class="assign-time active" data-day="1">1 ngày</button>
+
+            <button class="assign-time" data-day="3">3 ngày</button>
+
+            <button class="assign-time" data-day="7">7 ngày</button>
+          </div>
+        </div>
+
+        <!-- ACTION -->
+        <div class="assign-actions">
+          <button onclick="closeAssign()" class="assign-cancel">HỦY</button>
+
+          <button onclick="createAssign()" class="assign-create">
+            🚀 TẠO BÀI TẬP
           </button>
         </div>
+      </div>
+    </div>
+
+    <!-- ===== SUCCESS MODAL ===== -->
+    <div id="assignSuccess" class="assign-overlay hidden">
+      <div class="assign-success">
+        <div class="success-icon">✅</div>
+
+        <h2>Tạo bài thành công!</h2>
+
+        <p>Học sinh có thể nhập mã hoặc quét QR để vào game</p>
+
+        <!-- CODE -->
+        <div class="success-code-box">
+          <div class="success-label">MÃ PHÒNG</div>
+
+          <div id="roomCode" class="success-code">000000</div>
+        </div>
+
+        <!-- LINK -->
+        <div class="success-link-box">
+          <input id="roomLink" readonly />
+
+          <button onclick="copyRoomLink()">SAO CHÉP</button>
+        </div>
+
+        <!-- QR -->
+        <div class="qr-wrap">
+          <img id="qrImage" src="" />
+        </div>
+
+        <!-- ACTION -->
+        <button onclick="closeAssignSuccess()" class="success-close">
+          ĐÓNG
+        </button>
       </div>
     </div>
 
@@ -327,6 +392,7 @@
       ></video>
     </div>
 
+    <script src="../js/games/assign.js"></script>
     <script src="../js/games/toast.js" defer></script>
     <script src="../js/games/turnbased.js" defer></script>
   </body>
