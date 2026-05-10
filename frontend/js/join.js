@@ -67,29 +67,23 @@ joinBtn.addEventListener("click", () => {
   // ==================================================
   // TURNBASED
   // ==================================================
-  const turnRooms =
-    JSON.parse(localStorage.getItem("turn_rooms")) || [];
+  const turnRooms = JSON.parse(localStorage.getItem("turn_rooms")) || [];
 
   console.log("TURN ROOMS:", turnRooms);
 
   const turnRoom = turnRooms.find(
-    (r) =>
-      String(r.roomCode).trim().toUpperCase() === code
+    (r) => String(r.roomCode).trim().toUpperCase() === code,
   );
 
   console.log("FOUND TURN ROOM:", turnRoom);
 
   if (turnRoom) {
-    sessionStorage.setItem(
-      "joined_room",
-      JSON.stringify(turnRoom)
-    );
+    sessionStorage.setItem("joined_room", JSON.stringify(turnRoom));
 
     showToast("Vào phòng thành công!", "success");
 
     setTimeout(() => {
-      window.location.href =
-        `games/play.html?room=${encodeURIComponent(code)}`;
+      window.location.href = `games/play.html?room=${encodeURIComponent(code)}&join=1`;
     }, 500);
 
     return;
@@ -98,29 +92,23 @@ joinBtn.addEventListener("click", () => {
   // ==================================================
   // QUIZFRUIT
   // ==================================================
-  const fruitRooms =
-    JSON.parse(localStorage.getItem("fruit_rooms")) || [];
+  const fruitRooms = JSON.parse(localStorage.getItem("fruit_rooms")) || [];
 
   console.log("FRUIT ROOMS:", fruitRooms);
 
   const fruitRoom = fruitRooms.find(
-    (r) =>
-      String(r.roomCode).trim().toUpperCase() === code
+    (r) => String(r.roomCode).trim().toUpperCase() === code,
   );
 
   console.log("FOUND FRUIT ROOM:", fruitRoom);
 
   if (fruitRoom) {
-    sessionStorage.setItem(
-      "joined_room",
-      JSON.stringify(fruitRoom)
-    );
+    sessionStorage.setItem("joined_room", JSON.stringify(fruitRoom));
 
     showToast("Vào phòng thành công!", "success");
 
     setTimeout(() => {
-      window.location.href =
-        `games/play_quizfruit.html?room=${encodeURIComponent(code)}`;
+      window.location.href = `games/play.html?room=${encodeURIComponent(code)}&join=1`;
     }, 500);
 
     return;

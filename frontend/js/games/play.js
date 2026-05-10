@@ -1,3 +1,78 @@
+// ===== STATE =====
+let positions = [];
+let currentPlayer = 0;
+
+const gameInfo = document.getElementById("gameInfo");
+
+let obstacleCells = [];
+let questions = [];
+
+const playerLayer = document.getElementById("playerLayer");
+const cellLayer = document.getElementById("cellLayer");
+const rollBtn = document.getElementById("rollBtn");
+
+let isRolling = false;
+let timer = null;
+let timeLeft = 0;
+
+const playerIcons = ["🐸", "🐱", "🐶", "🦊", "🐼", "🐵", "🐯"];
+
+const path = [
+  // ===== ROW 1 =====
+  { x: 17, y: 20 },
+  { x: 26, y: 20 },
+  { x: 36, y: 19.5 },
+  { x: 46, y: 19.5 },
+  { x: 56, y: 19.5 },
+  { x: 66, y: 19 },
+  { x: 76, y: 19 },
+  { x: 86, y: 19 },
+  { x: 92, y: 27 },
+
+  // ===== ROW 2 (ngược) =====
+  { x: 87, y: 34 },
+  { x: 76, y: 34 },
+  { x: 66, y: 34 },
+  { x: 56, y: 34 },
+  { x: 46, y: 34 },
+  { x: 36, y: 34 },
+  { x: 26, y: 34 },
+  { x: 17, y: 34 },
+
+  // ===== ROW 3 =====
+  { x: 11, y: 41 },
+  { x: 17, y: 48.5 },
+  { x: 26, y: 49 },
+  { x: 36, y: 49 },
+  { x: 46, y: 49 },
+  { x: 56, y: 49 },
+  { x: 66, y: 49.5 },
+  { x: 76, y: 49.5 },
+  { x: 86, y: 50 },
+
+  // ===== ROW 4 (ngược) =====
+  { x: 92, y: 58 },
+  { x: 86, y: 65 },
+  { x: 76, y: 65 },
+  { x: 66, y: 65 },
+  { x: 56, y: 64.5 },
+  { x: 46, y: 64.5 },
+  { x: 36, y: 64 },
+  { x: 26, y: 64 },
+  { x: 17, y: 65 },
+
+  // ===== ROW 5 =====
+  { x: 11, y: 72.5 },
+  { x: 17, y: 81 },
+  { x: 26, y: 81 },
+  { x: 36, y: 81 },
+  { x: 46, y: 81 },
+  { x: 56, y: 81 },
+  { x: 66, y: 81 },
+  { x: 76, y: 81 },
+  { x: 85, y: 82 },
+];
+
 // ===== LOAD GAME =====
 let isGameOver = false;
 
@@ -43,6 +118,8 @@ const rooms = JSON.parse(localStorage.getItem("turn_rooms")) || [];
 
 let game = null;
 
+const isStudentJoin = urlParams.get("join");
+
 if (roomCode) {
   const room = rooms.find((r) => r.roomCode === roomCode);
 
@@ -54,7 +131,15 @@ if (roomCode) {
 
   game = room.gameData;
 
-  setupRoomPlayers(game);
+  // 👨‍🎓 Sinh viên nhập mã phòng
+  if (isStudentJoin) {
+    setupRoomPlayers(game);
+  }
+
+  // 👨‍🏫 Giáo viên vào thẳng game
+  else {
+    startNormalGame();
+  }
 } else {
   const id = Number(urlParams.get("id"));
 
@@ -73,22 +158,10 @@ if (roomCode) {
   startNormalGame();
 }
 
-const gameInfo = document.getElementById("gameInfo");
-let obstacleCells = [];
-let questions = [];
-
-const playerLayer = document.getElementById("playerLayer");
-const cellLayer = document.getElementById("cellLayer");
-const rollBtn = document.getElementById("rollBtn");
-let isRolling = false;
-let timer = null;
-let timeLeft = 0;
-// ===== STATE =====
-let positions = [];
-let currentPlayer = 0;
-
 function setupRoomPlayers(gameData) {
   const setupScreen = document.getElementById("playerSetup");
+  setupScreen.classList.remove("hidden");
+  setupScreen.classList.add("flex");
 
   const inputsWrap = document.getElementById("setupInputs");
 
@@ -160,64 +233,6 @@ function startNormalGame() {
 
   renderPlayersOnMap();
 }
-
-const playerIcons = ["🐸", "🐱", "🐶", "🦊", "🐼", "🐵", "🐯"];
-
-const path = [
-  // ===== ROW 1 =====
-  { x: 17, y: 20 },
-  { x: 26, y: 20 },
-  { x: 36, y: 19.5 },
-  { x: 46, y: 19.5 },
-  { x: 56, y: 19.5 },
-  { x: 66, y: 19 },
-  { x: 76, y: 19 },
-  { x: 86, y: 19 },
-  { x: 92, y: 27 },
-
-  // ===== ROW 2 (ngược) =====
-  { x: 87, y: 34 },
-  { x: 76, y: 34 },
-  { x: 66, y: 34 },
-  { x: 56, y: 34 },
-  { x: 46, y: 34 },
-  { x: 36, y: 34 },
-  { x: 26, y: 34 },
-  { x: 17, y: 34 },
-
-  // ===== ROW 3 =====
-  { x: 11, y: 41 },
-  { x: 17, y: 48.5 },
-  { x: 26, y: 49 },
-  { x: 36, y: 49 },
-  { x: 46, y: 49 },
-  { x: 56, y: 49 },
-  { x: 66, y: 49.5 },
-  { x: 76, y: 49.5 },
-  { x: 86, y: 50 },
-
-  // ===== ROW 4 (ngược) =====
-  { x: 92, y: 58 },
-  { x: 86, y: 65 },
-  { x: 76, y: 65 },
-  { x: 66, y: 65 },
-  { x: 56, y: 64.5 },
-  { x: 46, y: 64.5 },
-  { x: 36, y: 64 },
-  { x: 26, y: 64 },
-  { x: 17, y: 65 },
-
-  // ===== ROW 5 =====
-  { x: 11, y: 72.5 },
-  { x: 17, y: 81 },
-  { x: 26, y: 81 },
-  { x: 36, y: 81 },
-  { x: 46, y: 81 },
-  { x: 56, y: 81 },
-  { x: 66, y: 81 },
-  { x: 76, y: 81 },
-  { x: 85, y: 82 },
-];
 
 function updateInfo() {
   const playersHTML = game.players
