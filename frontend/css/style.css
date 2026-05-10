@@ -1,0 +1,746 @@
+body {
+  font-family: "Be Vietnam Pro", sans-serif;
+
+  background: linear-gradient(
+    135deg,
+    #eef2ff,
+    #e0f2fe,
+    #f0fdf4,
+    #e0e7ff,
+    #cffafe
+  );
+
+  background-size: 300% 300%;
+  animation: bgMove 10s ease infinite;
+
+  color: #1e293b;
+  position: relative;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+
+  background:
+    radial-gradient(
+      circle at 20% 30%,
+      rgba(99, 102, 241, 0.18),
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 80% 20%,
+      rgba(52, 211, 153, 0.18),
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 50% 80%,
+      rgba(96, 165, 250, 0.18),
+      transparent 40%
+    );
+
+  filter: blur(40px);
+  animation: floatBg 12s ease-in-out infinite alternate;
+}
+
+@keyframes bgMove {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes floatBg {
+  0% {
+    transform: translateY(0px) scale(1);
+  }
+  100% {
+    transform: translateY(40px) scale(1.05);
+  }
+}
+
+.floating-particles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  overflow: hidden;
+}
+
+/* mỗi hạt */
+.floating-particles span {
+  position: absolute;
+  display: block;
+
+  width: 8px;
+  height: 8px;
+
+  border-radius: 50%;
+
+  background: radial-gradient(circle, #a78bfa, transparent);
+
+  mix-blend-mode: screen;
+
+  opacity: 0.8;
+
+  box-shadow:
+    0 0 8px #60a5fa,
+    0 0 16px #60a5fa;
+
+  animation: floatParticle linear infinite;
+}
+
+/* animation bay lên */
+@keyframes floatParticle {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-120vh) scale(1.4);
+    opacity: 0;
+  }
+}
+
+/* ===== VIDEO BACKGROUND ===== */
+#bgVideo {
+  position: absolute;
+  left: 0;
+
+  width: 100%;
+  height: 43%;
+
+  filter: brightness(0.75) saturate(1.1);
+
+  object-fit: cover;
+  z-index: -2;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0);
+
+  z-index: -1;
+}
+
+.glass-nav {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.title-wrapper {
+  display: inline-block;
+  padding: 12px 28px;
+
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(10px);
+
+  border: 1px solid rgba(255, 255, 255, 0.25);
+
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.08),
+    inset 0 0 6px rgba(255, 255, 255, 0.15);
+}
+
+.edu-title {
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 800;
+
+  background:
+    linear-gradient(
+      120deg,
+      transparent 42%,
+      rgba(255, 255, 255, 0.35) 50%,
+      transparent 58%
+    ),
+    linear-gradient(90deg, #6366f1, #8b5cf6, #60a5fa, #34d399, #6366f1);
+
+  background-size:
+    200% 100%,
+    200% 100%;
+
+  background-position:
+    -150% 0,
+    0% 0;
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  animation:
+    shineMove 0.5s linear infinite,
+    eduFlow 2s linear infinite;
+
+  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.25))
+    drop-shadow(0 0 8px rgba(139, 92, 246, 0.35));
+}
+
+@keyframes shineMove {
+  0% {
+    background-position:
+      -150% 0,
+      0% 0;
+  }
+  100% {
+    background-position:
+      150% 0,
+      200% 0;
+  }
+}
+
+/* ===== ANIMATION CHẠY MÀU ===== */
+@keyframes eduFlow {
+  0% {
+    background-position: 0% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+/* Card Game */
+.game-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid #f1f5f9;
+}
+
+.game-card:hover {
+  transform: translateY(-12px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+  border-color: var(--primary-blue);
+}
+
+/* ===== ICON BOUNCE ===== */
+.icon {
+  will-change: transform;
+}
+
+.game-card:hover .icon {
+  animation: iconBounce 0.5s ease;
+}
+
+/* animation */
+@keyframes iconBounce {
+  0% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-10px);
+  }
+  55% {
+    transform: translateY(0);
+  }
+  75% {
+    transform: translateY(-5px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* Button glow chuẩn */
+.game-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+/* lớp ánh sáng */
+.game-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%; /* bắt đầu ngoài bên trái */
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+}
+
+/* chạy animation khi hover */
+.game-btn:hover::before {
+  animation: shine 1.2s linear infinite;
+}
+
+.btn-turnbased {
+  background: linear-gradient(90deg, #22c55e, #4ade80, #16a34a, #22c55e);
+  background-size: 300% 100%;
+  animation: btnFlow 2.5s linear infinite;
+}
+
+.btn-quizfruit {
+  background: linear-gradient(90deg, #f97316, #fb923c, #ef4444, #f97316);
+  background-size: 300% 100%;
+  animation: btnFlow 2.2s linear infinite;
+}
+
+.btn-memory {
+  background: linear-gradient(90deg, #8b5cf6, #a78bfa, #4f46e5, #8b5cf6);
+  background-size: 300% 100%;
+  animation: btnFlow 2.6s linear infinite;
+}
+
+.btn-dragonboat {
+  background: linear-gradient(90deg, #ec4899, #f472b6, #a855f7, #ec4899);
+  background-size: 300% 100%;
+  animation: btnFlow 2.4s linear infinite;
+}
+
+@keyframes btnFlow {
+  0% {
+    background-position: 300% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* animation di chuyển */
+@keyframes shine {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Button click */
+.game-btn:active {
+  transform: scale(0.9);
+}
+
+/* Card click */
+.game-card:active {
+  transform: scale(0.97);
+}
+
+/* ===== FOOTER BACKGROUND ===== */
+.footer {
+  position: relative;
+  background:
+    linear-gradient(rgba(15, 23, 42, 0.7), rgba(30, 27, 75, 0.7)),
+    url("../assets/images/footer.png") center bottom / cover no-repeat;
+}
+
+/* lớp phủ tối */
+.footer-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(15, 34, 42, 0.5),
+    rgba(30, 27, 75, 0.5)
+  );
+  backdrop-filter: blur(4px);
+}
+
+/* ===== LINK EFFECT ===== */
+.footer-link {
+  color: #9ca3af;
+  position: relative;
+  transition: 0.3s;
+}
+
+.footer-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 0%;
+  height: 2px;
+  background: linear-gradient(to right, #3b82f6, #a855f7);
+  transition: 0.3s;
+}
+
+.footer-link:hover {
+  color: white;
+}
+
+.footer-link:hover::after {
+  width: 100%;
+}
+
+/* ===== INPUT ===== */
+.newsletter-input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(4px);
+  transition: 0.3s;
+}
+
+.newsletter-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+/* ===== BUTTON ===== */
+.subscribe-btn {
+  background: linear-gradient(135deg, #3b82f6, #9333ea);
+  color: white;
+  transition: 0.3s;
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+}
+
+.subscribe-btn:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 0 25px rgba(139, 92, 246, 0.8);
+}
+
+/* ===== FLOATING LIGHT EFFECT ===== */
+.footer::before,
+.footer::after {
+  content: "";
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.4;
+  animation: floatLight 8s infinite alternate ease-in-out;
+}
+
+.footer::before {
+  background: #3b82f6;
+  top: -100px;
+  left: -100px;
+}
+
+.footer::after {
+  background: #9333ea;
+  bottom: -100px;
+  right: -100px;
+}
+
+@keyframes floatLight {
+  0% {
+    transform: translateY(0px);
+  }
+  100% {
+    transform: translateY(40px);
+  }
+}
+
+/* ===== LOGO LAYER ===== */
+.logo-layer {
+  position: fixed;
+  top: 38px;
+  left: 28px;
+
+  transform: translateY(-50%);
+  z-index: 9999;
+
+  pointer-events: auto; /* cần để hover */
+
+  position: fixed;
+}
+
+/* ===== VIDEO LOGO ===== */
+.logo-floating {
+  height: 65px;
+
+  object-fit: contain;
+
+  border-radius: 40px;
+  background: none;
+  padding: 0;
+
+  transition: all 0.3s ease;
+
+  filter:
+    drop-shadow(0 4px 10px rgba(0,0,0,0.2))
+    drop-shadow(0 0 10px rgba(139, 92, 246, 0.25));
+
+  animation: logoPulse 3s ease-in-out infinite;
+}
+
+@keyframes logoPulse {
+  0%,100% {
+    filter:
+      drop-shadow(0 4px 10px rgba(0,0,0,0.2))
+      drop-shadow(0 0 10px rgba(139, 92, 246, 0.25));
+  }
+  50% {
+    filter:
+      drop-shadow(0 6px 16px rgba(0,0,0,0.25))
+      drop-shadow(0 0 16px rgba(139, 92, 246, 0.4));
+  }
+}
+
+.logo-floating:hover {
+  transform: scale(1.06);
+
+  filter:
+    drop-shadow(0 8px 20px rgba(0,0,0,0.3))
+    drop-shadow(0 0 22px rgba(139, 92, 246, 0.5));
+}
+
+.logo-layer::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+
+  border-radius: 48px;
+  pointer-events: none;
+
+  background: radial-gradient(
+    circle,
+    rgba(139,92,246,0.18),
+    transparent 70%
+  );
+
+  filter: blur(8px);
+}
+
+/* ===== WRAPPER ===== */
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-left-placeholder {
+  width: 120px; 
+}
+
+/* ===== USER CHIP ===== */
+.user-chip {
+  height: 42px;
+  padding: 0 16px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+
+  font-weight: 600;
+  font-size: 14px;
+  color: #374151;
+
+  border: 1px solid rgba(255, 255, 255, 0.4);
+
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+
+  transition: all 0.25s ease;
+}
+
+/* hover */
+.user-chip:hover {
+  transform: translateY(-2px) scale(1.04);
+
+  background: rgba(255, 255, 255, 0.85);
+
+  box-shadow:
+    0 10px 25px rgba(0, 0, 0, 0.15),
+    0 0 10px rgba(59, 130, 246, 0.3);
+}
+
+/* ===== LOGOUT BUTTON ===== */
+.logout-btn {
+  width: 42px;
+  height: 42px;
+
+  border-radius: 50%;
+  border: none;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+
+  cursor: pointer;
+  transition: all 0.25s ease;
+
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+}
+
+/* hover */
+.logout-btn:hover {
+  transform: translateY(-3px) scale(1.08);
+
+  box-shadow:
+    0 12px 25px rgba(239, 68, 68, 0.6),
+    0 0 15px rgba(239, 68, 68, 0.5);
+}
+
+/* click */
+.logout-btn:active {
+  transform: scale(0.9);
+}
+
+/* icon */
+.logout-btn svg {
+  transition: all 0.25s ease;
+}
+
+/* hover icon */
+.logout-btn:hover svg {
+  transform: translateX(2px);
+}
+
+/* ===== BASE CHUNG ===== */
+.btn-login,
+.btn-register {
+  position: relative;
+  overflow: hidden;
+
+  min-width: 120px;
+  text-align: center;
+
+  padding: 10px 20px;
+  border-radius: 999px;
+
+  font-weight: 600;
+
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+
+/* ===== LOGIN STYLE ===== */
+.btn-login {
+  color: #374151;
+
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+
+  border: 1px solid rgba(255, 255, 255, 0.4);
+
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* ===== REGISTER STYLE ===== */
+.btn-register {
+  color: white;
+
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+}
+
+/* ===== HOVER CHUNG ===== */
+.btn-login:hover,
+.btn-register:hover {
+  transform: translateY(-3px) scale(1.05);
+
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.15),
+    0 0 20px rgba(139, 92, 246, 0.4);
+}
+
+/* ===== CLICK CHUNG ===== */
+.btn-login:active,
+.btn-register:active {
+  transform: scale(0.92);
+}
+
+/* ===== SHINE EFFECT CHUNG ===== */
+.btn-login::before,
+.btn-register::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+
+  width: 100%;
+  height: 100%;
+
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+}
+
+/* 🚀 CHẠY LIÊN TỤC KHI HOVER */
+.btn-login:hover::before,
+.btn-register:hover::before {
+  animation: shine 1.2s linear infinite;
+}
+
+/* ===== ANIMATION ===== */
+@keyframes shine {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* ===== CARD VIỀN CHẠY ===== */
+.game-card {
+  position: relative;
+  border-radius: 24px;
+
+  padding: 2px;
+
+  background: linear-gradient(
+    120deg,
+    #3b82f6,
+    #8b5cf6,
+    #60a5fa,
+    #34d399,
+    #3b82f6
+  );
+
+  background-size: 300% 300%;
+  animation: borderFlow 6s linear infinite;
+
+  transition: all 0.3s ease;
+}
+
+.game-card-inner {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+
+  border-radius: 22px;
+  padding: 32px;
+
+  height: 100%;
+}
+
+.game-card:hover {
+  transform: translateY(-12px) scale(1.03);
+  animation-duration: 2.5s;
+
+  box-shadow:
+    0 25px 60px rgba(0, 0, 0, 0.15),
+    0 0 25px rgba(139, 92, 246, 0.25);
+}
+
+@keyframes borderFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}

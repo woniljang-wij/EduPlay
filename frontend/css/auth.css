@@ -1,0 +1,184 @@
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;800&display=swap');
+
+:root {
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --glass-bg: rgba(255, 255, 255, 0.9);
+}
+
+body {
+    font-family: 'Be Vietnam Pro', sans-serif;
+    background: var(--primary-gradient);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-x: hidden;
+}
+
+/* Hiệu ứng trôi nổi nền */
+.auth-bg-decoration {
+    position: fixed;
+    width: 400px;
+    height: 400px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    z-index: -1;
+    animation: float 8s infinite alternate ease-in-out;
+}
+
+@keyframes float {
+    from { transform: translate(-10%, -10%) rotate(0deg); }
+    to { transform: translate(10%, 10%) rotate(15deg); }
+}
+
+/* Card chính */
+.auth-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Input style */
+.auth-input {
+    width: 100%;
+    padding: 0.85rem 1.25rem;
+    border-radius: 1rem;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.auth-input:focus {
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+/* Button chính */
+.btn-auth {
+    background: var(--primary-gradient);
+    color: white;
+    padding: 0.85rem;
+    border-radius: 1rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 15px -3px rgba(118, 75, 162, 0.3);
+}
+
+.btn-auth:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 20px -3px rgba(118, 75, 162, 0.4);
+}
+
+.btn-auth:active { transform: scale(0.98); }
+
+/* Select */
+select.auth-input {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1.25rem;
+    padding-right: 2.5rem;
+}
+
+/* Back button */
+.back-home {
+    position: fixed;
+    top: 2rem;
+    left: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 1rem;
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    z-index: 100;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.back-home:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateX(-5px);
+}
+
+/* ================= LOGOUT ADD ================= */
+
+/* icon logout */
+.logout-icon {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+}
+
+/* text */
+.logout-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    color: #1e293b;
+}
+
+.logout-desc {
+    color: #64748b;
+    margin-bottom: 1.5rem;
+}
+
+/* button group */
+.logout-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+/* nút hủy */
+.btn-cancel {
+    padding: 0.7rem 1.2rem;
+    border-radius: 1rem;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    transition: all 0.2s ease;
+}
+
+.btn-cancel:hover {
+    background: #e2e8f0;
+}
+
+/* nút logout */
+.btn-logout {
+    padding: 0.7rem 1.2rem;
+    border-radius: 1rem;
+    background: #ef4444;
+    color: white;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-logout:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+}
+
+/* responsive */
+@media (max-width: 768px) {
+    .back-home {
+        top: 1rem;
+        left: 1rem;
+        color: #1e293b; 
+        background: rgba(255, 255, 255, 0.8);
+    }
+}

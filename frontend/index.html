@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EduPlay - Nền tảng trò chơi học tập</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+
+  <body class="text-slate-800 font-[Be_Vietnam_Pro]">
+    <video autoplay muted loop playsinline id="bgVideo">
+      <source src="assets/videos/bg (1).mp4" type="video/mp4" />
+    </video>
+
+    <!-- LOGO -->
+    <div class="logo-layer">
+      <video class="logo-floating" autoplay muted loop playsinline>
+        <source src="assets/videos/Logo.mp4" type="video/mp4" />
+      </video>
+    </div>
+
+    <!-- NAVBAR -->
+    <nav
+      class="glass-nav fixed w-full z-50 border-b border-gray-100 bg-white/80 backdrop-blur"
+    >
+      <div
+        class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center"
+      >
+        <div class="nav-left-placeholder"></div>
+
+        <!-- RIGHT -->
+        <div class="flex items-center space-x-3">
+          <div class="nav-auth flex items-center gap-4">
+            <a href="login.html" class="btn-login"> Đăng nhập </a>
+
+            <a href="register.html" class="btn-register"> Đăng ký </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- HERO -->
+    <section
+      class="bg-animate pt-40 pb-32 px-6 text-white text-center relative overflow-hidden"
+    >
+      <!-- Background effect -->
+      <div
+        class="absolute top-0 left-0 w-64 h-64 bg-white/10 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl"
+      ></div>
+      <div
+        class="absolute bottom-0 right-0 w-96 h-96 bg-purple-500/20 rounded-full translate-x-1/3 translate-y-1/3 blur-3xl"
+      ></div>
+
+      <div class="relative z-10 max-w-4xl mx-auto">
+        <!-- Badge -->
+        <span
+          class="bg-white/20 px-4 py-1.5 rounded-full text-sm font-bold uppercase tracking-widest mb-6 inline-block backdrop-blur-md"
+        >
+          🚀 Nâng tầm giáo dục số
+        </span>
+
+        <!-- Title -->
+        <h1 class="text-5xl md:text-7xl font-extrabold mb-8 leading-tight">
+          Học tập chưa bao giờ <br />
+          <span class="text-yellow-300">vui đến thế!</span>
+        </h1>
+
+        <!-- Description -->
+        <p class="text-xl md:text-2xl mb-6 opacity-90 font-light">
+          Giáo viên tạo thử thách — Học sinh chinh phục kiến thức qua trò chơi.
+        </p>
+
+        <!-- Highlight student -->
+        <p class="text-lg text-yellow-200 mb-12">
+          👉 Học sinh chỉ cần nhập mã từ giáo viên – không cần tài khoản!
+        </p>
+
+        <!-- CTA -->
+        <div class="cta-buttons flex flex-col sm:flex-row justify-center gap-4">
+          <!-- Teacher -->
+          <a
+            href="login.html"
+            class="group flex items-center justify-center bg-white text-blue-600 px-8 py-4 rounded-2xl font-bold text-lg shadow-xl hover:bg-gray-50 transition-all transform hover:-translate-y-1"
+          >
+            👨‍🏫 Tôi là giáo viên (Tạo trò chơi)
+          </a>
+
+          <!-- Student -->
+          <a
+            href="join.html"
+            class="group flex items-center justify-center bg-yellow-400 text-yellow-900 px-8 py-4 rounded-2xl font-bold text-lg shadow-xl hover:bg-yellow-300 transition-all transform hover:-translate-y-1"
+          >
+            🎮 Học sinh - Nhập mã để chơi
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- GAME MODES -->
+    <section class="py-24 px-6 relative">
+      <div class="max-w-7xl mx-auto">
+        <div class="text-center mb-16">
+          <div class="title-wrapper">
+            <h2 class="edu-title">Các chế độ chơi nổi bật</h2>
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <!-- ===== CARD 1 ===== -->
+          <div class="game-card group">
+            <div
+              class="game-card-inner text-center flex flex-col justify-between h-full"
+            >
+              <div>
+                <div
+                  class="icon w-20 h-20 bg-gradient-to-br from-green-400 to-emerald-600 rounded-2xl flex items-center justify-center text-4xl mx-auto mb-6 shadow-lg text-white"
+                >
+                  🎲
+                </div>
+
+                <h3 class="text-xl font-bold mb-3">Game Theo Lượt</h3>
+                <p class="text-gray-500 mb-6">
+                  Tung xúc xắc, di chuyển nhân vật và chinh phục thử thách.
+                </p>
+              </div>
+
+              <button
+                class="game-btn require-login btn-turnbased text-white px-5 py-2 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105"
+                data-url="games/turnbased.html"
+              >
+                Bắt đầu
+              </button>
+            </div>
+          </div>
+
+          <!-- ===== CARD 2 ===== -->
+          <div class="game-card group">
+            <div
+              class="game-card-inner text-center flex flex-col justify-between h-full"
+            >
+              <div>
+                <div
+                  class="icon w-20 h-20 bg-gradient-to-br from-red-400 to-orange-500 rounded-2xl flex items-center justify-center text-4xl mx-auto mb-6 shadow-lg text-white"
+                >
+                  🍉
+                </div>
+                <h3 class="text-xl font-bold mb-3">Chém Hoa Quả</h3>
+                <p class="text-gray-500 mb-6">
+                  Phản xạ cực nhanh, chém đúng đáp án trước khi biến mất.
+                </p>
+              </div>
+
+              <button
+                class="game-btn require-login btn-quizfruit text-white px-5 py-2 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105"
+                data-url="games/quizfruit.html"
+              >
+                Bắt đầu
+              </button>
+            </div>
+          </div>
+
+          <!-- ===== CARD 3 ===== -->
+          <div class="game-card group">
+            <div
+              class="game-card-inner text-center flex flex-col justify-between h-full"
+            >
+              <div>
+                <div
+                  class="icon w-20 h-20 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center text-4xl mx-auto mb-6 shadow-lg text-white"
+                >
+                  🧩
+                </div>
+
+                <h3 class="text-xl font-bold mb-3">Lật Mảnh Ghép</h3>
+                <p class="text-gray-500 mb-6">
+                  Lật từng ô, ghi nhớ vị trí và khám phá bức tranh bí ẩn.
+                </p>
+              </div>
+
+              <button
+                class="game-btn require-login btn-memory text-white px-5 py-2 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105"
+                data-url="games/memory.html"
+              >
+                Bắt đầu
+              </button>
+            </div>
+          </div>
+
+          <!-- ===== CARD 4 ===== -->
+          <div class="game-card group">
+            <div
+              class="game-card-inner text-center flex flex-col justify-between h-full"
+            >
+              <div>
+                <div
+                  class="icon w-20 h-20 bg-gradient-to-br from-cyan-500 via-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center text-4xl mx-auto mb-6 shadow-lg text-white"
+                >
+                  🐉
+                </div>
+
+                <h3 class="text-xl font-bold mb-3">Đua Thuyền Rồng</h3>
+
+                <p class="text-gray-500 mb-6">
+                  Trả lời đúng để tăng tốc chèo thuyền, vượt đối thủ và cán đích
+                  đầu tiên.
+                </p>
+              </div>
+
+              <button
+                class="game-btn require-login btn-dragonboat text-white px-5 py-2 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105"
+                data-url="games/dragonboat.html"
+              >
+                Bắt đầu
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer relative overflow-hidden">
+      <!-- Background overlay -->
+      <div class="footer-overlay"></div>
+
+      <!-- Nội dung -->
+      <div
+        class="relative z-10 max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-3 gap-10"
+      >
+        <!-- Logo -->
+        <div>
+          <h2 class="text-3xl font-extrabold text-white mb-3">🎓 EduPlay</h2>
+          <p class="text-gray-300">
+            Học tập sáng tạo, kết nối tương lai. Biến việc học thành trò chơi
+            hấp dẫn!
+          </p>
+        </div>
+
+        <!-- Links -->
+        <div>
+          <h3 class="text-white font-bold mb-4">Khám phá</h3>
+          <ul class="space-y-2">
+            <li><a href="#" class="footer-link">Điều khoản</a></li>
+            <li><a href="#" class="footer-link">Bảo mật</a></li>
+            <li><a href="#" class="footer-link">Liên hệ</a></li>
+          </ul>
+        </div>
+
+        <!-- Newsletter -->
+        <div>
+          <h3 class="text-white font-bold mb-4">Nhận cập nhật</h3>
+          <div class="flex gap-2">
+            <input
+              type="email"
+              placeholder="Nhập email..."
+              class="newsletter-input flex-1 px-4 py-2 rounded-xl text-white outline-none"
+            />
+            <button class="subscribe-btn px-4 py-2 rounded-xl font-bold">
+              🚀
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom -->
+      <div
+        class="relative z-10 text-center text-gray-400 border-t border-white/10 py-6"
+      >
+        © 2026 EduPlay - WIJ
+      </div>
+    </footer>
+
+    <div class="floating-particles"></div>
+
+    <script src="js/main.js"></script>
+  </body>
+</html>

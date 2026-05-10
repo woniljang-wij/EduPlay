@@ -1,0 +1,2336 @@
+body {
+  margin: 0;
+  overflow: hidden;
+  background: black;
+}
+
+#bgVideo {
+  position: fixed;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: fill;
+
+  filter: brightness(1.05) saturate(1.1);
+
+  z-index: -2;
+
+  pointer-events: none;
+}
+
+#gameArea {
+  width: 100%;
+  height: 100vh;
+
+  position: relative;
+  z-index: 2;
+}
+
+.fruit {
+  position: absolute;
+  width: 250px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.fruit img {
+  width: 100%;
+}
+
+.half {
+  position: absolute;
+  width: 250px;
+
+  pointer-events: none;
+
+  filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.5)) brightness(1.05)
+    saturate(1.2);
+
+  z-index: 50;
+
+  transform-origin: center;
+}
+
+/* ✂️ NỬA TRÁI */
+.half.left {
+  clip-path: polygon(0 0, 55% 0, 45% 100%, 0% 100%);
+}
+
+/* ✂️ NỬA PHẢI */
+.half.right {
+  clip-path: polygon(55% 0, 100% 0, 100% 100%, 45% 100%);
+}
+
+.half.left::after,
+.half.right::after {
+  content: "";
+
+  position: absolute;
+  top: 0;
+  bottom: 0;
+
+  width: 8px;
+
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0.9),
+    rgba(255, 255, 255, 0)
+  );
+
+  filter: blur(3px);
+}
+
+.half.left::after {
+  right: 0;
+}
+
+.half.right::after {
+  left: 0;
+}
+
+/* =========================
+   GIỌT NƯỚC
+========================= */
+
+.juice-drop {
+  position: absolute;
+
+  border-radius: 50%;
+
+  pointer-events: none;
+
+  z-index: 9999;
+
+  filter: blur(0.5px) saturate(1.4);
+
+  will-change: transform, opacity;
+}
+
+/* ========================================
+   FRUIT NINJA REAL SPLASH
+======================================== */
+
+.ground-splash {
+  position: absolute;
+
+  pointer-events: none;
+  z-index: 40;
+
+  opacity: 1;
+
+  mix-blend-mode: multiply;
+
+  animation: splashFade 2s linear forwards;
+}
+
+.ground-splash::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  background: var(--juice-color);
+
+  opacity: 0.9;
+
+  filter: blur(1px) saturate(1.3);
+
+  transform: rotate(var(--rot));
+
+  clip-path: polygon(
+    8% 55%,
+    15% 40%,
+    22% 20%,
+    35% 8%,
+    50% 0%,
+    62% 10%,
+    74% 18%,
+    88% 35%,
+    100% 50%,
+    90% 65%,
+    82% 80%,
+    65% 92%,
+    48% 100%,
+    30% 92%,
+    18% 80%,
+    10% 68%
+  );
+
+  box-shadow:
+    0 0 12px rgba(255, 255, 255, 0.15),
+    inset 0 0 20px rgba(255, 255, 255, 0.12);
+}
+
+/* GIỌT PHỤ */
+.ground-splash::after {
+  content: "";
+
+  position: absolute;
+
+  width: 18px;
+  height: 18px;
+
+  border-radius: 50%;
+
+  background: var(--juice-color);
+
+  top: -10px;
+  left: 70%;
+
+  box-shadow:
+    -55px 10px 0 8px var(--juice-color),
+    30px 15px 0 5px var(--juice-color),
+    -15px 45px 0 6px var(--juice-color),
+    55px 40px 0 4px var(--juice-color),
+    -40px 65px 0 5px var(--juice-color),
+    15px 80px 0 4px var(--juice-color),
+    70px 10px 0 3px var(--juice-color);
+
+  opacity: 0.85;
+
+  filter: blur(0.5px);
+}
+
+@keyframes splashFade {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  70% {
+    opacity: 0.9;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+}
+
+canvas,
+video,
+img,
+div {
+  -webkit-user-drag: none;
+}
+
+.slash-line {
+  position: absolute;
+  height: 12px;
+
+  border-radius: 999px;
+
+  pointer-events: none;
+  z-index: 9999;
+
+  transform-origin: left center;
+
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0.9),
+    rgba(0, 255, 255, 0.8),
+    rgba(255, 255, 255, 0)
+  );
+
+  box-shadow:
+    0 0 10px rgba(255, 255, 255, 0.8),
+    0 0 20px rgba(0, 255, 255, 0.7),
+    0 0 40px rgba(0, 255, 255, 0.5);
+
+  filter: blur(1px);
+
+  animation: slashFade 0.18s linear forwards;
+}
+
+.slash-line::before {
+  content: "";
+
+  position: absolute;
+  inset: -6px;
+
+  border-radius: inherit;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(0, 255, 255, 0.3),
+    transparent
+  );
+
+  filter: blur(10px);
+}
+
+@keyframes slashFade {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+    transform: scaleX(1.2);
+  }
+}
+
+#exitBtn {
+  padding: 10px 18px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: bold;
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+#exitBtn:hover {
+  background: #dc2626;
+  transform: scale(1.05);
+}
+
+#exitBtn:active {
+  transform: scale(0.95);
+}
+
+/* =========================================
+   ULTRA EXIT MODAL FIXED
+========================================= */
+
+.exit-modal {
+  position: fixed;
+  inset: 0;
+
+  display: none;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 999999;
+
+  opacity: 0;
+
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 255, 255, 0.03),
+    rgba(0, 0, 0, 0.82)
+  );
+
+  backdrop-filter: blur(8px);
+
+  transition: opacity 0.22s ease;
+
+  pointer-events: auto;
+}
+
+.exit-modal.show {
+  display: flex;
+  opacity: 1;
+}
+
+/* =========================================
+   EXIT BOX
+========================================= */
+
+.exit-box {
+  position: relative;
+
+  width: 420px;
+
+  padding: 34px 32px;
+
+  border-radius: 34px;
+
+  overflow: hidden;
+
+  text-align: center;
+
+  isolation: isolate;
+
+  background: linear-gradient(
+    180deg,
+    rgba(24, 24, 24, 0.96),
+    rgba(8, 8, 8, 0.97)
+  );
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  box-shadow:
+    0 25px 80px rgba(0, 0, 0, 0.7),
+    0 0 40px rgba(0, 255, 255, 0.12),
+    inset 0 1px rgba(255, 255, 255, 0.08);
+
+  animation: modalPop 0.28s cubic-bezier(0.17, 0.89, 0.32, 1.4);
+}
+
+/* =========================================
+   GLOW
+========================================= */
+
+.exit-box::before {
+  content: "";
+
+  position: absolute;
+  inset: -30%;
+
+  z-index: -2;
+
+  pointer-events: none;
+
+  background: radial-gradient(circle, rgba(0, 255, 255, 0.16), transparent 60%);
+
+  animation: modalGlow 5s linear infinite;
+}
+
+/* =========================================
+   SHINE
+========================================= */
+
+.exit-box::after {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: -40%;
+
+  width: 60%;
+  height: 100%;
+
+  z-index: -1;
+
+  pointer-events: none;
+
+  transform: skewX(-20deg);
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.08),
+    transparent
+  );
+
+  animation: modalShine 4s linear infinite;
+}
+
+/* =========================================
+   TITLE
+========================================= */
+
+.exit-box h2 {
+  margin: 0 0 10px;
+
+  font-size: 42px;
+  font-weight: 1000;
+
+  letter-spacing: 2px;
+
+  background: linear-gradient(90deg, #fff, #00f5ff, #fff);
+
+  background-size: 200%;
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  text-shadow:
+    0 0 12px rgba(255, 255, 255, 0.35),
+    0 0 30px rgba(0, 245, 255, 0.3);
+
+  animation: titleGradient 2s linear infinite;
+}
+
+/* =========================================
+   TEXT
+========================================= */
+
+.exit-box p {
+  margin: 0;
+
+  color: rgba(255, 255, 255, 0.82);
+
+  font-size: 18px;
+  font-weight: 700;
+
+  letter-spacing: 0.5px;
+}
+
+/* =========================================
+   ACTIONS
+========================================= */
+
+.exit-actions {
+  position: relative;
+
+  z-index: 10;
+
+  margin-top: 30px;
+
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+/* =========================================
+   BUTTONS
+========================================= */
+
+.exit-actions button {
+  position: relative;
+
+  z-index: 20;
+
+  overflow: hidden;
+
+  min-width: 130px;
+  height: 54px;
+
+  border: none;
+  border-radius: 18px;
+
+  cursor: pointer;
+
+  color: white;
+
+  font-size: 17px;
+  font-weight: 1000;
+
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.16s ease,
+    filter 0.16s ease;
+
+  pointer-events: auto;
+
+  isolation: isolate;
+
+  will-change: transform;
+}
+
+/* =========================================
+   BUTTON SHINE
+========================================= */
+
+.exit-actions button::before {
+  content: "";
+
+  position: absolute;
+
+  top: -50%;
+  left: -120%;
+
+  width: 60%;
+  height: 220%;
+
+  pointer-events: none;
+
+  z-index: -1;
+
+  transform: rotate(20deg);
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.5),
+    transparent
+  );
+
+  filter: blur(6px);
+
+  animation: modalBtnShine 3s linear infinite;
+}
+
+/* =========================================
+   EXIT
+========================================= */
+
+.btn-exit {
+  background: linear-gradient(180deg, #ff6b6b, #ff2d55 55%, #b10024);
+
+  box-shadow:
+    0 10px 25px rgba(255, 0, 70, 0.35),
+    inset 0 1px rgba(255, 255, 255, 0.18);
+}
+
+/* =========================================
+   CONTINUE
+========================================= */
+
+.btn-cancel {
+  background: linear-gradient(180deg, #39ff88, #14c768 55%, #0a8f46);
+
+  box-shadow:
+    0 10px 25px rgba(0, 255, 120, 0.25),
+    inset 0 1px rgba(255, 255, 255, 0.18);
+}
+
+/* =========================================
+   HOVER
+========================================= */
+
+.exit-actions button:hover {
+  transform: translateY(-3px) scale(1.04);
+
+  filter: brightness(1.08);
+}
+
+.btn-exit:hover {
+  box-shadow:
+    0 0 20px rgba(255, 60, 100, 0.5),
+    0 12px 28px rgba(255, 0, 70, 0.45);
+}
+
+.btn-cancel:hover {
+  box-shadow:
+    0 0 20px rgba(0, 255, 140, 0.45),
+    0 12px 28px rgba(0, 255, 120, 0.3);
+}
+
+/* =========================================
+   ACTIVE
+========================================= */
+
+.exit-actions button:active {
+  transform: scale(0.94);
+}
+
+/* =========================================
+   ANIMATIONS
+========================================= */
+
+@keyframes modalPop {
+  0% {
+    transform: scale(0.6) translateY(40px);
+
+    opacity: 0;
+
+    filter: blur(10px);
+  }
+
+  100% {
+    transform: scale(1) translateY(0);
+
+    opacity: 1;
+
+    filter: blur(0);
+  }
+}
+
+@keyframes modalGlow {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes modalShine {
+  0% {
+    left: -40%;
+  }
+
+  100% {
+    left: 140%;
+  }
+}
+
+@keyframes modalBtnShine {
+  0% {
+    left: -120%;
+  }
+
+  100% {
+    left: 180%;
+  }
+}
+
+#questionBox {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 1100px;
+
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(6px);
+
+  border-radius: 20px;
+  padding: 18px 25px;
+
+  border: 2px solid rgba(255, 255, 255, 0.2);
+
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.6),
+    inset 0 0 20px rgba(255, 255, 255, 0.05);
+
+  color: white;
+  z-index: 999;
+
+  animation: slideDown 0.4s ease;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translate(-50%, -30px);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}
+
+.q-top {
+  font-size: 13px;
+  color: #ddd;
+  opacity: 0.8;
+}
+
+.q-text {
+  font-size: 22px;
+  font-weight: 800;
+  margin: 10px 0 15px;
+
+  text-shadow: 2px 2px 0 #000;
+}
+
+.q-answers {
+  display: flex;
+  gap: 10px;
+}
+
+.ans {
+  flex: 1;
+  padding: 14px;
+  border-radius: 14px;
+  text-align: center;
+
+  font-weight: 800;
+  font-size: 18px;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+
+  position: relative;
+  overflow: hidden;
+
+  box-shadow:
+    inset 0 -4px rgba(0, 0, 0, 0.3),
+    0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.ans:hover {
+  transform: translateY(-3px) scale(1.05);
+  filter: brightness(1.1);
+}
+
+/* click */
+.ans:active {
+  transform: translateY(2px);
+  box-shadow: inset 0 2px rgba(0, 0, 0, 0.4);
+}
+
+.ans-0 {
+  background: linear-gradient(135deg, #22c55e, #15803d);
+}
+.ans-1 {
+  background: linear-gradient(135deg, #ef4444, #991b1b);
+}
+.ans-2 {
+  background: linear-gradient(135deg, #facc15, #ca8a04);
+  color: #000;
+}
+.ans-3 {
+  background: linear-gradient(135deg, #a855f7, #6b21a8);
+}
+
+.ans::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+
+  transition: 0.4s;
+}
+
+.ans:hover::after {
+  left: 100%;
+}
+
+/* =========================================
+   ULTRA ENERGY TIMER X10THINK
+========================================= */
+
+.timer-circle {
+  position: fixed;
+
+  bottom: 22px;
+  left: 22px;
+
+  width: 110px;
+  height: 110px;
+
+  z-index: 999;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  animation: timerFloat 3s ease-in-out infinite;
+
+  will-change: transform;
+}
+
+/* =========================================
+   BACK GLOW
+========================================= */
+
+.timer-circle::before {
+  content: "";
+
+  position: absolute;
+  inset: -18px;
+
+  border-radius: 50%;
+
+  background: radial-gradient(
+    circle,
+    rgba(0, 255, 255, 0.28),
+    rgba(0, 255, 255, 0.08),
+    transparent 72%
+  );
+
+  filter: blur(14px);
+
+  animation: glowPulse 1.8s ease-in-out infinite;
+}
+
+/* =========================================
+   SWEEP LIGHT
+========================================= */
+
+.timer-circle::after {
+  content: "";
+
+  position: absolute;
+  inset: -2px;
+
+  border-radius: 50%;
+
+  background: conic-gradient(
+    transparent 0deg,
+    transparent 285deg,
+    rgba(255, 255, 255, 0.95) 320deg,
+    rgba(0, 255, 255, 0.8) 340deg,
+    transparent 360deg
+  );
+
+  filter: blur(4px);
+
+  animation: timerSweep 5s linear infinite reverse;
+}
+
+/* =========================================
+   ROTATING RING
+========================================= */
+
+.timer-ring-spin {
+  position: absolute;
+
+  inset: -6px;
+
+  border-radius: 50%;
+
+  border: 2px solid rgba(255, 255, 255, 0.1);
+
+  border-top: 2px solid rgba(0, 255, 255, 0.95);
+
+  border-bottom: 2px solid rgba(255, 240, 150, 0.95);
+
+  filter: blur(0.4px);
+
+  box-shadow:
+    0 0 10px rgba(0, 255, 255, 0.35),
+    0 0 25px rgba(255, 255, 255, 0.08);
+
+  animation: ringRotate 4s linear infinite;
+}
+
+/* =========================================
+   SVG
+========================================= */
+
+.timer-circle svg {
+  width: 100%;
+  height: 100%;
+
+  transform: rotate(-90deg);
+
+  overflow: visible;
+}
+
+.timer-circle circle {
+  fill: none;
+  stroke-width: 8;
+}
+
+/* =========================================
+   BG RING
+========================================= */
+
+.timer-circle .bg {
+  stroke: rgba(255, 255, 255, 0.08);
+}
+
+/* =========================================
+   PROGRESS
+========================================= */
+
+.timer-circle .progress {
+  stroke: url(#timerGradient);
+
+  stroke-linecap: round;
+
+  stroke-dasharray: 283;
+  stroke-dashoffset: 0;
+
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.95))
+    drop-shadow(0 0 18px rgba(0, 255, 255, 0.95))
+    drop-shadow(0 0 35px rgba(0, 255, 255, 0.8));
+
+  transition:
+    stroke 0.3s,
+    stroke-dashoffset 0.08s linear;
+}
+
+/* =========================================
+   CORE
+========================================= */
+
+.timer-core {
+  position: absolute;
+
+  width: 62px;
+  height: 62px;
+
+  border-radius: 50%;
+
+  background: radial-gradient(
+    circle at top,
+    rgba(255, 255, 255, 0.42),
+    rgba(18, 18, 18, 0.95)
+  );
+
+  backdrop-filter: blur(8px);
+
+  border: 2px solid rgba(255, 255, 255, 0.12);
+
+  box-shadow:
+    inset 0 0 20px rgba(255, 255, 255, 0.12),
+    inset 0 -6px 15px rgba(0, 0, 0, 0.5),
+    0 0 25px rgba(0, 255, 255, 0.25);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  overflow: hidden;
+}
+
+/* =========================================
+   INNER SHINE
+========================================= */
+
+.timer-core::before {
+  content: "";
+
+  position: absolute;
+
+  top: 5px;
+  left: 8px;
+  right: 8px;
+
+  height: 18px;
+
+  border-radius: 50%;
+
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.45),
+    transparent
+  );
+
+  filter: blur(2px);
+}
+
+/* =========================================
+   NUMBER
+========================================= */
+
+.timer-text {
+  position: relative;
+
+  font-size: 34px;
+  font-weight: 1000;
+
+  color: white;
+
+  line-height: 1;
+
+  text-shadow:
+    0 0 8px rgba(255, 255, 255, 0.9),
+    0 0 20px rgba(0, 255, 255, 0.8),
+    0 0 35px rgba(0, 255, 255, 0.55);
+
+  animation: numberPulse 1s ease-in-out infinite;
+}
+
+/* =========================================
+   PARTICLES
+========================================= */
+
+.timer-particle {
+  position: absolute;
+
+  border-radius: 50%;
+
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 1),
+    rgba(0, 245, 255, 0.9),
+    rgba(255, 255, 255, 0)
+  );
+
+  filter: blur(1.2px);
+
+  box-shadow:
+    0 0 10px rgba(255, 255, 255, 0.95),
+    0 0 25px rgba(0, 245, 255, 0.9);
+
+  animation: particleOrbit linear infinite;
+
+  will-change: transform;
+}
+
+/* =========================================
+   DANGER
+========================================= */
+
+.timer-circle.danger .progress {
+  stroke: url(#dangerGradient);
+
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.9))
+    drop-shadow(0 0 22px rgba(255, 70, 70, 1))
+    drop-shadow(0 0 45px rgba(255, 0, 0, 0.85));
+}
+
+.timer-circle.danger::before {
+  background: radial-gradient(circle, rgba(255, 0, 60, 0.38), transparent 72%);
+}
+
+.timer-circle.danger::after {
+  background: conic-gradient(
+    transparent 0deg,
+    transparent 285deg,
+    rgba(255, 255, 255, 0.95) 320deg,
+    rgba(255, 60, 60, 0.95) 340deg,
+    transparent 360deg
+  );
+
+  filter: blur(4px) drop-shadow(0 0 10px rgba(255, 80, 80, 0.9))
+    drop-shadow(0 0 25px rgba(255, 0, 0, 0.7));
+}
+
+.timer-circle.danger {
+  animation: dangerShake 0.22s infinite;
+}
+
+/* =========================================
+   ANIMATIONS
+========================================= */
+
+@keyframes timerSweep {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes ringRotate {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes glowPulse {
+  from {
+    transform: scale(0.94);
+    opacity: 0.7;
+  }
+
+  to {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+}
+
+@keyframes numberPulse {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(1.08);
+  }
+}
+
+@keyframes timerFloat {
+  0% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-4px);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes dangerShake {
+  0% {
+    transform: translate(0);
+  }
+
+  25% {
+    transform: translate(-2px, 1px);
+  }
+
+  50% {
+    transform: translate(2px, -1px);
+  }
+
+  75% {
+    transform: translate(-1px, -2px);
+  }
+
+  100% {
+    transform: translate(0);
+  }
+}
+
+@keyframes particleOrbit {
+  0% {
+    transform: rotate(0deg) translateX(52px) rotate(0deg) scale(0.55);
+  }
+
+  50% {
+    transform: rotate(180deg) translateX(62px) rotate(-180deg) scale(1.2);
+  }
+
+  100% {
+    transform: rotate(360deg) translateX(52px) rotate(-360deg) scale(0.55);
+  }
+}
+
+/* =========================================
+   GAME CONTROLS
+========================================= */
+
+.game-controls {
+  position: fixed;
+
+  right: 16px;
+  bottom: 16px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  z-index: 99999;
+}
+
+/* =========================================
+   COMMON BUTTON
+========================================= */
+
+#soundBtn,
+#exitBtn {
+  position: relative;
+
+  overflow: hidden;
+
+  border: none;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.18s ease,
+    filter 0.18s ease,
+    box-shadow 0.18s ease;
+
+  isolation: isolate;
+
+  backdrop-filter: blur(6px);
+
+  user-select: none;
+}
+
+/* =========================================
+   SHINE EFFECT
+========================================= */
+
+#soundBtn::before,
+#exitBtn::before {
+  content: "";
+
+  position: absolute;
+
+  top: -40%;
+  left: -120%;
+
+  width: 70%;
+  height: 180%;
+
+  transform: rotate(18deg);
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.08),
+    rgba(255, 255, 255, 0.55),
+    rgba(255, 255, 255, 0.08),
+    transparent
+  );
+
+  filter: blur(5px);
+
+  animation: btnShine 3s linear infinite;
+
+  pointer-events: none;
+}
+
+/* =========================================
+   SOUND BUTTON
+========================================= */
+
+#soundBtn {
+  width: 44px;
+  height: 44px;
+
+  border-radius: 14px;
+
+  font-size: 18px;
+  color: white;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: linear-gradient(
+    145deg,
+    rgba(42, 42, 42, 0.96),
+    rgba(10, 10, 10, 0.96)
+  );
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  box-shadow:
+    0 6px 16px rgba(0, 0, 0, 0.38),
+    inset 0 1px rgba(255, 255, 255, 0.12),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.45);
+}
+
+/* cyan glow */
+
+#soundBtn::after {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  border-radius: inherit;
+
+  background: radial-gradient(
+    circle at center,
+    rgba(0, 255, 255, 0.18),
+    transparent 70%
+  );
+
+  opacity: 0.9;
+
+  z-index: -1;
+}
+
+/* =========================================
+   EXIT BUTTON
+========================================= */
+
+#exitBtn {
+  height: 44px;
+
+  padding: 0 18px;
+
+  border-radius: 14px;
+
+  font-size: 16px;
+  font-weight: 1000;
+  letter-spacing: 0.5px;
+
+  color: white;
+
+  background: linear-gradient(180deg, #ff6b6b, #ff3b3b 45%, #d90429 100%);
+
+  box-shadow:
+    0 6px 18px rgba(255, 0, 60, 0.25),
+    inset 0 1px rgba(255, 255, 255, 0.18),
+    inset 0 -4px rgba(0, 0, 0, 0.22);
+
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+}
+
+/* glow outside */
+
+#exitBtn::after {
+  content: "";
+
+  position: absolute;
+  inset: -6px;
+
+  border-radius: 20px;
+
+  background: radial-gradient(circle, rgba(255, 60, 60, 0.28), transparent 70%);
+
+  z-index: -1;
+
+  filter: blur(8px);
+}
+
+/* =========================================
+   HOVER
+========================================= */
+
+#soundBtn:hover,
+#exitBtn:hover {
+  transform: translateY(-2px) scale(1.03);
+
+  filter: brightness(1.08);
+}
+
+#soundBtn:hover {
+  box-shadow:
+    0 0 14px rgba(0, 255, 255, 0.38),
+    0 8px 18px rgba(0, 0, 0, 0.42);
+}
+
+#exitBtn:hover {
+  box-shadow:
+    0 0 16px rgba(255, 80, 80, 0.45),
+    0 8px 20px rgba(255, 0, 50, 0.3);
+}
+
+/* =========================================
+   CLICK
+========================================= */
+
+#soundBtn:active,
+#exitBtn:active {
+  transform: scale(0.92);
+}
+
+/* =========================================
+   SHINE ANIMATION
+========================================= */
+
+@keyframes btnShine {
+  0% {
+    left: -120%;
+  }
+
+  100% {
+    left: 160%;
+  }
+}
+
+/* =========================================
+   ULTRA END SCENE X10THINK
+========================================= */
+
+.end-scene {
+  position: fixed;
+  inset: 0;
+
+  z-index: 999999;
+
+  overflow: hidden;
+
+  background: #000;
+}
+
+/* VIDEO */
+
+.end-video {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+
+  transform: scale(1.02);
+
+  transition:
+    filter 0.7s ease,
+    transform 0.7s ease;
+}
+
+/* =========================================
+   VIDEO FREEZE AFTER END
+========================================= */
+
+.end-video.freeze {
+  filter: brightness(0.38) saturate(1.05) blur(3px);
+
+  transform: scale(1.05);
+}
+
+/* DARK FX */
+.end-dark {
+  position: absolute;
+  inset: 0;
+
+  background: radial-gradient(
+    circle at center,
+    rgba(0, 255, 255, 0.03),
+    rgba(0, 0, 0, 0.15)
+  );
+
+  pointer-events: none;
+
+  opacity: 0;
+
+  transition:
+    opacity 0.6s ease,
+    backdrop-filter 0.6s ease;
+}
+
+.end-dark.active {
+  opacity: 1;
+
+  backdrop-filter: blur(4px);
+
+  background: radial-gradient(
+    circle at center,
+    rgba(0, 255, 255, 0.08),
+    rgba(0, 0, 0, 0.72)
+  );
+}
+
+/* LIGHT */
+
+.end-light {
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  width: 900px;
+  height: 900px;
+
+  transform: translate(-50%, -50%);
+
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.08),
+    rgba(0, 255, 255, 0.06),
+    transparent 70%
+  );
+
+  filter: blur(30px);
+
+  animation: endLight 5s ease-in-out infinite;
+}
+
+/* PARTICLES */
+
+.end-particles {
+  position: absolute;
+  inset: 0;
+
+  overflow: hidden;
+}
+
+.end-particles::before,
+.end-particles::after {
+  content: "";
+
+  position: absolute;
+  inset: -20%;
+
+  background-image: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.7) 1px,
+    transparent 1px
+  );
+
+  background-size: 120px 120px;
+
+  opacity: 0.25;
+
+  animation: particleFloat 16s linear infinite;
+}
+
+.end-particles::after {
+  animation-direction: reverse;
+  opacity: 0.12;
+}
+
+/* OVERLAY */
+
+.end-overlay {
+  position: absolute;
+  inset: 0;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  gap: 20px;
+
+  z-index: 10;
+
+  animation: endFade 1s ease;
+}
+
+/* =========================================
+   RANK HOLDER
+========================================= */
+
+.rank-holder {
+  position: relative;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  margin-bottom: 10px;
+
+  animation: rankEnter 1s cubic-bezier(0.17, 0.89, 0.32, 1.4);
+}
+
+.rank-holder::before {
+  content: "";
+
+  position: absolute;
+
+  width: 260px;
+  height: 260px;
+
+  border-radius: 50%;
+
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.12),
+    rgba(0, 255, 255, 0.12),
+    transparent 70%
+  );
+
+  filter: blur(18px);
+
+  animation: rankGlow 3s ease-in-out infinite;
+}
+
+/* RANK */
+
+.rank-image {
+  width: 180px;
+  border-radius: 30px;
+
+  position: relative;
+  z-index: 2;
+
+  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.7))
+    drop-shadow(0 0 50px rgba(0, 255, 255, 0.5));
+}
+
+.rank-holder img,
+.rank-holder video {
+  width: 180px;
+
+  border-radius: 30px;
+
+  position: relative;
+  z-index: 2;
+
+  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.7))
+    drop-shadow(0 0 50px rgba(0, 255, 255, 0.5));
+}
+
+/* TITLE */
+.end-title {
+  margin: 0;
+
+  font-size: 88px;
+  font-weight: 1000;
+
+  letter-spacing: 4px;
+
+  text-transform: uppercase;
+
+  background: linear-gradient(
+    90deg,
+    #ffffff 0%,
+    #dffcff 12%,
+    #8cf7ff 28%,
+    #6ee7ff 42%,
+    #9d8bff 58%,
+    #d6c8ff 74%,
+    #ffffff 100%
+  );
+
+  background-size: 200% auto;
+
+  background-position: 0% center;
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  text-shadow:
+    0 0 15px rgba(255, 255, 255, 0.5),
+    0 0 40px rgba(0, 255, 255, 0.45),
+    0 0 70px rgba(0, 245, 255, 0.2);
+
+  animation:
+    seamlessGradient 2s linear infinite,
+    titleFloat 2.5s ease-in-out infinite alternate;
+
+  will-change: background-position;
+}
+
+@keyframes seamlessGradient {
+  from {
+    background-position: 0% center;
+  }
+
+  to {
+    background-position: 200% center;
+  }
+}
+
+/* SUB */
+
+.victory-sub {
+  color: rgba(255, 255, 255, 0.65);
+
+  font-size: 15px;
+  font-weight: 800;
+
+  letter-spacing: 5px;
+}
+
+/* PANEL */
+
+.result-panel {
+  width: 500px;
+
+  padding: 28px;
+
+  border-radius: 34px;
+
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.08),
+    rgba(0, 0, 0, 0.55)
+  );
+
+  border: 1px solid rgba(255, 255, 255, 0.1);
+
+  backdrop-filter: blur(18px);
+
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.55),
+    inset 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.result-row {
+  display: flex;
+  align-items: center;
+
+  padding: 18px 0;
+}
+
+.result-row + .result-row {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.result-icon {
+  width: 60px;
+
+  font-size: 28px;
+}
+
+.result-label {
+  flex: 1;
+
+  font-size: 20px;
+  font-weight: 700;
+
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.result-value {
+  font-size: 30px;
+  font-weight: 1000;
+
+  color: white;
+
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.result-value.gold {
+  color: #ffe066;
+
+  text-shadow:
+    0 0 12px rgba(255, 224, 102, 0.8),
+    0 0 25px rgba(255, 224, 102, 0.5);
+}
+
+/* BUTTONS */
+
+.end-actions {
+  display: flex;
+  gap: 18px;
+
+  margin-top: 10px;
+}
+
+.ultra-btn {
+  position: relative;
+
+  overflow: hidden;
+
+  min-width: 200px;
+  height: 68px;
+
+  border: none;
+  border-radius: 24px;
+
+  cursor: pointer;
+
+  font-size: 18px;
+  font-weight: 1000;
+
+  letter-spacing: 1px;
+
+  color: white;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+
+  isolation: isolate;
+}
+
+.ultra-btn span {
+  position: relative;
+  z-index: 3;
+}
+
+.ultra-btn::before {
+  content: "";
+
+  position: absolute;
+
+  top: -50%;
+  left: -120%;
+
+  width: 60%;
+  height: 220%;
+
+  transform: rotate(20deg);
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+
+  filter: blur(8px);
+
+  animation: btnSweep 4s linear infinite;
+}
+
+.replay-btn {
+  background: linear-gradient(180deg, #39ff88, #10b981, #047857);
+
+  box-shadow: 0 10px 35px rgba(16, 185, 129, 0.4);
+}
+
+.exit-btn2 {
+  background: linear-gradient(180deg, #ff6b6b, #ef4444, #991b1b);
+
+  box-shadow: 0 10px 35px rgba(255, 0, 80, 0.35);
+}
+
+.ultra-btn:hover {
+  transform: translateY(-4px) scale(1.04);
+}
+
+/* =========================================
+   ANIMATIONS
+========================================= */
+
+@keyframes endFade {
+  from {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes rankEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(-80px) scale(0.5) rotate(-10deg);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(0);
+  }
+}
+
+@keyframes rankGlow {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+}
+
+@keyframes titleFloat {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes btnSweep {
+  0% {
+    left: -120%;
+  }
+
+  100% {
+    left: 180%;
+  }
+}
+
+@keyframes particleFloat {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(-120px);
+  }
+}
+
+@keyframes endLight {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(1.15);
+  }
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* =========================================
+   FIX DRAG / SELECT / GHOST IMAGE
+========================================= */
+
+* {
+  user-select: none;
+  -webkit-user-select: none;
+
+  -webkit-user-drag: none;
+}
+
+img {
+  user-select: none;
+  -webkit-user-select: none;
+
+  -webkit-user-drag: none;
+
+  pointer-events: none;
+}
+
+img::-moz-selection {
+  background: transparent;
+}
+
+img::selection {
+  background: transparent;
+}
+
+/* =========================================
+   ULTRA GAME HIT EFFECT
+========================================= */
+.hit-effect {
+  position: fixed;
+
+  left: 50%;
+  top: 50%;
+
+  transform: translate(-50%, -50%);
+
+  width: max-content;
+
+  text-align: center;
+
+  z-index: 99999;
+
+  font-size: 90px;
+  font-weight: 1000;
+
+  letter-spacing: 4px;
+  text-transform: uppercase;
+
+  opacity: 0;
+
+  pointer-events: none;
+  user-select: none;
+
+  transition:
+    transform 0.25s ease,
+    opacity 0.25s ease;
+
+  transform-origin: center center;
+}
+
+.hit-effect.show {
+  opacity: 1;
+
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.hit-effect.hide {
+  opacity: 0;
+
+  transform: translate(-50%, -50%) scale(1.4);
+}
+
+/* =========================================
+   GOOD
+========================================= */
+
+.hit-effect.good {
+  background: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    #fff7b0 20%,
+    #ffe066 45%,
+    #00f5ff 75%,
+    #ffffff 100%
+  );
+
+  background-size: 300%;
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  -webkit-text-stroke: 2px rgba(255, 255, 255, 0.15);
+
+  text-shadow:
+    0 0 6px rgba(255, 255, 255, 0.95),
+    0 0 18px rgba(255, 230, 100, 0.95),
+    0 0 40px rgba(0, 245, 255, 0.9),
+    0 0 80px rgba(0, 245, 255, 0.65),
+    0 0 120px rgba(255, 255, 255, 0.35);
+
+  animation:
+    hitGradient 1s linear infinite,
+    hitBounce 0.32s ease,
+    hitPulse 0.8s ease-in-out infinite alternate;
+}
+
+/* =========================================
+   BAD
+========================================= */
+
+.hit-effect.bad {
+  background: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    #ff9e9e 20%,
+    #ff4d6d 45%,
+    #ff0033 80%
+  );
+
+  background-size: 300%;
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  -webkit-text-stroke: 2px rgba(255, 255, 255, 0.08);
+
+  text-shadow:
+    0 0 8px rgba(255, 255, 255, 0.6),
+    0 0 20px rgba(255, 50, 50, 0.9),
+    0 0 40px rgba(255, 0, 0, 0.8),
+    0 0 80px rgba(255, 0, 0, 0.55);
+
+  animation:
+    hitGradient 0.8s linear infinite,
+    badImpact 0.28s ease;
+}
+
+/* =========================================
+   GRADIENT MOVE
+========================================= */
+
+@keyframes hitGradient {
+  0% {
+    background-position: 0%;
+  }
+
+  100% {
+    background-position: 200%;
+  }
+}
+
+/* =========================================
+   GOOD BOUNCE
+========================================= */
+
+@keyframes hitBounce {
+  0% {
+    transform: translate(-50%, -50%) scale(0.2);
+  }
+
+  55% {
+    transform: translate(-50%, -50%) scale(1.28);
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* =========================================
+   PULSE
+========================================= */
+
+@keyframes hitPulse {
+  from {
+    text-shadow:
+      0 0 8px rgba(255, 255, 255, 0.9),
+      0 0 22px rgba(255, 230, 100, 0.9),
+      0 0 45px rgba(0, 245, 255, 0.8);
+  }
+
+  to {
+    text-shadow:
+      0 0 12px rgba(255, 255, 255, 1),
+      0 0 35px rgba(255, 230, 100, 1),
+      0 0 80px rgba(0, 245, 255, 1);
+  }
+}
+
+/* =========================================
+   BAD SHAKE IMPACT
+========================================= */
+
+@keyframes badImpact {
+  0% {
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+
+  20% {
+    transform: translate(calc(-50% - 18px), -50%) scale(1.18);
+  }
+
+  40% {
+    transform: translate(calc(-50% + 18px), -50%) scale(1.08);
+  }
+
+  60% {
+    transform: translate(calc(-50% - 12px), -50%) scale(1.05);
+  }
+
+  80% {
+    transform: translate(calc(-50% + 12px), -50%) scale(1.02);
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* =========================================
+   HIT BURST FX
+========================================= */
+
+.hit-burst {
+  position: fixed;
+
+  left: 50vw;
+  top: 50vh;
+
+  width: 20px;
+  height: 20px;
+
+  transform: translate(-50%, -50%);
+
+  pointer-events: none;
+
+  z-index: 999998;
+}
+
+/* =========================================
+   LIGHT RAYS
+========================================= */
+
+.hit-ray {
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  width: 220px;
+  height: 12px;
+
+  border-radius: 999px;
+
+  transform: translate(-50%, -50%) rotate(var(--rot));
+
+  opacity: 0;
+
+  filter: blur(3px);
+
+  animation: rayBurst 0.55s ease-out forwards;
+}
+
+/* GOOD */
+
+.hit-ray.good {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.95),
+    rgba(0, 245, 255, 0.9),
+    rgba(255, 224, 102, 0.8),
+    transparent
+  );
+
+  box-shadow:
+    0 0 20px rgba(255, 255, 255, 0.8),
+    0 0 45px rgba(0, 245, 255, 0.8),
+    0 0 80px rgba(255, 224, 102, 0.6);
+}
+
+/* BAD */
+
+.hit-ray.bad {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.7),
+    rgba(255, 0, 60, 0.9),
+    rgba(255, 80, 80, 0.7),
+    transparent
+  );
+
+  box-shadow:
+    0 0 20px rgba(255, 0, 60, 0.8),
+    0 0 50px rgba(255, 0, 0, 0.7);
+}
+
+/* =========================================
+   PARTICLES
+========================================= */
+
+.hit-particle {
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  width: 16px;
+  height: 16px;
+
+  border-radius: 999px;
+
+  transform: translate(-50%, -50%);
+
+  opacity: 0;
+
+  filter: blur(1px);
+
+  animation: particleExplode 0.8s ease-out forwards;
+}
+
+/* GOOD */
+
+.hit-particle.good {
+  background: radial-gradient(circle, #fff, #00f5ff, #ffe066);
+
+  box-shadow:
+    0 0 18px #fff,
+    0 0 35px #00f5ff,
+    0 0 70px #ffe066;
+}
+
+/* BAD */
+
+.hit-particle.bad {
+  background: radial-gradient(circle, #fff, #ff0033, #ff4d6d);
+
+  box-shadow:
+    0 0 15px #ff0033,
+    0 0 35px #ff4d6d;
+}
+
+/* =========================================
+   RAY ANIM
+========================================= */
+
+@keyframes rayBurst {
+  0% {
+    opacity: 1;
+
+    transform: translate(-50%, -50%) rotate(var(--rot)) scaleX(0.2);
+  }
+
+  100% {
+    opacity: 0;
+
+    transform: translate(-50%, -50%) rotate(var(--rot)) scaleX(1.5);
+  }
+}
+
+/* =========================================
+   PARTICLE EXPLODE
+========================================= */
+
+@keyframes particleExplode {
+  0% {
+    opacity: 1;
+
+    transform: translate(-50%, -50%) scale(0.2);
+  }
+
+  100% {
+    opacity: 0;
+
+    transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y)))
+      scale(1.6);
+  }
+}
+
+.hit-effect.timeout {
+  background: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    #ffd6d6 18%,
+    #ff4d4d 45%,
+    #ff0033 80%,
+    #ffffff 100%
+  );
+
+  background-size: 300%;
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  -webkit-text-stroke: 2px rgba(255, 255, 255, 0.12);
+
+  text-shadow:
+    0 0 10px rgba(255, 255, 255, 0.9),
+    0 0 25px rgba(255, 80, 80, 1),
+    0 0 55px rgba(255, 0, 0, 0.9),
+    0 0 90px rgba(255, 0, 0, 0.6);
+
+  animation:
+    hitGradient 0.8s linear infinite,
+    badImpact 0.3s ease;
+}
+
+.screen-shake {
+  animation: screenShake 0.45s ease;
+}
+
+@keyframes screenShake {
+  0% {
+    transform: translate(0);
+  }
+
+  10% {
+    transform: translate(-10px, 5px);
+  }
+  20% {
+    transform: translate(10px, -5px);
+  }
+  30% {
+    transform: translate(-8px, 4px);
+  }
+  40% {
+    transform: translate(8px, -4px);
+  }
+  50% {
+    transform: translate(-6px, 3px);
+  }
+  60% {
+    transform: translate(6px, -3px);
+  }
+  70% {
+    transform: translate(-4px, 2px);
+  }
+  80% {
+    transform: translate(4px, -2px);
+  }
+
+  100% {
+    transform: translate(0);
+  }
+}

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>EduPlay - Memory</title>
+
+    <link rel="stylesheet" href="../css/confetti.css" />
+    <link rel="stylesheet" href="../css/play_memory.css" />
+    <link rel="stylesheet" href="../css/toast.css" />
+  </head>
+
+  <body>
+    <!-- BACKGROUND -->
+    <video id="bgVideo" autoplay muted loop>
+      <source src="../assets/videos/bgmemory.mp4" type="video/mp4" />
+    </video>
+
+    <!-- ===== TOP PANEL ===== -->
+    <div class="top-panel">
+      <div class="top-bar">
+        <button class="btn-back" onclick="goBack()">← Quay lại</button>
+
+        <h2 id="gameTitle">Loading...</h2>
+
+        <div class="top-actions">
+          <button class="btn-red" onclick="openGuess()">
+            🔍 Giải mã tên ảnh
+          </button>
+          <button class="btn-red" onclick="toggleFullscreen()">
+            ⛶ Toàn màn hình
+          </button>
+        </div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-bar" id="progressBar"></div>
+        <span id="progressText">0%</span>
+      </div>
+    </div>
+
+    <!-- GRID -->
+    <div id="grid" class="grid"></div>
+
+    <!-- ===== QUESTION MODAL ===== -->
+    <div id="questionModal" class="modal hidden">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h3>❓ Câu hỏi</h3>
+
+          <div class="timer-wrap">
+            <svg class="timer-ring" width="50" height="50">
+              <circle cx="25" cy="25" r="20" class="timer-bg" />
+              <circle
+                cx="25"
+                cy="25"
+                r="20"
+                class="timer-progress"
+                id="timerCircle"
+              />
+            </svg>
+            <div class="timer-text" id="timerText">10</div>
+          </div>
+        </div>
+
+        <p id="questionText"></p>
+
+        <div id="answers"></div>
+
+        <div class="modal-actions">
+          <button onclick="closeModal()">❌ Hủy</button>
+          <button onclick="submitAnswer()">✅ Trả lời</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== GUESS MODAL ===== -->
+    <div id="guessModal" class="modal hidden">
+      <div class="modal-box">
+        <h3>🔍 Nhập tên ảnh</h3>
+
+        <input id="guessInput" placeholder="Nhập đáp án..." />
+
+        <div class="modal-actions">
+          <button onclick="closeGuess()">❌ Hủy</button>
+          <button onclick="submitGuess()">✅ Xác nhận</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== RESULT POPUP ===== -->
+    <div id="resultBox" class="result-popup hidden">
+      <div class="result-card">
+        <div class="result-glow"></div>
+
+        <div id="resultIcon" class="result-icon">👑</div>
+
+        <h2 id="resultTitle">CHIẾN THẮNG</h2>
+
+        <p class="result-label">Đáp án:</p>
+
+        <div id="finalAnswer" class="result-answer">...</div>
+
+        <div class="result-actions">
+          <button class="result-btn replay-btn" onclick="location.reload()">
+            ↺ Chơi lại
+          </button>
+
+          <button class="result-btn back-btn" onclick="goBack()">
+            ⬅ Quay lại
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GUESS COUNTDOWN -->
+    <div id="guessCountdown" class="guess-countdown hidden">
+      <div class="guess-ring">
+        <span id="guessCountdownText">10</span>
+      </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="toast-container"></div>
+
+    <!-- JS -->
+    <script src="../js/games/toast.js"></script>
+    <script src="../js/games/confetti.js"></script>
+    <script src="../js/games/play_memory.js"></script>
+  </body>
+</html>
