@@ -4,7 +4,13 @@
     <meta charset="UTF-8" />
 
     <script>
-      if (!localStorage.getItem("user")) {
+      const params = new URLSearchParams(window.location.search);
+
+      const roomCode = params.get("room");
+
+      const user = localStorage.getItem("user");
+
+      if (!roomCode && !user) {
         location.replace("../login.html");
       }
     </script>

@@ -77,13 +77,10 @@ const path = [
 let isGameOver = false;
 
 const victoryVideos = [
-  "../assets/videos/Dolia.mp4",
   "../assets/videos/Lauriel.mp4",
   "../assets/videos/DoliaHGN.mp4",
   "../assets/videos/Edras.mp4",
   "../assets/videos/DoliaNKRD.mp4",
-  "../assets/videos/Billow.mp4",
-  "../assets/videos/Baron.mp4",
   "../assets/videos/Win.mp4",
 ];
 
@@ -348,29 +345,22 @@ function renderCells() {
     const cell = document.createElement("div");
 
     cell.className = `
-  absolute w-9 h-9
-  flex items-center justify-center
+absolute w-9 h-9
+flex items-center justify-center
 
-  text-[11px] font-bold text-gray-700
+rounded-full
 
-  rounded-full
+border-2 border-dashed
+border-white/70
 
-  bg-white/70
-  backdrop-blur-lg
+bg-transparent
 
-  border border-white/40
-  shadow-[0_4px_12px_rgba(0,0,0,0.15)]
+transition-all duration-300 ease-out
 
-  transition-all duration-300 ease-out
-
-  hover:scale-125
-  hover:bg-white/90
-  hover:shadow-[0_6px_18px_rgba(0,0,0,0.25)]
-
-  active:scale-95
+hover:scale-110
+hover:border-white
 `;
 
-    cell.style.boxShadow = "0 6px 18px rgba(0,0,0,0.2)";
     cell.style.left = x + "%";
     cell.style.top = y + "%";
     cell.style.transform = "translate(-50%, -50%)";
@@ -438,7 +428,14 @@ function renderPlayersOnMap() {
       el.style.marginTop = "0px";
     }
 
-    el.innerHTML = `<span class="player-icon">${playerIcons[i]}</span>`;
+    el.innerHTML = `
+  <span class="
+    player-icon
+    text-[38px]
+  ">
+    ${playerIcons[i]}
+  </span>
+`;
 
     playerLayer.appendChild(el);
   });
@@ -951,8 +948,8 @@ function goHome() {
   if (roomCode) {
     sessionStorage.removeItem("joined_room");
 
-    window.location.href = "/frontend/index.html";
+    window.location.href = "/index.html";
   } else {
-    window.location.href = "/frontend/games/turnbased.html";
+    window.location.href = "/games/turnbased.html";
   }
 }

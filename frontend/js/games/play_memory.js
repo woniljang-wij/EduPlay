@@ -4,16 +4,48 @@ let timerDuration = 0;
 
 // ===== LOAD GAME =====
 const params = new URLSearchParams(window.location.search);
+
 const id = parseInt(params.get("id"));
+const roomCode = params.get("room");
 
-const games = JSON.parse(localStorage.getItem("memoryGames")) || [];
-const game = games.find((g) => g.id === id);
+let game = null;
 
-if (!game) {
-  showToast("Không tìm thấy game!", "error");
-  setTimeout(() => {
-    window.location.href = "memory.html";
-  }, 1200);
+// ===== VÀO BẰNG MÃ PHÒNG =====
+if (roomCode) {
+  const rooms = JSON.parse(localStorage.getItem("memory_rooms")) || [];
+
+  const room = rooms.find(
+    (r) => String(r.roomCode).trim() === String(roomCode).trim(),
+  );
+
+  if (!room) {
+    showToast("Không tìm thấy phòng!", "error");
+
+    setTimeout(() => {
+      window.location.href = "../join.html";
+    }, 1200);
+
+    throw new Error("ROOM_NOT_FOUND");
+  }
+
+  game = room.gameData;
+}
+
+// ===== VÀO BÌNH THƯỜNG =====
+else {
+  const games = JSON.parse(localStorage.getItem("memoryGames")) || [];
+
+  game = games.find((g) => g.id === id);
+
+  if (!game) {
+    showToast("Không tìm thấy game!", "error");
+
+    setTimeout(() => {
+      window.location.href = "memory.html";
+    }, 1200);
+
+    throw new Error("GAME_NOT_FOUND");
+  }
 }
 
 // ===== DATA =====
@@ -430,7 +462,18 @@ function toggleFullscreen() {
   }
 }
 
-// ===== NAV =====
 function goBack() {
-  window.location.href = "memory.html";
+  const params = new URLSearchParams(window.location.search);
+
+  const roomCode = params.get("room");
+
+  // 👨‍🎓 vào bằng mã phòng
+  if (roomCode) {
+    window.location.href = "../index.html";
+  }
+
+  // 👨‍🏫 vào bình thường
+  else {
+    window.location.href = "memory.html";
+  }
 }

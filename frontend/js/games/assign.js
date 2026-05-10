@@ -5,6 +5,8 @@ function openAssign(gameId, gameType = "turnbased") {
 
   if (gameType === "quizfruit") {
     storageKey = "fruitGames";
+  } else if (gameType === "memory") {
+    storageKey = "memoryGames";
   }
 
   const games = JSON.parse(localStorage.getItem(storageKey)) || [];
@@ -58,8 +60,13 @@ function createAssign() {
 
   const expireDay = parseInt(activeDay.dataset.day);
 
-  const roomStorage =
-    currentAssignGame.gameType === "quizfruit" ? "fruit_rooms" : "turn_rooms";
+  let roomStorage = "turn_rooms";
+
+  if (currentAssignGame.gameType === "quizfruit") {
+    roomStorage = "fruit_rooms";
+  } else if (currentAssignGame.gameType === "memory") {
+    roomStorage = "memory_rooms";
+  }
 
   let rooms = JSON.parse(localStorage.getItem(roomStorage)) || [];
 

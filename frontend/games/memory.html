@@ -2,11 +2,25 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
+
+    <script>
+      const params = new URLSearchParams(window.location.search);
+
+      const roomCode = params.get("room");
+
+      const user = localStorage.getItem("user");
+
+      if (!roomCode && !user) {
+        location.replace("../login.html");
+      }
+    </script>
+
     <title>Game Lật Mảnh</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../css/memory.css" />
     <link rel="stylesheet" href="../css/toast.css" />
+    <link rel="stylesheet" href="../css/assign.css" />
   </head>
 
   <body class="min-h-screen flex">
@@ -256,6 +270,97 @@
       </div>
     </main>
 
+    <!-- ===== ASSIGN MODAL ===== -->
+    <div id="assignModal" class="assign-overlay hidden">
+      <div class="assign-modal">
+        <!-- HEADER -->
+        <div class="assign-header">
+          <div class="assign-icon">📋</div>
+
+          <div>
+            <h2>Giao bài tập</h2>
+            <p>Tạo mã phòng cho học sinh tham gia</p>
+          </div>
+        </div>
+
+        <!-- GAME INFO -->
+        <div class="assign-game">
+          <div class="assign-game-icon">🧩</div>
+
+          <div>
+            <div id="assignTitle" class="assign-game-title">Game</div>
+
+            <div class="assign-game-type">Game Lật Mảnh</div>
+          </div>
+        </div>
+
+        <!-- INPUT -->
+        <div class="assign-group">
+          <label>Tên gợi nhớ</label>
+
+          <input id="assignName" type="text" placeholder="VD: Nhóm lớp 5A" />
+        </div>
+
+        <!-- EXPIRE -->
+        <div class="assign-group">
+          <label>Thời hạn mã</label>
+
+          <div class="assign-time-list">
+            <button class="assign-time active" data-day="1">1 ngày</button>
+
+            <button class="assign-time" data-day="3">3 ngày</button>
+
+            <button class="assign-time" data-day="7">7 ngày</button>
+          </div>
+        </div>
+
+        <!-- ACTION -->
+        <div class="assign-actions">
+          <button onclick="closeAssign()" class="assign-cancel">HỦY</button>
+
+          <button onclick="createAssign()" class="assign-create">
+            🚀 TẠO BÀI TẬP
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SUCCESS MODAL ===== -->
+    <div id="assignSuccess" class="assign-overlay hidden">
+      <div class="assign-success">
+        <div class="success-icon">✅</div>
+
+        <h2>Tạo bài thành công!</h2>
+
+        <p>Học sinh có thể nhập mã hoặc quét QR để vào game</p>
+
+        <!-- CODE -->
+        <div class="success-code-box">
+          <div class="success-label">MÃ PHÒNG</div>
+
+          <div id="roomCode" class="success-code">000000</div>
+        </div>
+
+        <!-- LINK -->
+        <div class="success-link-box">
+          <input id="roomLink" readonly />
+
+          <button onclick="copyRoomLink()">SAO CHÉP</button>
+        </div>
+
+        <!-- QR -->
+        <div class="qr-wrap">
+          <img id="qrImage" src="" />
+        </div>
+
+        <!-- ACTION -->
+        <button onclick="closeAssignSuccess()" class="success-close">
+          ĐÓNG
+        </button>
+      </div>
+    </div>
+
+    <script src="../js/games/assign.js"></script>
     <script src="../js/games/toast.js"></script>
     <script src="../js/games/memory.js"></script>
   </body>

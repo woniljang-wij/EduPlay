@@ -12,7 +12,7 @@ function goCreate(isEdit = false) {
   }
 
   if (!isEdit) {
-    history.pushState({}, "", "/frontend/games/turnbased.html?mode=create");
+    history.pushState({}, "", "/games/turnbased.html?mode=create");
   }
 
   document.getElementById("page-list").classList.add("hidden");
@@ -63,7 +63,7 @@ function goCreate(isEdit = false) {
 }
 
 function goHome() {
-  history.pushState({}, "", "/frontend/games/turnbased.html");
+  history.pushState({}, "", "/games/turnbased.html");
   document.getElementById("page-create").classList.add("hidden");
   document.getElementById("page-list").classList.remove("hidden");
   setActive("home");
@@ -422,11 +422,7 @@ function editGame(id) {
   editingId = id;
 
   goCreate(true);
-  history.pushState(
-    {},
-    "",
-    `/frontend/games/turnbased.html?mode=edit&id=${id}`,
-  );
+  history.pushState({}, "", `/games/turnbased.html?mode=edit&id=${id}`);
 
   const titleInput = document.getElementById("gameTitleInput");
 
@@ -1014,14 +1010,14 @@ function playGame(id) {
 
   // 🎬 END VIDEO → CHUYỂN TRANG THẬT
   video.onended = () => {
-    window.location.href = `/frontend/games/play.html?id=${id}&autoplay=1`;
+    window.location.href = `/games/play.html?id=${id}&autoplay=1`;
   };
 
   screen.onclick = () => {
     video.pause();
     video.currentTime = 0;
 
-    window.location.href = `/frontend/games/play.html?id=${id}&autoplay=1`;
+    window.location.href = `/games/play.html?id=${id}&autoplay=1`;
   };
 }
 

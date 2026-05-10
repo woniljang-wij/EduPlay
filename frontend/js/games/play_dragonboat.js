@@ -153,12 +153,11 @@ if (fullscreenBtn) {
 }
 
 // ===== EXIT =====
-
 const exitBtn = document.getElementById("exitBtn");
 
 if (exitBtn) {
   exitBtn.onclick = () => {
-    history.back();
+    window.location.href = "/games/dragonboat.html";
   };
 }
 
@@ -435,13 +434,12 @@ function showWinner(teamName) {
   document.body.classList.add("game-finished");
 
   // ===== REPLAY =====
-
   document.getElementById("replayBtn").onclick = () => {
     location.reload();
   };
 
   document.getElementById("backBtn").onclick = () => {
-    history.back();
+    window.location.href = "/games/dragonboat.html";
   };
 }
 

@@ -26,18 +26,15 @@ function goHome() {
   document.getElementById("imageUrl").value = "";
   document.getElementById("imageFile").value = "";
 
-  // reset image preview
   document.getElementById("previewImg").src = "";
 
   document.getElementById("previewBox").classList.add("hidden");
 
-  // reset questions
   renderQuestionPreview();
 
   updateQuestionCount();
 
-  // reset URL
-  history.pushState({}, "", "/frontend/games/memory.html");
+  history.pushState({}, "", "/games/memory.html");
 
   document.getElementById("page-list").classList.remove("hidden");
 
@@ -80,7 +77,7 @@ function goCreate(isEdit = false) {
 
     updateQuestionCount();
 
-    history.pushState({}, "", "/frontend/games/memory.html?mode=create");
+    history.pushState({}, "", "/games/memory.html?mode=create");
   }
 }
 
@@ -409,7 +406,7 @@ function renderMemoryGames() {
        </button>
 
        <!-- GIAO -->
-       <button onclick="assignMemoryGame(${game.id})"
+       <button onclick="openAssign(${game.id}, 'memory')"
         class="px-4 py-2 border rounded-xl text-purple-600 hover:bg-purple-50">
         📋 Giao
        </button>

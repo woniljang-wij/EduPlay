@@ -488,7 +488,7 @@ function undoDelete() {
 
 // ===== PLAY =====
 function playGame(id) {
-  window.location.href = `/frontend/games/play_dragonboat.html?id=${id}`;
+  window.location.href = `/games/play_dragonboat.html?id=${id}`;
 }
 
 // ===== INIT =====

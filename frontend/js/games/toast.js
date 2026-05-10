@@ -7,9 +7,9 @@ let undoCallback = null;
 
 // ===== SOUND =====
 const sounds = {
-  success: new Audio("/frontend/assets/sounds/success.mp3"),
-  error: new Audio("/frontend/assets/sounds/error.mp3"),
-  info: new Audio("/frontend/assets/sounds/info.mp3"),
+  success: new Audio("/assets/sounds/success.mp3"),
+  error: new Audio("/assets/sounds/error.mp3"),
+  info: new Audio("/assets/sounds/info.mp3"),
 };
 
 // 🔊 play sound

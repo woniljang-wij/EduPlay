@@ -8,7 +8,6 @@ inputs.forEach((input, index) => {
   input.addEventListener("input", (e) => {
     let value = e.target.value;
 
-    // chỉ lấy 1 ký tự cuối
     value = value.slice(-1).toUpperCase();
 
     e.target.value = value;
@@ -21,7 +20,6 @@ inputs.forEach((input, index) => {
     checkComplete();
   });
 
-  // backspace về ô trước
   input.addEventListener("keydown", (e) => {
     if (e.key === "Backspace" && !e.target.value && index > 0) {
       inputs[index - 1].focus();
@@ -83,7 +81,8 @@ joinBtn.addEventListener("click", () => {
     showToast("Vào phòng thành công!", "success");
 
     setTimeout(() => {
-      window.location.href = `games/play.html?room=${encodeURIComponent(code)}&join=1`;
+      window.location.href =
+        `games/play.html?room=${encodeURIComponent(code)}&join=1`;
     }, 500);
 
     return;
@@ -108,14 +107,41 @@ joinBtn.addEventListener("click", () => {
     showToast("Vào phòng thành công!", "success");
 
     setTimeout(() => {
-      window.location.href = `games/play.html?room=${encodeURIComponent(code)}&join=1`;
+      window.location.href =
+        `games/play_quizfruit.html?room=${encodeURIComponent(code)}&join=1`;
     }, 500);
 
     return;
   }
 
   // ==================================================
-  // NOT FOUND
+  // MEMORY
   // ==================================================
+  const memoryRooms =
+    JSON.parse(localStorage.getItem("memory_rooms")) || [];
+
+  console.log("MEMORY ROOMS:", memoryRooms);
+
+  const memoryRoom = memoryRooms.find(
+    (r) => String(r.roomCode).trim().toUpperCase() === code,
+  );
+
+  console.log("FOUND MEMORY ROOM:", memoryRoom);
+
+  if (memoryRoom) {
+    sessionStorage.setItem(
+      "joined_room",
+      JSON.stringify(memoryRoom),
+    );
+
+    showToast("Vào phòng thành công!", "success");
+
+    setTimeout(() => {
+      window.location.href =
+        `games/play_memory.html?room=${encodeURIComponent(code)}&join=1`;
+    }, 500);
+
+    return;
+  }
   showToast("Không tìm thấy phòng!", "error");
 });

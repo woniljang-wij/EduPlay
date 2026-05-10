@@ -976,11 +976,11 @@ function confirmExit() {
   if (roomCode) {
     sessionStorage.removeItem("joined_room");
 
-    window.location.href = "/frontend/index.html";
+    window.location.href = "/index.html";
   }
 
   // ===== GIÁO VIÊN =====
   else {
-    window.location.href = "/frontend/games/quizfruit.html";
+    window.location.href = "/games/quizfruit.html";
   }
 }

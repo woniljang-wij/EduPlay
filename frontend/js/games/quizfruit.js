@@ -69,7 +69,7 @@ function goCreate(isEdit) {
 
     renderQuestions();
 
-    history.pushState({}, "", "/frontend/games/quizfruit.html?mode=create");
+    history.pushState({}, "", "/games/quizfruit.html?mode=create");
   }
 
   document.querySelectorAll(".speed-btn").forEach((btn) => {
@@ -97,7 +97,7 @@ function goHome() {
 
   tempQuestions = [];
 
-  history.pushState({}, "", "/frontend/games/quizfruit.html");
+  history.pushState({}, "", "/games/quizfruit.html");
 
   create.classList.add("hidden");
   list.classList.remove("hidden");
