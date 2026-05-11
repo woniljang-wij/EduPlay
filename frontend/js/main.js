@@ -7,11 +7,18 @@ const ctaButtons = document.querySelector(".cta-buttons");
 // nếu đã login → đổi navbar
 if (user && navAuth) {
   navAuth.innerHTML = `
-  <div class="nav-user">
+<div class="nav-user">
 
-    <div class="user-chip">
-      👤 ${user.full_name}
-    </div>
+  <button
+    class="assign-history-btn"
+    onclick="goAssignments()"
+  >
+    📋 Bài tập đã giao
+  </button>
+
+  <div class="user-chip">
+    👤 ${user.full_name}
+  </div>
 
  <button id="logoutBtn" class="logout-btn" title="Đăng xuất">
   <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
@@ -75,7 +82,6 @@ function confirmLogout() {
   document.addEventListener("touchstart", enableSound, { once: true });
 })();
 
-
 const container = document.querySelector(".floating-particles");
 
 for (let i = 0; i < 40; i++) {
@@ -87,8 +93,17 @@ for (let i = 0; i < 40; i++) {
   particle.style.animationDuration = 6 + Math.random() * 6 + "s";
   particle.style.animationDelay = Math.random() * 5 + "s";
 
-  particle.style.width = particle.style.height =
-    6 + Math.random() * 10 + "px";
+  particle.style.width = particle.style.height = 6 + Math.random() * 10 + "px";
 
   container.appendChild(particle);
+}
+
+function goAssignments() {
+  const isInsideGames = window.location.pathname.includes("/games/");
+
+  if (isInsideGames) {
+    window.location.href = "assign.html";
+  } else {
+    window.location.href = "games/assign.html";
+  }
 }

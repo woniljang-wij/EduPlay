@@ -1071,3 +1071,7 @@ function undoDelete() {
 
   deletedGame = null;
 }
+
+function goAssignments() {
+  window.location.href = "assign.html";
+}

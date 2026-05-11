@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+
+    <title>Lịch sử giao bài</title>
+
+    <link rel="stylesheet" href="../css/assign.css" />
+    <link rel="stylesheet" href="../css/toast.css" />
+  </head>
+
+  <body class="assign-page">
+    <div class="assign-page-wrap">
+      <div class="assign-page-header">
+        <div>
+          <div class="assign-page-label">📋 EDUPLAY</div>
+
+          <h1>Lịch sử giao bài</h1>
+
+          <p>
+            <span id="assignCount">0</span>
+            bài tập đã tạo
+          </p>
+
+          <button
+            id="clearExpiredBtn"
+            class="clear-expired-btn hidden"
+            onclick="clearExpiredAssignments()"
+          >
+            🗑 XÓA BÀI HẾT HẠN
+          </button>
+        </div>
+
+        <button
+          class="assign-back-btn"
+          onclick="location.href = '../index.html'"
+        >
+          ← Trang chủ
+        </button>
+      </div>
+
+      <div id="assignmentsContainer" class="assignments-container"></div>
+    </div>
+
+    <!-- DETAIL MODAL -->
+    <div id="assignDetailOverlay" class="assign-overlay hidden">
+      <div class="assign-detail-modal">
+        <div class="assign-detail-top">
+          <div>
+            <h2 id="detailTitle">Chi tiết bài tập</h2>
+
+            <p id="detailCode">Mã phòng</p>
+          </div>
+
+          <button class="detail-close" onclick="closeAssignDetail()">✕</button>
+        </div>
+
+        <div id="detailSubmitList" class="detail-submit-list"></div>
+      </div>
+    </div>
+
+    <script src="../js/games/toast.js"></script>
+    <script src="../js/games/assign.js"></script>
+  </body>
+</html>

@@ -466,22 +466,20 @@ body::before {
 
   transition: all 0.3s ease;
 
-  filter:
-    drop-shadow(0 4px 10px rgba(0,0,0,0.2))
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.2))
     drop-shadow(0 0 10px rgba(139, 92, 246, 0.25));
 
   animation: logoPulse 3s ease-in-out infinite;
 }
 
 @keyframes logoPulse {
-  0%,100% {
-    filter:
-      drop-shadow(0 4px 10px rgba(0,0,0,0.2))
+  0%,
+  100% {
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.2))
       drop-shadow(0 0 10px rgba(139, 92, 246, 0.25));
   }
   50% {
-    filter:
-      drop-shadow(0 6px 16px rgba(0,0,0,0.25))
+    filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.25))
       drop-shadow(0 0 16px rgba(139, 92, 246, 0.4));
   }
 }
@@ -489,8 +487,7 @@ body::before {
 .logo-floating:hover {
   transform: scale(1.06);
 
-  filter:
-    drop-shadow(0 8px 20px rgba(0,0,0,0.3))
+  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.3))
     drop-shadow(0 0 22px rgba(139, 92, 246, 0.5));
 }
 
@@ -504,7 +501,7 @@ body::before {
 
   background: radial-gradient(
     circle,
-    rgba(139,92,246,0.18),
+    rgba(139, 92, 246, 0.18),
     transparent 70%
   );
 
@@ -519,7 +516,7 @@ body::before {
 }
 
 .nav-left-placeholder {
-  width: 120px; 
+  width: 120px;
 }
 
 /* ===== USER CHIP ===== */
@@ -743,4 +740,28 @@ body::before {
   100% {
     background-position: 0% 50%;
   }
+}
+
+.assign-history-btn {
+  height: 44px;
+
+  padding: 0 18px;
+
+  border-radius: 14px;
+
+  border: 1px solid rgba(255, 255, 255, 0.15);
+
+  background: linear-gradient(135deg, #8b5cf6, #6366f1);
+
+  color: white;
+
+  font-weight: 700;
+
+  transition: 0.25s;
+}
+
+.assign-history-btn:hover {
+  transform: translateY(-2px);
+
+  box-shadow: 0 12px 24px rgba(99, 102, 241, 0.35);
 }

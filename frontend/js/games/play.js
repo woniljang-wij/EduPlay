@@ -126,6 +126,22 @@ if (roomCode) {
     throw new Error("ROOM_NOT_FOUND");
   }
 
+  // ===== KIỂM TRA HẾT HẠN =====
+  const expireTime = room.createdAt + room.expireDay * 24 * 60 * 60 * 1000;
+
+  const isExpired = Date.now() > expireTime;
+
+  // 👨‍🎓 CHẶN HỌC SINH
+  if (isStudentJoin && isExpired) {
+    showToast("⛔ Bài tập đã hết hạn!", "error");
+
+    setTimeout(() => {
+      window.location.href = "../join.html";
+    }, 1500);
+
+    throw new Error("ROOM_EXPIRED");
+  }
+
   game = room.gameData;
 
   // 👨‍🎓 Sinh viên nhập mã phòng
@@ -659,6 +675,8 @@ function startGameMusic() {
 }
 
 function showVictory(playerName, playerIndex) {
+  saveTurnAssignment(playerName);
+
   const screen = document.getElementById("victoryScreen");
 
   if (!screen.classList.contains("hidden")) return;
@@ -709,6 +727,31 @@ function showVictory(playerName, playerIndex) {
       screen.style.opacity = "1";
     }, 600);
   };
+}
+
+// ================= ASSIGNMENT SUBMIT =================
+
+function saveTurnAssignment(playerName) {
+  if (!roomCode) return;
+
+  let submits =
+    JSON.parse(localStorage.getItem("turn_submit_" + roomCode)) || [];
+
+  const existed = submits.find((s) => s.name === playerName);
+
+  if (existed) return;
+
+  submits.push({
+    name: playerName,
+
+    result: "HOÀN THÀNH",
+
+    submittedAt: Date.now(),
+
+    roomCode,
+  });
+
+  localStorage.setItem("turn_submit_" + roomCode, JSON.stringify(submits));
 }
 
 function toggleSound() {
