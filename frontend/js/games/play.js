@@ -793,16 +793,26 @@ function showQuestion() {
   const title = document.getElementById("qTitle");
   const answersDiv = document.getElementById("answers");
 
-  title.innerText = q.question;
-
-  timeLeft = q.time || 10;
+  timeLeft = parseInt(q.time) || 30;
 
   title.innerHTML = `
+  <div class="question-category">
+    📖 ${game.subject || "KIẾN THỨC"}
+  </div>
+
+  <div class="question-title-x10">
     ${q.question}
-    <div style="margin-top:8px; font-size:14px; color:red;">
-      ⏱ ${timeLeft}s
-    </div>
-  `;
+  </div>
+
+  <div class="question-wave"></div>
+`;
+
+  // ===== UPDATE TIMER CÓ SẴN TRONG HTML =====
+  const timerBox = document.getElementById("timerBox");
+
+  if (timerBox) {
+    timerBox.innerHTML = `⏱ ${timeLeft}s`;
+  }
 
   answersDiv.innerHTML = "";
 
@@ -813,29 +823,36 @@ function showQuestion() {
 
     const labels = ["A", "B", "C", "D"];
 
-    btn.className = `answer-card flex items-center gap-3`;
+    btn.className = "answer-card";
 
     btn.innerHTML = `
-      <div class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 font-bold">
+      <div class="answer-label">
         ${labels[i]}
       </div>
-      <span>${ans}</span>
+
+      <div class="answer-text">
+        ${ans}
+      </div>
     `;
 
     btn.onclick = () => {
       clearInterval(timer);
 
       const buttons = answersDiv.querySelectorAll("button");
-      buttons.forEach((b) => (b.style.pointerEvents = "none"));
+
+      buttons.forEach((b) => {
+        b.style.pointerEvents = "none";
+      });
 
       if (i === q.correct) {
         btn.classList.add("answer-correct");
       } else {
         btn.classList.add("answer-wrong");
-        buttons[q.correct].classList.add("answer-correct");
       }
 
-      setTimeout(() => handleAnswer(i, q.correct), 800);
+      setTimeout(() => {
+        handleAnswer(i, q.correct);
+      }, 800);
     };
 
     answersDiv.appendChild(btn);
@@ -851,15 +868,18 @@ function startTimer() {
   timer = setInterval(() => {
     timeLeft--;
 
-    const title = document.getElementById("qTitle");
-    if (title) {
-      const text = title.innerText.split("\n")[0];
-      title.innerHTML = `
-        ${text}
-        <div style="margin-top:8px; font-size:14px; color:red;">
-          ⏱ ${timeLeft}s
-        </div>
-      `;
+    const timerBox = document.getElementById("timerBox");
+
+    if (timerBox) {
+      timerBox.innerHTML = `⏱ ${timeLeft}s`;
+
+      if (timeLeft <= 5) {
+        timerBox.style.color = "#ef4444";
+        timerBox.style.transform = "scale(1.08)";
+      } else {
+        timerBox.style.color = "#ef4444";
+        timerBox.style.transform = "scale(1)";
+      }
     }
 
     if (timeLeft <= 0) {

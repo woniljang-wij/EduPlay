@@ -1,41 +1,100 @@
 <!doctype html>
 <html lang="vi">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>EduPlay - Vào phòng chơi</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="css/toast.css" />
-  <link rel="stylesheet" href="css/join.css">
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vào phòng chơi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 
-<body>
-  <div class="bg-decor" style="top: 10%; left: 15%;">🚀</div>
-  <div class="bg-decor" style="top: 70%; right: 10%; animation-delay: -2s;">🧩</div>
-  <div class="bg-decor" style="top: 20%; right: 20%; animation-delay: -4s;">⚡</div>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <link rel="stylesheet" href="css/toast.css" />
+    <link rel="stylesheet" href="css/join.css" />
+  </head>
 
-  <div class="join-card">
-    <div class="icon">🎮</div>
-    <h1 class="title">EduPlay</h1>
-    <p class="subtitle">Nhập mã phòng từ giáo viên</p>
+  <body>
+    <!-- BG -->
+    <div class="join-bg-grid"></div>
 
-    <div class="code-inputs" id="codeInputs">
-      <input maxlength="1" class="code-box" type="text" autocomplete="off" />
-      <input maxlength="1" class="code-box" type="text" autocomplete="off" />
-      <input maxlength="1" class="code-box" type="text" autocomplete="off" />
-      <input maxlength="1" class="code-box" type="text" autocomplete="off" />
-      <input maxlength="1" class="code-box" type="text" autocomplete="off" />
-      <input maxlength="1" class="code-box" type="text" autocomplete="off" />
+    <div class="join-orb orb-1"></div>
+    <div class="join-orb orb-2"></div>
+    <div class="join-orb orb-3"></div>
+
+    <!-- HOME -->
+    <a href="index.html" class="back-home-btn group">
+      <div class="back-home-inner">
+        <i class="bi bi-arrow-left"></i>
+        Trang chủ
+      </div>
+    </a>
+
+    <!-- MAIN -->
+    <div class="join-wrapper">
+
+      <div class="join-card">
+        <div class="join-icon-wrap">
+          <div class="join-icon-glow"></div>
+
+          <div class="join-icon">🎮</div>
+        </div>
+
+        <h2 class="card-title">Vào phòng chơi</h2>
+
+        <p class="card-subtitle">Nhập mã gồm 6 ký tự từ giáo viên</p>
+
+        <div class="code-inputs" id="codeInputs">
+          <input
+            maxlength="1"
+            class="code-box"
+            type="text"
+            autocomplete="off"
+          />
+
+          <input
+            maxlength="1"
+            class="code-box"
+            type="text"
+            autocomplete="off"
+          />
+
+          <input
+            maxlength="1"
+            class="code-box"
+            type="text"
+            autocomplete="off"
+          />
+
+          <input
+            maxlength="1"
+            class="code-box"
+            type="text"
+            autocomplete="off"
+          />
+
+          <input
+            maxlength="1"
+            class="code-box"
+            type="text"
+            autocomplete="off"
+          />
+
+          <input
+            maxlength="1"
+            class="code-box"
+            type="text"
+            autocomplete="off"
+          />
+        </div>
+
+        <button id="joinBtn" disabled>🚀 Tham gia ngay</button>
+
+        <p class="note">Hỗ trợ dán nhanh mã phòng tự động</p>
+      </div>
     </div>
 
-    <button id="joinBtn" disabled>
-       SẴN SÀNG CHƯA?
-    </button>
-
-    <p class="note">💡 Nhập đủ 6 ký tự để mở khóa</p>
-  </div>
-  
-  <script src="js/games/toast.js"></script>
-  <script src="js/join.js"></script>
-</body>
+    <script src="js/games/toast.js"></script>
+    <script src="js/join.js"></script>
+  </body>
 </html>

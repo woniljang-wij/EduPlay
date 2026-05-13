@@ -351,63 +351,127 @@ function renderGames() {
 
   games.forEach((game) => {
     html += `
-  <div class="w-80">
-    <div class="bg-white/80 backdrop-blur rounded-2xl p-5 shadow-lg border border-white/40 hover:scale-105 transition">
+    <div class="w-80">
 
-      <!-- HEADER -->
-      <div class="flex justify-between items-start mb-3">
-        <h3 class="font-bold text-lg">${game.title}</h3>
-        <span class="text-pink-500">📍</span>
-      </div>
+      <div class="
+        card
+        bg-white/80
+        backdrop-blur
+        rounded-2xl
+        p-5
+        shadow-lg
+        border border-white/40
+        relative
+      ">
 
-      <!-- TAG -->
-      <div class="flex gap-2 mb-4 text-sm">
-        <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
-          🧙 ${game.players.length} người chơi
+        <!-- ICON -->
+        <span class="absolute top-3 right-3 text-lg">
+          🎲
         </span>
 
-        <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full">
-          🧠 ${game.questions?.length || 0} câu hỏi
-        </span>
-      </div>
+        <!-- TITLE -->
+        <h3 class="font-bold text-lg mb-3">
+          ${game.title}
+        </h3>
 
-      <!-- 🎮 BUTTON CHÍNH -->
-      <div class="flex gap-3 mb-4">
+        <!-- TAG -->
+        <div class="flex gap-2 mb-4 text-sm flex-wrap">
 
-        <!-- CHƠI -->
-        <button onclick="playGame(${game.id})"
-          class="flex-1 bg-gradient-to-r from-green-400 to-emerald-500 text-white py-3 rounded-xl font-semibold shadow">
-          ▶ Chơi
-        </button>
+          <span class="
+            bg-green-100
+            text-green-700
+            px-3 py-1
+            rounded-full
+          ">
+            🧠 ${game.questions?.length || 0} câu
+          </span>
 
-        <!-- GIAO -->
-        <button onclick="openAssign(${game.id})"
-          class="px-4 py-2 border rounded-xl text-purple-600 hover:bg-purple-50">
-          📋 Giao
-        </button>
+          <span class="
+            bg-blue-100
+            text-blue-700
+            px-3 py-1
+            rounded-full
+          ">
+            🧙 ${game.players?.length || 0} người
+          </span>
 
-      </div>
+          <span class="
+            bg-red-100
+            text-red-600
+            px-3 py-1
+            rounded-full
+          ">
+            🚧 ${game.obstacles || 0}
+          </span>
 
-       <!-- ACTION -->
-        <div class="flex gap-5 text-sm font-medium">
-          <button onclick="editGame(${game.id})"
-             class="text-orange-500 hover:underline">
-             ✏️ Sửa
+        </div>
+
+        <!-- BUTTON -->
+        <div class="flex gap-3 mb-4">
+
+          <!-- PLAY -->
+          <button
+            onclick="playGame(${game.id})"
+            class="
+              play-btn
+              flex-1
+              py-3
+              rounded-xl
+              font-semibold
+              shadow-lg
+              relative
+              overflow-hidden
+            "
+          >
+            ▶ Chơi
           </button>
 
-        <button class="text-blue-500">
-          🔗 Chia sẻ
-        </button>
+          <!-- ASSIGN -->
+          <button
+            onclick="openAssign(${game.id})"
+            class="
+            px-4 py-2
+            border border-gray-200
+            rounded-xl
+            text-purple-600
+            hover:bg-purple-50
+            transition
+            "
+          >
+            📋 Giao
+          </button>
 
-        <button onclick="deleteGame(${game.id})" class="text-red-500">
-          🗑 Xóa
-        </button>
+        </div>
+
+        <!-- ACTION -->
+        <div class="flex justify-between text-sm font-medium">
+
+          <button
+            onclick="editGame(${game.id})"
+            class="text-orange-500 hover:underline"
+          >
+            ✏️ Sửa
+          </button>
+
+          <button
+            class="text-blue-500 hover:underline"
+          >
+            🔗 Chia sẻ GV
+          </button>
+
+          <button
+            onclick="deleteGame(${game.id})"
+            class="text-red-500 hover:underline"
+          >
+            🗑 Xóa bài
+          </button>
+
+        </div>
 
       </div>
 
     </div>
-  </div>
-`;
+  `;
   });
 
   container.innerHTML = html;
@@ -655,23 +719,17 @@ function saveAllQuestions() {
 
     const rawTime = inputs[5]?.value;
 
-    if (!rawTime) {
-      showToast(`⚠️ Câu ${i + 1} chưa nhập thời gian!`, "error");
-      return;
-    }
-
-    const time = parseInt(rawTime);
+    let time = parseInt(rawTime);
 
     if (isNaN(time) || time <= 0) {
-      showToast(`⚠️ Thời gian câu ${i + 1} không hợp lệ!`, "error");
-      return;
+      time = 30;
     }
 
     newQuestions.push({
       question,
       answers,
       correct: parseInt(select.value),
-      time,
+      time: time || 30,
     });
   }
 
@@ -728,6 +786,10 @@ function renderQuestionPreview() {
           <div class="font-medium mb-2">
             ${i + 1}. ${q.question}
           </div>
+
+           <div class="text-xs text-gray-400 mb-2">
+           ⏱ ${q.time || 30} giây
+           </div>
 
           <!-- ANSWERS (KIỂU INLINE) -->
           <div class="flex flex-wrap gap-3 text-sm">
@@ -847,7 +909,12 @@ function saveEdit() {
   const d = document.getElementById("editD").value;
   const correct = parseInt(document.getElementById("editCorrect").value);
   const rawTime = document.getElementById("editTime").value;
-  const time = rawTime ? parseInt(rawTime) : null;
+
+  let time = parseInt(rawTime);
+
+  if (isNaN(time) || time <= 0) {
+    time = 30;
+  }
 
   if (!question.trim()) {
     showToast("⚠️ Nhập câu hỏi!", "error");

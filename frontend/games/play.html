@@ -15,7 +15,7 @@
       }
     </script>
 
-    <title>Chơi Game</title>
+    <title>Game theo lượt</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -289,17 +289,25 @@
       </div>
     </div>
 
-    <!-- QUESTION -->
-    <div
-      id="questionPopup"
-      class="fixed inset-0 hidden items-center justify-center z-[9999] bg-black/40 backdrop-blur"
-    >
-      <div class="w-[500px] max-w-[90%] rounded-3xl overflow-hidden shadow-2xl">
-        <div class="bg-green-500 text-white p-4">❓ Câu hỏi</div>
-        <div class="bg-white p-6">
-          <p id="qTitle"></p>
-          <div id="answers"></div>
+    <!-- QUESTION POPUP -->
+    <div id="questionPopup" class="question-overlay hidden">
+      <div class="question-modal">
+        <!-- glow -->
+        <div class="question-glow glow-purple"></div>
+        <div class="question-glow glow-blue"></div>
+
+        <!-- top -->
+        <div class="question-header">
+          <div class="question-badge">❓ CÂU HỎI THỬ THÁCH</div>
+
+          <div id="timerBox" class="timer-box">⏱ 15s</div>
         </div>
+
+        <!-- title -->
+        <div id="qTitle" class="question-title"></div>
+
+        <!-- answers -->
+        <div id="answers" class="answers-grid"></div>
       </div>
     </div>
 

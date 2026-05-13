@@ -4,9 +4,38 @@ const params = new URLSearchParams(window.location.search);
 
 const gameId = Number(params.get("id"));
 
-const games = JSON.parse(localStorage.getItem("dragonboatGames")) || [];
+const roomCode = params.get("room");
 
-const game = games.find((g) => g.id === gameId);
+const isJoin = params.get("join");
+
+let game = null;
+
+// ===============================
+// TEACHER PLAY DIRECT
+// ===============================
+
+if (gameId) {
+  const games = JSON.parse(localStorage.getItem("dragonboatGames")) || [];
+
+  game = games.find((g) => g.id === gameId);
+}
+
+// ===============================
+// STUDENT JOIN ROOM
+// ===============================
+else if (roomCode) {
+  const rooms = JSON.parse(localStorage.getItem("dragonboat_rooms")) || [];
+
+  const room = rooms.find(
+    (r) => String(r.roomCode).trim() === String(roomCode).trim(),
+  );
+
+  if (room) {
+    game = room.gameData;
+  }
+}
+
+console.log("GAME DATA:", game);
 
 // ===== GAME DATA =====
 
@@ -157,18 +186,19 @@ const exitBtn = document.getElementById("exitBtn");
 
 if (exitBtn) {
   exitBtn.onclick = () => {
-    window.location.href = "/games/dragonboat.html";
+    if (isJoin) {
+      window.location.href = "/index.html";
+    } else {
+      window.location.href = "/games/dragonboat.html";
+    }
   };
 }
 
 // ===== QUESTION =====
-
 let blueQuestionIndex = 0;
 let redQuestionIndex = 0;
-
 let blueFrozen = false;
 let redFrozen = false;
-
 let gameEnded = false;
 
 function renderQuestion() {
@@ -439,7 +469,11 @@ function showWinner(teamName) {
   };
 
   document.getElementById("backBtn").onclick = () => {
-    window.location.href = "/games/dragonboat.html";
+    if (isJoin) {
+      window.location.href = "/index.html";
+    } else {
+      window.location.href = "/games/dragonboat.html";
+    }
   };
 }
 

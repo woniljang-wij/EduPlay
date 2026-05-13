@@ -16,9 +16,21 @@ if (user && navAuth) {
     📋 Bài tập đã giao
   </button>
 
-  <div class="user-chip">
-    👤 ${user.full_name}
-  </div>
+${
+  user.loginType === "google"
+    ? `
+      <img
+        src="${user.avatar}"
+        class="google-avatar"
+        title="${user.full_name}"
+      />
+    `
+    : `
+      <div class="user-chip">
+        👤 ${user.full_name}
+      </div>
+    `
+}
 
  <button id="logoutBtn" class="logout-btn" title="Đăng xuất">
   <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">

@@ -509,3 +509,7 @@ window.onload = () => {
     goHome();
   }
 };
+
+function goAssignments() {
+  window.location.href = "assign.html";
+}

@@ -122,7 +122,7 @@ body::after {
 
   filter: brightness(0.75) saturate(1.1);
 
-  object-fit: cover;
+  object-fit: fill;
   z-index: -2;
 }
 
@@ -743,25 +743,57 @@ body::before {
 }
 
 .assign-history-btn {
-  height: 44px;
+  height: 42px;
 
   padding: 0 18px;
 
-  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+
+  border: 1px solid rgba(255, 255, 255, 0.4);
 
   background: linear-gradient(135deg, #8b5cf6, #6366f1);
 
   color: white;
 
   font-weight: 700;
+  font-size: 14px;
+
+  backdrop-filter: blur(12px);
+
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+
+  transition: all 0.25s ease;
+}
+
+.assign-history-btn:hover {
+  transform: translateY(-2px) scale(1.04);
+
+  box-shadow:
+    0 10px 25px rgba(99, 102, 241, 0.35),
+    0 0 10px rgba(99, 102, 241, 0.25);
+}
+
+.google-avatar {
+  width: 42px;
+  height: 42px;
+
+  border-radius: 50%;
+  object-fit: cover;
+
+  border: 2px solid #8b5cf6;
+
+  cursor: pointer;
+
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.35);
 
   transition: 0.25s;
 }
 
-.assign-history-btn:hover {
-  transform: translateY(-2px);
-
-  box-shadow: 0 12px 24px rgba(99, 102, 241, 0.35);
+.google-avatar:hover {
+  transform: scale(1.06);
 }

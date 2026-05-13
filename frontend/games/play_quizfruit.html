@@ -14,8 +14,8 @@
         location.replace("../login.html");
       }
     </script>
-    
-    <title>Fruit Ninja Demo</title>
+
+    <title>Chém hoa quả</title>
 
     <link rel="stylesheet" href="../css/confetti.css" />
     <link rel="stylesheet" href="../css/play_quizfruit.css" />
@@ -122,6 +122,54 @@
           <button onclick="confirmExit()" class="btn-exit">THOÁT</button>
 
           <button onclick="closeExit()" class="btn-cancel">TIẾP TỤC</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLAYER SETUP -->
+    <div id="playerSetup" class="fruit-setup hidden">
+      <div class="fruit-setup-card">
+        <div class="setup-glow"></div>
+
+        <div class="setup-avatar">🙋</div>
+
+        <div class="setup-title">Bạn tên gì nào? 🎮</div>
+
+        <div class="setup-sub">Để thầy/cô biết bạn là ai</div>
+
+        <div class="setup-room">
+          <div class="setup-room-label">Bài tập của bạn 🎯</div>
+
+          <div id="setupRoomTitle" class="setup-room-title">
+            Quiz Chém Hoa Quả
+          </div>
+        </div>
+
+        <div class="setup-input-wrap">
+          <label>Tên của bạn</label>
+
+          <div class="setup-input-box">
+            <span>👤</span>
+
+            <input
+              id="playerNameInput"
+              type="text"
+              placeholder="VD: Nguyễn Văn A 😎"
+              maxlength="20"
+            />
+          </div>
+        </div>
+
+        <div class="setup-actions">
+          <button id="setupBackBtn" class="setup-btn back">← QUAY LẠI</button>
+
+          <button id="setupStartBtn" class="setup-btn start">
+            🎮 VÀO CHƠI!
+          </button>
+        </div>
+
+        <div class="setup-note">
+          🔑 Mã code do thầy/cô cung cấp • Bắt đầu bằng X-Team
         </div>
       </div>
     </div>

@@ -7,6 +7,8 @@ function openAssign(gameId, gameType = "turnbased") {
     storageKey = "fruitGames";
   } else if (gameType === "memory") {
     storageKey = "memoryGames";
+  } else if (gameType === "dragonboat") {
+    storageKey = "dragonboatGames";
   }
 
   const games = JSON.parse(localStorage.getItem(storageKey)) || [];
@@ -66,6 +68,8 @@ function createAssign() {
     roomStorage = "fruit_rooms";
   } else if (currentAssignGame.gameType === "memory") {
     roomStorage = "memory_rooms";
+  } else if (currentAssignGame.gameType === "dragonboat") {
+    roomStorage = "dragonboat_rooms";
   }
 
   let rooms = JSON.parse(localStorage.getItem(roomStorage)) || [];
@@ -125,9 +129,12 @@ function copyRoomLink() {
 }
 
 // ================= ASSIGN PAGE =================
-
 if (window.location.pathname.includes("assign.html")) {
   renderAssignmentsPage();
+
+  setInterval(() => {
+    renderAssignmentsPage();
+  }, 1000);
 }
 
 function renderAssignmentsPage() {
@@ -135,7 +142,21 @@ function renderAssignmentsPage() {
 
   if (!container) return;
 
-  const rooms = JSON.parse(localStorage.getItem("turn_rooms")) || [];
+  const turnRooms = JSON.parse(localStorage.getItem("turn_rooms")) || [];
+
+  const fruitRooms = JSON.parse(localStorage.getItem("fruit_rooms")) || [];
+
+  const memoryRooms = JSON.parse(localStorage.getItem("memory_rooms")) || [];
+
+  const dragonboatRooms =
+    JSON.parse(localStorage.getItem("dragonboat_rooms")) || [];
+
+  const rooms = [
+    ...turnRooms,
+    ...fruitRooms,
+    ...memoryRooms,
+    ...dragonboatRooms,
+  ];
 
   const expiredRooms = rooms.filter((r) => isRoomExpired(r));
 
@@ -179,64 +200,150 @@ function renderAssignmentsPage() {
 
   let html = "";
 
-  [...rooms].reverse().forEach((room, index) => {
+  rooms.forEach((room, index) => {
+    let submitKey = "turn_submit_";
+
+    if (room.gameType === "quizfruit") {
+      submitKey = "fruit_submit_";
+    } else if (room.gameType === "memory") {
+      submitKey = "memory_submit_";
+    } else if (room.gameType === "dragonboat") {
+      submitKey = "dragonboat_submit_";
+    }
+
     const submits =
-      JSON.parse(localStorage.getItem("turn_submit_" + room.roomCode)) || [];
+      JSON.parse(localStorage.getItem(submitKey + room.roomCode)) || [];
 
     html += `
-  <div class="assign-card">
+<div class="assign-table-row">
 
-    <div class="assign-card-left">
+  <!-- STT -->
+<div class="assign-col stt">
 
-      <div class="assign-index">
-        ${index + 1}
-      </div>
+  <div class="assign-stt-box">
+    #${index + 1}
+  </div>
 
-      <div>
+</div>
 
-        <div class="assign-card-name">
-          ${room.assignName || "Không tên"}
-        </div>
+<!-- TÊN GỢI NHỚ -->
+<div class="assign-col remind">
 
-        <div class="assign-card-game">
-          🎲 ${room.gameTitle}
-        </div>
+  <div>
 
-      </div>
-
+    <div class="assign-main-name">
+      ${room.assignName || "Không tên"}
     </div>
 
-    <div class="assign-card-right">
+    <div class="assign-sub-game">
+      📌 Bài tập được giao
+    </div>
+
+  </div>
+
+</div>
+
+<!-- BÀI HỌC -->
+<div class="assign-col lesson">
+
+  <div class="assign-main-name">
+    ${room.gameTitle}
+  </div>
+
+<div class="assign-sub-game">
+  ${
+    room.gameType === "quizfruit"
+      ? "🍉 Chém Hoa Quả"
+      : room.gameType === "memory"
+        ? "🧩 Lật Thẻ"
+        : room.gameType === "dragonboat"
+          ? "🐉 Đua Thuyền Rồng"
+          : "🎲 Game Theo Lượt"
+  }
+</div>
+
+</div>
+
+  <!-- MÃ + LINK -->
+  <div class="assign-col code">
+
+    <div class="assign-room-wrap">
 
       <div class="assign-room-code">
         ${room.roomCode}
       </div>
 
-<div class="
-  assign-expire
-  ${isRoomExpired(room) ? "expired" : ""}
-">
-  ${isRoomExpired(room) ? "🔴 Đã kết thúc" : "⏰ " + getRemainingTime(room)}
-</div>
-
-      <div class="assign-submit-count">
-        👤 ${submits.length} học sinh
-      </div>
+      <button
+        class="mini-icon-btn"
+        onclick="copyRoomCode('${room.roomCode}')"
+        title="Sao chép mã"
+      >
+        <i class="bi bi-copy"></i>
+      </button>
 
       <button
-        class="assign-view-btn"
-        onclick="openAssignDetail('${room.roomCode}')"
+        class="mini-icon-btn"
+        onclick="shareRoom('${room.roomCode}')"
+        title="Chia sẻ link"
       >
-        👁 Xem
+        <i class="bi bi-link-45deg"></i>
       </button>
 
     </div>
 
   </div>
+
+  <!-- TRẠNG THÁI -->
+  <div class="assign-col status">
+
+    <div class="
+      assign-expire
+      ${isRoomExpired(room) ? "expired" : ""}
+    ">
+
+      ${isRoomExpired(room) ? "🔴 Đã kết thúc" : "⏰ " + getRemainingTime(room)}
+
+    </div>
+
+  </div>
+
+  <!-- NỘP -->
+  <div class="assign-col submit">
+  <i class="bi bi-person-fill"></i>
+  ${submits.length}
+  </div>
+
+  <!-- THAO TÁC -->
+  <div class="assign-col action">
+
+    <button
+      class="assign-view-btn"
+      onclick="openAssignDetail('${room.roomCode}')"
+    >
+      <i class="bi bi-eye-fill"></i>
+    </button>
+
+  </div>
+
+</div>
 `;
   });
 
   container.innerHTML = html;
+}
+
+function copyRoomCode(code) {
+  navigator.clipboard.writeText(code);
+
+  showToast("📋 Đã sao chép mã phòng!", "success");
+}
+
+function shareRoom(roomCode) {
+  const link = `${location.origin}/frontend/join.html?room=${roomCode}&join=1`;
+
+  navigator.clipboard.writeText(link);
+
+  showToast("🔗 Đã sao chép link phòng!", "success");
 }
 
 // ================= DETAIL =================
@@ -246,7 +353,12 @@ function openAssignDetail(roomCode) {
 
   const list = document.getElementById("detailSubmitList");
 
-  const rooms = JSON.parse(localStorage.getItem("turn_rooms")) || [];
+  const rooms = [
+    ...(JSON.parse(localStorage.getItem("turn_rooms")) || []),
+    ...(JSON.parse(localStorage.getItem("fruit_rooms")) || []),
+    ...(JSON.parse(localStorage.getItem("memory_rooms")) || []),
+    ...(JSON.parse(localStorage.getItem("dragonboat_rooms")) || []),
+  ];
 
   const room = rooms.find((r) => r.roomCode === roomCode);
 
@@ -257,8 +369,17 @@ function openAssignDetail(roomCode) {
 
   document.getElementById("detailCode").innerText = "Mã phòng: " + roomCode;
 
-  const submits =
-    JSON.parse(localStorage.getItem("turn_submit_" + roomCode)) || [];
+  let submitKey = "turn_submit_";
+
+  if (room.gameType === "quizfruit") {
+    submitKey = "fruit_submit_";
+  } else if (room.gameType === "memory") {
+    submitKey = "memory_submit_";
+  } else if (room.gameType === "dragonboat") {
+    submitKey = "dragonboat_submit_";
+  }
+
+  const submits = JSON.parse(localStorage.getItem(submitKey + roomCode)) || [];
 
   if (submits.length === 0) {
     list.innerHTML = `
@@ -302,7 +423,7 @@ function openAssignDetail(roomCode) {
           </div>
 
           <div class="submit-result">
-            🏆 HOÀN THÀNH
+            🎯 ${s.correct}/${s.total} • ⭐ ${s.score}/10
           </div>
 
         </div>
@@ -330,44 +451,61 @@ function isRoomExpired(room) {
 }
 
 function getRemainingTime(room) {
+  // tính end đúng từ createdAt + expireDay
   const end = room.createdAt + room.expireDay * 24 * 60 * 60 * 1000;
 
-  const diff = end - Date.now();
+  const now = Date.now();
 
-  if (diff <= 0) {
-    return "Đã hết hạn";
-  }
+  let diff = Math.floor((end - now) / 1000);
 
-  const totalHours = Math.floor(diff / (1000 * 60 * 60));
+  if (diff <= 0) return "Đã kết thúc";
 
-  const days = Math.floor(totalHours / 24);
+  const days = Math.floor(diff / 86400);
+  diff %= 86400;
 
-  const hours = totalHours % 24;
+  const hours = Math.floor(diff / 3600);
+  diff %= 3600;
 
+  const minutes = Math.floor(diff / 60);
+
+  const seconds = diff % 60;
+
+  // > 1 ngày
   if (days > 0) {
-    return `${days} ngày ${hours} giờ`;
+    return `${days} ngày ${hours} giờ ${minutes} phút ${seconds} giây`;
   }
 
-  return `${hours} giờ`;
+  // > 1 giờ
+  if (hours > 0) {
+    return `${hours} giờ ${minutes} phút ${seconds} giây`;
+  }
+
+  // > 1 phút
+  if (minutes > 0) {
+    return `${minutes} phút ${seconds} giây`;
+  }
+
+  // còn giây
+  return `${seconds} giây`;
 }
 
 function clearExpiredAssignments() {
-  let rooms =
-    JSON.parse(localStorage.getItem("turn_rooms")) || [];
-
-  rooms = rooms.filter(
-    (room) => !isRoomExpired(room),
-  );
-
-  localStorage.setItem(
+  const storages = [
     "turn_rooms",
-    JSON.stringify(rooms),
-  );
+    "fruit_rooms",
+    "memory_rooms",
+    "dragonboat_rooms",
+  ];
 
-  showToast(
-    "🗑 Đã xóa bài hết hạn!",
-    "success",
-  );
+  storages.forEach((key) => {
+    let rooms = JSON.parse(localStorage.getItem(key)) || [];
+
+    rooms = rooms.filter((room) => !isRoomExpired(room));
+
+    localStorage.setItem(key, JSON.stringify(rooms));
+  });
+
+  showToast("🗑 Đã xóa bài hết hạn!", "success");
 
   renderAssignmentsPage();
 }

@@ -382,7 +382,7 @@ function renderGames() {
             ▶ Chơi
           </button>
 
-          <button onclick="fakeFeature('📋 Giao')"
+          <button onclick="openAssign(${g.id}, 'dragonboat')"
             class="px-3 py-2 border rounded-xl">
             📋
           </button>
@@ -1011,4 +1011,8 @@ function editQuestion(index) {
       }
     });
   });
+}
+
+function goAssignments() {
+  window.location.href = "assign.html";
 }

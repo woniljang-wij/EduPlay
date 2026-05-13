@@ -3,6 +3,33 @@ const joinBtn = document.getElementById("joinBtn");
 
 inputs[0].focus();
 
+// ===== PASTE FULL CODE =====
+inputs.forEach((input) => {
+  input.addEventListener("paste", (e) => {
+    e.preventDefault();
+
+    const pasted = (e.clipboardData || window.clipboardData)
+      .getData("text")
+      .replace(/\s/g, "")
+      .toUpperCase();
+
+    if (!pasted) return;
+
+    pasted
+      .slice(0, inputs.length)
+      .split("")
+      .forEach((char, i) => {
+        inputs[i].value = char;
+      });
+
+    checkComplete();
+
+    const next = [...inputs].find((i) => !i.value) || inputs[inputs.length - 1];
+
+    next.focus();
+  });
+});
+
 // ===== INPUT =====
 inputs.forEach((input, index) => {
   input.addEventListener("input", (e) => {
@@ -12,7 +39,6 @@ inputs.forEach((input, index) => {
 
     e.target.value = value;
 
-    // auto next
     if (value && index < inputs.length - 1) {
       inputs[index + 1].focus();
     }
@@ -25,7 +51,6 @@ inputs.forEach((input, index) => {
       inputs[index - 1].focus();
     }
 
-    // enter join
     if (e.key === "Enter" && !joinBtn.disabled) {
       joinBtn.click();
     }
@@ -81,8 +106,7 @@ joinBtn.addEventListener("click", () => {
     showToast("Vào phòng thành công!", "success");
 
     setTimeout(() => {
-      window.location.href =
-        `games/play.html?room=${encodeURIComponent(code)}&join=1`;
+      window.location.href = `games/play.html?room=${encodeURIComponent(code)}&join=1`;
     }, 500);
 
     return;
@@ -107,8 +131,7 @@ joinBtn.addEventListener("click", () => {
     showToast("Vào phòng thành công!", "success");
 
     setTimeout(() => {
-      window.location.href =
-        `games/play_quizfruit.html?room=${encodeURIComponent(code)}&join=1`;
+      window.location.href = `games/play_quizfruit.html?room=${encodeURIComponent(code)}&join=1`;
     }, 500);
 
     return;
@@ -117,8 +140,7 @@ joinBtn.addEventListener("click", () => {
   // ==================================================
   // MEMORY
   // ==================================================
-  const memoryRooms =
-    JSON.parse(localStorage.getItem("memory_rooms")) || [];
+  const memoryRooms = JSON.parse(localStorage.getItem("memory_rooms")) || [];
 
   console.log("MEMORY ROOMS:", memoryRooms);
 
@@ -129,19 +151,42 @@ joinBtn.addEventListener("click", () => {
   console.log("FOUND MEMORY ROOM:", memoryRoom);
 
   if (memoryRoom) {
-    sessionStorage.setItem(
-      "joined_room",
-      JSON.stringify(memoryRoom),
-    );
+    sessionStorage.setItem("joined_room", JSON.stringify(memoryRoom));
 
     showToast("Vào phòng thành công!", "success");
 
     setTimeout(() => {
-      window.location.href =
-        `games/play_memory.html?room=${encodeURIComponent(code)}&join=1`;
+      window.location.href = `games/play_memory.html?room=${encodeURIComponent(code)}&join=1`;
     }, 500);
 
     return;
   }
+
+  // ==================================================
+  // DRAGON BOAT
+  // ==================================================
+  const dragonRooms =
+    JSON.parse(localStorage.getItem("dragonboat_rooms")) || [];
+
+  console.log("DRAGON ROOMS:", dragonRooms);
+
+  const dragonRoom = dragonRooms.find(
+    (r) => String(r.roomCode).trim().toUpperCase() === code,
+  );
+
+  console.log("FOUND DRAGON ROOM:", dragonRoom);
+
+  if (dragonRoom) {
+    sessionStorage.setItem("joined_room", JSON.stringify(dragonRoom));
+
+    showToast("Vào phòng thành công!", "success");
+
+    setTimeout(() => {
+      window.location.href = `games/play_dragonboat.html?room=${encodeURIComponent(code)}&join=1`;
+    }, 500);
+
+    return;
+  }
+  
   showToast("Không tìm thấy phòng!", "error");
 });

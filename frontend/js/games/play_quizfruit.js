@@ -27,6 +27,7 @@ let rafTimer;
 let isMuted = false;
 let endVideoSkipped = false;
 let bgmStarted = false;
+let playerName = "";
 
 let isMouseDown = false;
 
@@ -91,8 +92,34 @@ window.onload = () => {
     bgm.play().catch(() => {});
     sessionStorage.removeItem("playMusic");
   }
+
   loadGame();
-  startQuestion();
+
+  const params = new URLSearchParams(window.location.search);
+
+  const roomCode = params.get("room");
+
+  // =========================
+  // HỌC SINH VÀO BẰNG ROOM
+  // =========================
+  if (roomCode) {
+    openPlayerSetup();
+  }
+
+  // =========================
+  // GIÁO VIÊN CHƠI TRỰC TIẾP
+  // =========================
+  else {
+    playerName = "Giáo viên";
+
+    if (!isMuted) {
+      bgmStarted = true;
+
+      bgm.play().catch(() => {});
+    }
+
+    startQuestion();
+  }
 };
 
 function loadGame() {
@@ -784,6 +811,7 @@ function endGame() {
 
   document.querySelector(".game-controls").style.display = "none";
 
+  saveQuizFruitResult();
   showEndScene(correct, total);
 }
 
@@ -957,6 +985,117 @@ function showEndScene(correct, total) {
       finishEndVideo();
     }
   };
+}
+
+// ======================================
+// PLAYER SETUP
+// ======================================
+
+function openPlayerSetup() {
+  const popup = document.getElementById("playerSetup");
+
+  if (!popup) {
+    startQuestion();
+    return;
+  }
+
+  const room = JSON.parse(sessionStorage.getItem("joined_room")) || {};
+
+  const title = room.title || room.gameData?.title || "Quiz Chém Hoa Quả";
+
+  const roomTitle = document.getElementById("setupRoomTitle");
+
+  if (roomTitle) {
+    roomTitle.innerText = title;
+  }
+
+  popup.classList.remove("hidden");
+
+  const input = document.getElementById("playerNameInput");
+
+  setTimeout(() => {
+    input?.focus();
+  }, 100);
+}
+
+// ======================================
+// START BUTTON
+// ======================================
+
+document.getElementById("setupStartBtn")?.addEventListener("click", () => {
+  const input = document.getElementById("playerNameInput");
+
+  const value = input.value.trim();
+
+  if (!value) {
+    showToast("Nhập tên của bạn!", "error");
+    return;
+  }
+
+  playerName = value;
+
+  sessionStorage.setItem("quizfruit_player_name", value);
+
+  if (!isMuted) {
+    bgmStarted = true;
+
+    bgm.play().catch(() => {});
+  }
+
+  document.getElementById("playerSetup").classList.add("hidden");
+
+  startQuestion();
+});
+
+// ======================================
+// ENTER
+// ======================================
+
+document.getElementById("playerNameInput")?.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    document.getElementById("setupStartBtn")?.click();
+  }
+});
+
+// ======================================
+// BACK BUTTON
+// ======================================
+
+document.getElementById("setupBackBtn")?.addEventListener("click", () => {
+  history.back();
+});
+
+// ======================================
+// SAVE RESULT
+// ======================================
+function saveQuizFruitResult() {
+  const room = JSON.parse(sessionStorage.getItem("joined_room")) || {};
+
+  if (!room.roomCode) return;
+
+  const submitKey = "fruit_submit_" + room.roomCode;
+
+  const submits = JSON.parse(localStorage.getItem(submitKey)) || [];
+
+  const total = game.questions.length;
+
+  const finalScore = Number(((score / total) * 10).toFixed(1));
+
+  submits.push({
+    name: playerName,
+
+    score: finalScore,
+
+    correct: score,
+
+    total,
+
+    submittedAt: Date.now(),
+  });
+
+  localStorage.setItem(submitKey, JSON.stringify(submits));
+
+  console.log("QUIZFRUIT SUBMIT SAVED");
 }
 
 function replayGame() {

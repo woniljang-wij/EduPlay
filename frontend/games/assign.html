@@ -5,6 +5,11 @@
 
     <title>Lịch sử giao bài</title>
 
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+
     <link rel="stylesheet" href="../css/assign.css" />
     <link rel="stylesheet" href="../css/toast.css" />
   </head>
@@ -35,8 +40,24 @@
           class="assign-back-btn"
           onclick="location.href = '../index.html'"
         >
-          ← Trang chủ
+          <i class="bi bi-arrow-left"></i>
         </button>
+      </div>
+
+      <div class="assign-table-header">
+        <div class="assign-col stt">STT</div>
+
+        <div class="assign-col remind">Tên gợi nhớ</div>
+
+        <div class="assign-col lesson">Bài học</div>
+
+        <div class="assign-col code">Mã / Link</div>
+
+        <div class="assign-col status">Trạng thái</div>
+
+        <div class="assign-col submit">Nộp</div>
+
+        <div class="assign-col action">Thao tác</div>
       </div>
 
       <div id="assignmentsContainer" class="assignments-container"></div>

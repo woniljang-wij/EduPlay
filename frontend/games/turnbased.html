@@ -182,15 +182,16 @@
             Câu hỏi (0)
           </h3>
 
-          <div class="flex gap-3 mb-4">
-            <button class="btn-primary">
-              <i class="bi bi-collection"></i>
-              Lấy từ Kho
+          <div class="question-actions mb-4">
+            <button
+              onclick="openQuestionManager()"
+              class="question-action-btn btn-manual"
+            >
+              ✏️ Nhập thủ công
             </button>
 
-            <button onclick="openQuestionManager()" class="btn-outline">
-              <i class="bi bi-pencil"></i>
-              Nhập thủ công
+            <button onclick="openAIModal()" class="question-action-btn btn-ai">
+              🤖 Tạo bằng AI
             </button>
           </div>
 
@@ -402,6 +403,239 @@
       ></video>
     </div>
 
+    <!-- ===== AI MODAL ===== -->
+    <div
+      id="aiModal"
+      class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[100] backdrop-blur-sm"
+    >
+      <div
+        class="bg-white rounded-3xl w-[600px] max-w-[95%] overflow-hidden shadow-2xl transition-all scale-95 opacity-0"
+        id="aiModalContent"
+      >
+        <div class="p-6 border-b flex justify-between items-center bg-gray-50">
+          <h2 class="text-xl font-bold flex items-center gap-2">
+            <span class="text-2xl">⚙️</span> Sinh câu hỏi bằng AI
+          </h2>
+          <button
+            onclick="closeAIModal()"
+            class="text-gray-400 hover:text-gray-600 text-2xl"
+          >
+            &times;
+          </button>
+        </div>
+
+        <div class="p-8 space-y-6">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-semibold mb-2 text-gray-700"
+                >Lớp</label
+              >
+              <select
+                id="aiGrade"
+                class="w-full border rounded-xl px-4 py-3 bg-gray-50 focus:ring-2 focus:ring-purple-500 outline-none"
+              >
+                <option selected disabled>Chọn lớp</option>
+
+                <option>Lớp 1</option>
+                <option>Lớp 2</option>
+                <option>Lớp 3</option>
+                <option>Lớp 4</option>
+                <option>Lớp 5</option>
+                <option>Lớp 6</option>
+                <option>Lớp 7</option>
+                <option>Lớp 8</option>
+                <option>Lớp 9</option>
+                <option>Lớp 10</option>
+                <option>Lớp 11</option>
+                <option>Lớp 12</option>
+                <option>Đại học</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold mb-2 text-gray-700">
+                Môn học
+              </label>
+
+              <select
+                id="aiSubject"
+                class="w-full border rounded-xl px-4 py-3 bg-gray-50 focus:ring-2 focus:ring-purple-500 outline-none"
+              >
+                <option selected disabled>Chọn môn học</option>
+
+                <option>Ngữ văn</option>
+
+                <option>Toán</option>
+
+                <option>Ngoại ngữ 1</option>
+
+                <option>Giáo dục thể chất</option>
+
+                <option>Giáo dục QP&AN</option>
+
+                <option>Hoạt động trải nghiệm, hướng nghiệp</option>
+
+                <option>Nội dung giáo dục địa phương</option>
+
+                <option>Lịch sử</option>
+
+                <option>Địa lí</option>
+
+                <option>Giáo dục kinh tế và pháp luật</option>
+
+                <option>Vật lí</option>
+
+                <option>Hóa học</option>
+
+                <option>Sinh học</option>
+
+                <option>Công nghệ</option>
+
+                <option>Tin học</option>
+
+                <option>Nghệ thuật</option>
+
+                <option>Khác</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-semibold mb-2 text-gray-700"
+                >Số lượng câu hỏi</label
+              >
+              <input
+                id="aiQuantity"
+                type="text"
+                class="w-full border rounded-xl px-4 py-3 bg-gray-50"
+                placeholder="VD: 5"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-semibold mb-2 text-gray-700"
+                >Mức độ nhận biết</label
+              >
+              <div class="grid grid-cols-2 gap-2 text-sm mt-1">
+                <label
+                  class="flex items-center gap-2 text-gray-700 font-medium"
+                >
+                  <input
+                    type="checkbox"
+                    class="bloom-lvl w-4 h-4 accent-blue-500 rounded"
+                    value="NB"
+                    checked
+                  />
+                  Nhận biết</label
+                >
+                <label class="flex items-center gap-2"
+                  ><input
+                    type="checkbox"
+                    class="bloom-lvl w-4 h-4 accent-blue-500 rounded"
+                    value="TH"
+                    checked
+                  />
+                  Thông hiểu</label
+                >
+                <label class="flex items-center gap-2"
+                  ><input
+                    type="checkbox"
+                    class="bloom-lvl w-4 h-4 accent-blue-500 rounded"
+                    value="VD"
+                  />
+                  Vận dụng</label
+                >
+                <label class="flex items-center gap-2"
+                  ><input
+                    type="checkbox"
+                    class="bloom-lvl w-4 h-4 accent-blue-500 rounded"
+                    value="VDC"
+                  />
+                  Nâng cao</label
+                >
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex justify-between items-center mb-2">
+              <label class="text-sm font-semibold text-gray-700"
+                >Tài liệu nguồn</label
+              >
+              <div class="flex bg-gray-100 rounded-lg p-1 scale-90">
+                <button
+                  onclick="toggleSource('text')"
+                  id="tabText"
+                  class="px-3 py-1 rounded-md bg-white shadow-sm text-xs font-bold"
+                >
+                  Nhập văn bản
+                </button>
+                <button
+                  onclick="toggleSource('file')"
+                  id="tabFile"
+                  class="px-3 py-1 rounded-md text-xs font-bold"
+                >
+                  Tải file
+                </button>
+              </div>
+            </div>
+
+            <textarea
+              id="aiSourceText"
+              class="w-full border rounded-xl p-4 h-32 bg-gray-50 resize-none"
+              placeholder="Dán nội dung bài học hoặc mô tả tại đây..."
+            ></textarea>
+
+            <div
+              id="aiSourceFile"
+              class="hidden border-2 border-dashed border-purple-200 rounded-xl p-8 text-center bg-purple-50/30"
+            >
+              <input
+                type="file"
+                id="aiFileInput"
+                class="hidden"
+                accept=".pdf,.doc,.docx"
+              />
+              <label for="aiFileInput" class="cursor-pointer">
+                <div class="text-3xl mb-2">📄</div>
+                <p class="text-sm text-purple-600 font-medium">
+                  Click để tải lên PDF/Word
+                </p>
+                <p class="text-[10px] text-gray-400 mt-1">
+                  Dung lượng tối đa 10MB
+                </p>
+              </label>
+            </div>
+          </div>
+
+          <button
+            onclick="handleGenerateAI()"
+            class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold py-4 rounded-2xl shadow-lg hover:shadow-purple-200 hover:scale-[1.02] active:scale-95 transition-all"
+          >
+            Tạo Quiz Ngay
+          </button>
+        </div>
+      </div>
+
+      <div id="aiLoading" class="hidden text-center text-white">
+        <div class="relative w-24 h-24 mx-auto mb-6">
+          <div
+            class="absolute inset-0 border-4 border-white/20 rounded-full"
+          ></div>
+          <div
+            class="absolute inset-0 border-4 border-t-white rounded-full animate-spin"
+          ></div>
+          <div
+            class="absolute inset-0 flex items-center justify-center text-2xl animate-pulse"
+          >
+            🧠
+          </div>
+        </div>
+        <h3 class="text-2xl font-bold mb-2">Đang phân tích tài liệu...</h3>
+        <p class="text-white/70">AI đang soạn thảo câu hỏi</p>
+      </div>
+    </div>
+
+    <script src="../js/games/api.js"></script>
     <script src="../js/games/assign.js"></script>
     <script src="../js/games/toast.js" defer></script>
     <script src="../js/games/turnbased.js" defer></script>
