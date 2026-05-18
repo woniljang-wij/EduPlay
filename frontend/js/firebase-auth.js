@@ -3,6 +3,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import {
   getAuth,
   GoogleAuthProvider,
+  FacebookAuthProvider,
   signInWithPopup,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
@@ -20,7 +21,18 @@ const app = initializeApp(firebaseConfig);
 
 const auth = getAuth(app);
 
-const provider = new GoogleAuthProvider();
+// ================= PROVIDERS =================
+const googleProvider = new GoogleAuthProvider();
+
+const facebookProvider = new FacebookAuthProvider();
+
+// RESET PARAMS
+facebookProvider.setCustomParameters({
+  display: "popup",
+});
+
+// CHỈ XIN public_profile
+facebookProvider.addScope("public_profile");
 
 // ================= GOOGLE LOGIN =================
 const googleBtn = document.getElementById("googleLoginBtn");
@@ -28,16 +40,16 @@ const googleBtn = document.getElementById("googleLoginBtn");
 if (googleBtn) {
   googleBtn.addEventListener("click", async () => {
     try {
-      const result = await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, googleProvider);
 
       const user = result.user;
 
       const userData = {
-        full_name: user.displayName,
+        full_name: user.displayName || "",
 
-        email: user.email,
+        email: user.email || "",
 
-        avatar: user.photoURL,
+        avatar: user.photoURL ? user.photoURL.replace("s96-c", "s400-c") : "",
 
         loginType: "google",
       };
@@ -57,6 +69,51 @@ if (googleBtn) {
       console.log("ERROR MESSAGE:", err.message);
 
       window.showToast("Đăng nhập Google thất bại!", "error");
+    }
+  });
+}
+
+// ================= FACEBOOK LOGIN =================
+const facebookBtn = document.getElementById("facebookLoginBtn");
+
+if (facebookBtn) {
+  facebookBtn.addEventListener("click", async () => {
+    try {
+      // FORCE CLEAR PREVIOUS FACEBOOK SESSION
+      await auth.signOut();
+
+      const result = await signInWithPopup(auth, facebookProvider);
+
+      const user = result.user;
+
+      const userData = {
+        full_name: user.displayName || "",
+
+        // DEV MODE có thể không trả email
+        email: user.email || "",
+
+        avatar: user.photoURL || "",
+
+        loginType: "facebook",
+      };
+
+      localStorage.setItem("user", JSON.stringify(userData));
+
+      console.log("FACEBOOK USER:", user);
+
+      window.showToast("Đăng nhập Facebook thành công 🎉", "success");
+
+      setTimeout(() => {
+        window.location.href = "index.html";
+      }, 600);
+    } catch (err) {
+      console.error(err);
+
+      console.log("ERROR CODE:", err.code);
+
+      console.log("ERROR MESSAGE:", err.message);
+
+      window.showToast("Đăng nhập Facebook thất bại!", "error");
     }
   });
 }

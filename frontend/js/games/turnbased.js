@@ -1068,7 +1068,7 @@ function playGame(id) {
   screen.classList.remove("hidden");
   screen.classList.add("flex");
 
-  video.src = "../assets/videos/Intro.mp4";
+  video.src = "../assets/videos/Lauriel.mp4";
   video.currentTime = 0;
 
   video.play().catch(() => {

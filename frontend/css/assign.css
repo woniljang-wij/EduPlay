@@ -815,15 +815,17 @@ body {
 }
 
 .submit-item {
-  padding: 18px;
-
-  border-radius: 20px;
-
-  background: #f9fafb;
-
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+
+  background: transparent;
+
+  border-radius: 0;
+
+  padding: 20px;
+
+  margin-bottom: 0;
 }
 
 .submit-left {
@@ -1054,5 +1056,23 @@ body {
 
 .assign-page i.bi {
   line-height: 1;
+}
+
+.submit-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+
+  background: #ffffff;
+
+  border: 2px solid #e9d5ff;
+
+  border-radius: 32px;
+
+  padding: 8px;
+
+  overflow: hidden;
+
+  box-shadow: 0 10px 30px rgba(139, 92, 246, 0.12);
 }
 

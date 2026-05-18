@@ -142,7 +142,9 @@ function loadGame() {
     const roomData = rooms.find((r) => r.roomCode === room);
 
     if (roomData) {
-      game = roomData.gameData;
+      const games = JSON.parse(localStorage.getItem("fruitGames")) || [];
+
+      game = games.find((g) => String(g.id) === String(roomData.gameId));
     }
   }
 

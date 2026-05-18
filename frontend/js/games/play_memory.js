@@ -7,6 +7,47 @@ const params = new URLSearchParams(window.location.search);
 
 const id = parseInt(params.get("id"));
 const roomCode = params.get("room");
+const isStudentJoin = !!params.get("room");
+window.addEventListener("load", () => {
+  const setup = document.getElementById("playerSetup");
+
+  if (roomCode) {
+    setup.classList.remove("hidden");
+
+    const gameNameEl = document.getElementById("setupGameName");
+
+    if (gameNameEl) {
+      gameNameEl.innerText = game?.title || "MEMORY GAME";
+    }
+  }
+});
+
+const startMemoryBtn = document.getElementById("startMemoryBtn");
+
+if (startMemoryBtn) {
+  startMemoryBtn.onclick = () => {
+    const input = document.getElementById("playerNameInput");
+
+    const name = input.value.trim();
+
+    if (!name) {
+      showToast("Nhập tên của bạn!", "warning");
+      return;
+    }
+
+    localStorage.setItem("memory_player_name", name);
+
+    document.getElementById("playerSetup").classList.add("hidden");
+  };
+
+  document
+    .getElementById("playerNameInput")
+    ?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        startMemoryBtn.click();
+      }
+    });
+}
 
 let game = null;
 
@@ -28,7 +69,9 @@ if (roomCode) {
     throw new Error("ROOM_NOT_FOUND");
   }
 
-  game = room.gameData;
+  const games = JSON.parse(localStorage.getItem("memoryGames")) || [];
+
+  game = games.find((g) => String(g.id) === String(room.gameId));
 }
 
 // ===== VÀO BÌNH THƯỜNG =====
@@ -373,6 +416,56 @@ function showLose() {
 
 // ===== WIN =====
 function showWin() {
+  // ===== SAVE PLAYER RESULT =====
+  if (roomCode) {
+    let rooms = JSON.parse(localStorage.getItem("memory_rooms")) || [];
+
+    console.log("ROOM CODE:", roomCode);
+    console.log("ALL ROOMS:", rooms);
+
+    const room = rooms.find(
+      (r) => String(r.roomCode).trim() === String(roomCode).trim(),
+    );
+
+    console.log("FOUND ROOM:", room);
+
+    if (room) {
+      // tạo players nếu chưa có
+      if (!Array.isArray(room.players)) {
+        room.players = [];
+      }
+
+      const playerName =
+        localStorage.getItem("memory_player_name") || "Người chơi";
+
+      // lưu player
+      room.players.push({
+        name: playerName,
+        time: new Date().toLocaleString("vi-VN"),
+        status: "win",
+      });
+
+      const submitKey = "memory_submit_" + roomCode;
+
+      let submits = JSON.parse(localStorage.getItem(submitKey)) || [];
+
+      submits.push({
+        name: playerName,
+        time: new Date().toLocaleString("vi-VN"),
+        status: "win",
+      });
+
+      localStorage.setItem(submitKey, JSON.stringify(submits));
+
+      // save lại localStorage
+      localStorage.setItem("memory_rooms", JSON.stringify(rooms));
+
+      console.log("ĐÃ LƯU PLAYER:", room.players);
+    } else {
+      console.log("KHÔNG TÌM THẤY ROOM");
+    }
+  }
+
   const box = document.getElementById("resultBox");
 
   const card = box.querySelector(".result-card");

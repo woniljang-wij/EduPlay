@@ -76,19 +76,11 @@ function createAssign() {
 
   const roomData = {
     roomCode,
-
     assignName: name,
-
     gameId: currentAssignGame.id,
-
     gameTitle: currentAssignGame.title,
-
     gameType: currentAssignGame.gameType,
-
-    gameData: currentAssignGame,
-
     createdAt: Date.now(),
-
     expireDay,
   };
 
@@ -187,7 +179,7 @@ function renderAssignmentsPage() {
         </p>
 
         <button
-          onclick="location.href='games/turnbased.html'"
+          onclick="location.href='../index.html'"
         >
           Đi tới hoạt động
         </button>
@@ -307,11 +299,37 @@ function renderAssignmentsPage() {
 
   </div>
 
-  <!-- NỘP -->
-  <div class="assign-col submit">
-  <i class="bi bi-person-fill"></i>
-  ${submits.length}
-  </div>
+<!-- NỘP -->
+<div class="assign-col submit">
+  <i class="bi bi-check2-circle"></i>
+
+  ${(() => {
+    // ===== QUIZ / MEMORY =====
+    if (room.gameType !== "turnbased" && room.gameType !== "dragonboat") {
+      return submits.length;
+    }
+
+    // ===== TURNBASED =====
+    if (room.gameType === "turnbased") {
+      const games = JSON.parse(localStorage.getItem("games")) || [];
+
+      const game = games.find((g) => String(g.id) === String(room.gameId));
+
+      const matches = [
+        ...new Set(submits.map((s) => s.matchId || s.submittedAt)),
+      ];
+
+      return matches.length;
+    }
+
+    // ===== DRAGONBOAT =====
+    const matches = [
+      ...new Set(submits.map((s) => s.matchId || s.submittedAt)),
+    ];
+
+    return matches.length;
+  })()}
+</div>
 
   <!-- THAO TÁC -->
   <div class="assign-col action">
@@ -398,8 +416,25 @@ function openAssignDetail(roomCode) {
   } else {
     let html = "";
 
-    submits.forEach((s, index) => {
-      html += `
+    // ===== GAME THEO LƯỢT =====
+    if (room.gameType === "turnbased") {
+      const grouped = {};
+
+      submits.forEach((s) => {
+        const key = s.matchId || "old";
+
+        if (!grouped[key]) {
+          grouped[key] = [];
+        }
+
+        grouped[key].push(s);
+      });
+
+      Object.values(grouped).forEach((match) => {
+        html += `<div class="submit-group">`;
+
+        match.forEach((s, index) => {
+          html += `
         <div class="submit-item">
 
           <div class="submit-left">
@@ -415,7 +450,11 @@ function openAssignDetail(roomCode) {
               </div>
 
               <div class="submit-time">
-              🕒 ${new Date(s.submittedAt).toLocaleString("vi-VN")}
+                🕒 ${
+                  s.submittedAt
+                    ? new Date(s.submittedAt).toLocaleString("vi-VN")
+                    : "Không có thời gian"
+                }
               </div>
 
             </div>
@@ -423,14 +462,151 @@ function openAssignDetail(roomCode) {
           </div>
 
           <div class="submit-result">
-            🎯 ${s.correct}/${s.total} • ⭐ ${s.score}/10
+            ${s.result === "WIN" ? "🏆 Người chiến thắng" : "💀 Người thua"}
           </div>
 
         </div>
       `;
-    });
+        });
+
+        html += `</div>`;
+      });
+    }
+
+    // ===== QUIZFRUIT + MEMORY =====
+    else if (room.gameType === "quizfruit" || room.gameType === "memory") {
+      const grouped = {};
+
+      submits.forEach((s) => {
+        const key = s.name || "Unknown";
+
+        if (!grouped[key]) {
+          grouped[key] = [];
+        }
+
+        grouped[key].push(s);
+      });
+
+      let globalIndex = 1;
+      Object.entries(grouped).forEach(([player, attempts]) => {
+        html += `
+      <div class="submit-group">
+    `;
+
+        attempts.forEach((s, index) => {
+          html += `
+        <div class="submit-item">
+
+          <div class="submit-left">
+
+            <div class="submit-stt">
+              ${globalIndex++}
+            </div>
+
+            <div>
+
+              <div class="submit-name">
+                ${s.name}
+              </div>
+
+              <div class="submit-time">
+                🕒 ${
+                  s.submittedAt
+                    ? new Date(s.submittedAt).toLocaleString("vi-VN")
+                    : s.time || "Không có thời gian"
+                }
+              </div>
+
+            </div>
+
+          </div>
+
+          <div class="submit-result">
+
+            ${
+              room.gameType === "quizfruit"
+                ? `🎯 ${s.correct}/${s.total} • ⭐ ${s.score}/10`
+                : "🧠 Hoàn thành"
+            }
+
+          </div>
+
+        </div>
+      `;
+        });
+
+        html += `</div>`;
+      });
+    }
+
+    // ===== DRAGONBOAT =====
+    else if (room.gameType === "dragonboat") {
+      const grouped = {};
+
+      submits.forEach((s) => {
+        const key = s.matchId || "old";
+
+        if (!grouped[key]) {
+          grouped[key] = [];
+        }
+
+        grouped[key].push(s);
+      });
+
+      Object.values(grouped).forEach((match) => {
+        html += `<div class="submit-group">`;
+
+        match.forEach((s, index) => {
+          html += `
+        <div class="submit-item">
+
+          <div class="submit-left">
+
+            <div class="submit-stt">
+              ${index + 1}
+            </div>
+
+            <div>
+
+              <div class="submit-name">
+                ${s.name}
+              </div>
+
+              <div class="submit-time">
+                🕒 ${
+                  s.submittedAt
+                    ? new Date(s.submittedAt).toLocaleString("vi-VN")
+                    : "Không có thời gian"
+                }
+              </div>
+
+            </div>
+
+          </div>
+
+          <div class="submit-result">
+
+            ${
+              s.result === "WIN"
+                ? "🏆 Người chiến thắng"
+                : s.result === "DRAW"
+                  ? "🤝 Hòa"
+                  : "💀 Người thua"
+            }
+
+          </div>
+
+        </div>
+      `;
+        });
+
+        html += `</div>`;
+      });
+    }
 
     list.innerHTML = html;
+    list.style.display = "flex";
+    list.style.flexDirection = "column-reverse";
   }
 
   overlay.classList.remove("hidden");

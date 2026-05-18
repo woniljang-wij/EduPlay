@@ -10,6 +10,51 @@
   </head>
 
   <body>
+    <!-- ===== PLAYER SETUP ===== -->
+    <div id="playerSetup" class="memory-setup hidden">
+      <div class="memory-setup-card">
+        <div class="memory-emoji">🧠</div>
+
+        <h1 class="memory-title">
+          Ai đang tham gia?
+          <span>🎮</span>
+        </h1>
+
+        <p class="memory-subtitle">Nhập tên để bắt đầu giải mã bức ảnh bí ẩn</p>
+
+        <!-- GAME NAME -->
+        <div class="memory-game-box">
+          <div class="memory-game-label">Thử thách hiện tại ✨</div>
+
+          <div id="setupGameTitle" class="memory-game-name">MEMORY GAME</div>
+        </div>
+
+        <!-- INPUT -->
+        <div class="memory-input-wrap">
+          <label>Tên người chơi</label>
+
+          <input
+            id="playerNameInput"
+            class="memory-input"
+            placeholder="VD: Nguyễn Văn A 😎"
+          />
+        </div>
+
+        <!-- BUTTON -->
+        <div class="memory-btn-row">
+          <button class="memory-back-btn" onclick="goBack()">← Quay lại</button>
+
+          <button id="startMemoryBtn" class="memory-start-btn">
+            🧩 Bắt đầu chơi
+          </button>
+        </div>
+
+        <div class="memory-note">
+          🔑 Nhập mã từ giáo viên để tham gia thử thách
+        </div>
+      </div>
+    </div>
+
     <!-- BACKGROUND -->
     <video id="bgVideo" autoplay muted loop>
       <source src="../assets/videos/bgmemory.mp4" type="video/mp4" />

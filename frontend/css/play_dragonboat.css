@@ -21,7 +21,7 @@ body {
 :root {
   --topbar-h: 48px;
 
-  --hud-scale: .55;
+  --hud-scale: 0.55;
 }
 
 /* ===== TOPBAR X10 ===== */
@@ -628,6 +628,7 @@ body {
 
 /* ===== QUESTION ===== */
 .question-layout {
+  
   flex: 1;
 
   min-height: 0;
@@ -1070,4 +1071,161 @@ body.game-finished .topbar {
   pointer-events: none;
 
   user-select: none;
+}
+
+/* ============================= */
+/* TEAM SETUP POPUP */
+/* ============================= */
+
+#playerSetup {
+  position: fixed;
+
+  inset: 0;
+
+  width: 100vw;
+  height: 100vh;
+
+  display: none;
+
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0, 0, 0, 0.72);
+
+  backdrop-filter: blur(12px);
+
+  z-index: 999999999;
+
+  isolation: isolate;
+
+  pointer-events: auto;
+}
+
+#playerSetup.flex {
+  display: flex !important;
+}
+
+.team-setup-card {
+  position: relative;
+
+  z-index: 2;
+
+  pointer-events: auto;
+}
+
+.team-setup-card {
+  width: 100%;
+  max-width: 520px;
+
+  background: rgba(255, 255, 255, 0.98);
+
+  border-radius: 38px;
+
+  padding: 40px;
+
+  box-shadow:
+    0 20px 80px rgba(0, 0, 0, 0.45),
+    0 0 40px rgba(0, 255, 255, 0.15);
+
+  animation: popupShow 0.35s ease;
+}
+
+.team-setup-icon {
+  font-size: 64px;
+
+  text-align: center;
+
+  margin-bottom: 16px;
+}
+
+.team-setup-title {
+  font-size: 42px;
+  font-weight: 900;
+
+  text-align: center;
+
+  color: #111827;
+}
+
+.team-setup-sub {
+  margin-top: 10px;
+
+  text-align: center;
+
+  font-size: 18px;
+
+  color: #6b7280;
+}
+
+.team-setup-inputs {
+  display: flex;
+  flex-direction: column;
+
+  gap: 18px;
+
+  margin-top: 34px;
+}
+
+.team-setup-input {
+  width: 100%;
+  height: 64px;
+
+  border-radius: 22px;
+
+  border: 2px solid #e5e7eb;
+
+  padding: 0 22px;
+
+  font-size: 18px;
+  font-weight: 700;
+
+  transition: 0.25s;
+}
+
+.team-setup-input:focus {
+  border-color: #06b6d4;
+
+  box-shadow: 0 0 0 5px rgba(6, 182, 212, 0.15);
+
+  outline: none;
+}
+
+.team-start-btn {
+  width: 100%;
+  height: 64px;
+
+  margin-top: 26px;
+
+  border: none;
+
+  border-radius: 22px;
+
+  background: linear-gradient(135deg, #06b6d4, #2563eb);
+
+  color: white;
+
+  font-size: 22px;
+  font-weight: 900;
+
+  cursor: pointer;
+
+  transition: 0.25s;
+}
+
+.team-start-btn:hover {
+  transform: translateY(-2px) scale(1.02);
+
+  box-shadow: 0 12px 30px rgba(37, 99, 235, 0.35);
+}
+
+@keyframes popupShow {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }

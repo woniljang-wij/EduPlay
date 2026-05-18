@@ -396,3 +396,13 @@ input::placeholder {
 
   white-space: nowrap;
 }
+
+@keyframes loading {
+  0% {
+    transform: translateX(-120%);
+  }
+
+  100% {
+    transform: translateX(320%);
+  }
+}

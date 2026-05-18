@@ -73,6 +73,22 @@ const path = [
   { x: 85, y: 82 },
 ];
 
+function generateObstacles(total) {
+  const obstacles = [];
+
+  while (obstacles.length < total) {
+    // random từ ô 1 -> ô cuối-2
+    const randomIndex = Math.floor(Math.random() * (path.length - 2)) + 1;
+
+    // không cho trùng
+    if (!obstacles.includes(randomIndex)) {
+      obstacles.push(randomIndex);
+    }
+  }
+
+  return obstacles;
+}
+
 // ===== LOAD GAME =====
 let isGameOver = false;
 
@@ -142,7 +158,7 @@ if (roomCode) {
     throw new Error("ROOM_EXPIRED");
   }
 
-  game = room.gameData;
+  game = games.find((g) => String(g.id) === String(room.gameId));
 
   // 👨‍🎓 Sinh viên nhập mã phòng
   if (isStudentJoin) {
@@ -200,6 +216,12 @@ function setupRoomPlayers(gameData) {
     input.placeholder = `👤 Người chơi ${i + 1}`;
 
     inputsWrap.appendChild(input);
+
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        startBtn.click();
+      }
+    });
   }
 
   startBtn.onclick = () => {
@@ -236,7 +258,7 @@ function startNormalGame() {
 
   positions = new Array(game.players.length).fill(0);
 
-  obstacleCells = game.obstacleCells || [];
+  obstacleCells = generateObstacles(Number(game.obstacles) || 0);
 
   questions = game.questions || [];
 
@@ -348,6 +370,18 @@ function updateInfo() {
 
 </div>
 `;
+}
+
+function updatePlayerActive() {
+  const badges = document.querySelectorAll(".player-badge");
+
+  badges.forEach((badge, i) => {
+    badge.classList.remove("player-active");
+
+    if (i === currentPlayer) {
+      badge.classList.add("player-active");
+    }
+  });
 }
 
 // ===== CELLS =====
@@ -597,7 +631,7 @@ function afterMove() {
 
   currentPlayer = (currentPlayer + 1) % game.players.length;
 
-  updateInfo();
+  updatePlayerActive();
 
   rollBtn.disabled = false;
   rollBtn.innerText = "🎲 Tung xúc xắc";
@@ -675,7 +709,7 @@ function startGameMusic() {
 }
 
 function showVictory(playerName, playerIndex) {
-  saveTurnAssignment(playerName);
+  saveAllTurnResults(playerName);
 
   const screen = document.getElementById("victoryScreen");
 
@@ -727,6 +761,31 @@ function showVictory(playerName, playerIndex) {
       screen.style.opacity = "1";
     }, 600);
   };
+}
+
+function saveAllTurnResults(winnerName) {
+  if (!roomCode) return;
+
+  let submits =
+    JSON.parse(localStorage.getItem("turn_submit_" + roomCode)) || [];
+
+  const matchId = Date.now();
+
+  game.players.forEach((player) => {
+    submits.push({
+      name: player,
+
+      result: player === winnerName ? "WIN" : "LOSE",
+
+      submittedAt: Date.now(),
+
+      roomCode,
+
+      matchId,
+    });
+  });
+
+  localStorage.setItem("turn_submit_" + roomCode, JSON.stringify(submits));
 }
 
 // ================= ASSIGNMENT SUBMIT =================
@@ -994,7 +1053,7 @@ function nextTurn() {
 
   currentPlayer = (currentPlayer + 1) % game.players.length;
 
-  updateInfo();
+  updatePlayerActive();
 
   rollBtn.disabled = false;
   rollBtn.innerText = "🎲 Tung xúc xắc";

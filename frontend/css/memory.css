@@ -371,3 +371,13 @@ input[type="radio"] {
     transform: scale(1);
   }
 }
+
+@keyframes loading {
+  0% {
+    transform: translateX(-120%);
+  }
+
+  100% {
+    transform: translateX(320%);
+  }
+}

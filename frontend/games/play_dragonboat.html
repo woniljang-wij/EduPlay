@@ -76,7 +76,7 @@
       <!-- MUSIC -->
       <audio id="bgMusic" loop></audio>
     </header>
-    
+
     <!-- RACE -->
     <section class="race-section">
       <div class="race-track">
@@ -115,6 +115,35 @@
         <div class="answers red-answers"></div>
       </div>
     </section>
+
+    <!-- ===== JOIN TEAM SETUP ===== -->
+    <div id="playerSetup">
+      <div class="team-setup-card">
+        <div class="team-setup-icon">🐉</div>
+
+        <div id="setupGameTitle" class="team-setup-title">Đua Thuyền Rồng</div>
+
+        <div class="team-setup-sub">Nhập tên cho 2 đội chơi</div>
+
+        <div class="team-setup-inputs">
+          <input
+            id="blueTeamInput"
+            type="text"
+            placeholder="🔵 Tên đội xanh..."
+            class="team-setup-input"
+          />
+
+          <input
+            id="redTeamInput"
+            type="text"
+            placeholder="🔴 Tên đội đỏ..."
+            class="team-setup-input"
+          />
+        </div>
+
+        <button id="startRoomBtn" class="team-start-btn">▶ BẮT ĐẦU CHƠI</button>
+      </div>
+    </div>
 
     <!-- WIN POPUP -->
     <div class="winner-popup hidden" id="winnerPopup">

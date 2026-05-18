@@ -9,6 +9,23 @@ const roomCode = params.get("room");
 const isJoin = params.get("join");
 
 let game = null;
+let blueTeamName = "";
+let redTeamName = "";
+
+// lưu tên đội vào room
+const rooms = JSON.parse(localStorage.getItem("dragonboat_rooms")) || [];
+
+const roomIndex = rooms.findIndex(
+  (r) => String(r.roomCode) === String(roomCode),
+);
+
+if (roomIndex !== -1) {
+  rooms[roomIndex].blueTeamName = blueTeamName;
+
+  rooms[roomIndex].redTeamName = redTeamName;
+
+  localStorage.setItem("dragonboat_rooms", JSON.stringify(rooms));
+}
 
 // ===============================
 // TEACHER PLAY DIRECT
@@ -31,7 +48,9 @@ else if (roomCode) {
   );
 
   if (room) {
-    game = room.gameData;
+    const games = JSON.parse(localStorage.getItem("dragonboatGames")) || [];
+
+    game = games.find((g) => String(g.id) === String(room.gameId));
   }
 }
 
@@ -393,29 +412,31 @@ function checkWinner() {
 
   // ===== WIN BY FINISH =====
   if (blueQuestionIndex >= questions.length) {
-    showWinner(teamBlue);
+    showWinner(blueTeamName || teamBlue);
     return;
   }
 
   if (redQuestionIndex >= questions.length) {
-    showWinner(teamRed);
+    showWinner(redTeamName || teamRed);
     return;
   }
 
   // ===== WIN BY GAP =====
   if (blue - red >= winScore) {
-    showWinner(teamBlue);
+    showWinner(blueTeamName || teamBlue);
     return;
   }
 
   if (red - blue >= winScore) {
-    showWinner(teamRed);
+    showWinner(redTeamName || teamRed);
     return;
   }
 }
 
 function showWinner(teamName) {
   if (gameEnded) return;
+
+  saveDragonBoatResult(teamName);
 
   gameEnded = true;
 
@@ -501,9 +522,7 @@ function updateTimer() {
   }
 }
 
-const timerInterval = setInterval(updateTimer, 1000);
-
-updateTimer();
+let timerInterval = null;
 
 // ===== END GAME =====
 function endGame() {
@@ -516,15 +535,157 @@ function endGame() {
   let winner = "Hòa";
 
   if (blue > red) {
-    winner = teamBlue;
+    winner = blueTeamName || teamBlue;
   }
 
   if (red > blue) {
-    winner = teamRed;
+    winner = redTeamName || teamRed;
   }
 
   showWinner(winner);
 }
+
 // ===== START =====
 
-renderQuestion();
+if (isJoin) {
+  document.querySelector(".question-layout").style.pointerEvents = "none";
+
+  document.querySelector(".race-section").style.pointerEvents = "none";
+
+  openTeamSetup();
+} else {
+  startDragonGame();
+}
+
+function startDragonGame() {
+  renderQuestion();
+
+  if (!timerInterval) {
+    timerInterval = setInterval(updateTimer, 1000);
+
+    updateTimer();
+  }
+
+  if (bgMusic) {
+    bgMusic.play().catch(() => {});
+  }
+}
+
+function openTeamSetup() {
+  const popup = document.getElementById("playerSetup");
+
+  if (!popup) {
+    renderQuestion();
+    return;
+  }
+
+  popup.style.display = "flex";
+
+  popup.classList.add("flex");
+
+  document.getElementById("setupGameTitle").innerText =
+    game?.title || "Đua Thuyền Rồng";
+}
+
+document.getElementById("startRoomBtn")?.addEventListener("click", () => {
+  const blueInput = document.getElementById("blueTeamInput");
+
+  const redInput = document.getElementById("redTeamInput");
+
+  const blue = blueInput.value.trim();
+  const red = redInput.value.trim();
+
+  if (!blue || !red) {
+    showToast("Nhập tên cho cả 2 đội!", "error");
+    return;
+  }
+
+  blueTeamName = blue;
+  redTeamName = red;
+
+  document.querySelector(".team-blue-name").textContent = blueTeamName;
+
+  document.querySelector(".team-red-name").textContent = redTeamName;
+
+  document.getElementById("playerSetup").classList.remove("flex");
+
+  document.getElementById("playerSetup").style.display = "none";
+
+  document.querySelector(".question-layout").style.pointerEvents = "auto";
+
+  document.querySelector(".race-section").style.pointerEvents = "auto";
+
+  startDragonGame();
+});
+
+function saveDragonBoatResult(winnerTeam) {
+  if (!roomCode) return;
+
+  let submits =
+    JSON.parse(localStorage.getItem("dragonboat_submit_" + roomCode)) || [];
+
+  const matchId = Date.now();
+
+  const blueName = blueTeamName || teamBlue;
+
+  const redName = redTeamName || teamRed;
+
+  // ===== HÒA =====
+  if (winnerTeam === "Hòa") {
+    submits.push({
+      name: blueName,
+
+      result: "DRAW",
+
+      submittedAt: Date.now(),
+
+      roomCode,
+
+      matchId,
+    });
+
+    submits.push({
+      name: redName,
+
+      result: "DRAW",
+
+      submittedAt: Date.now(),
+
+      roomCode,
+
+      matchId,
+    });
+  }
+
+  // ===== CÓ THẮNG THUA =====
+  else {
+    submits.push({
+      name: blueName,
+
+      result: winnerTeam === blueName ? "WIN" : "LOSE",
+
+      submittedAt: Date.now(),
+
+      roomCode,
+
+      matchId,
+    });
+
+    submits.push({
+      name: redName,
+
+      result: winnerTeam === redName ? "WIN" : "LOSE",
+
+      submittedAt: Date.now(),
+
+      roomCode,
+
+      matchId,
+    });
+  }
+
+  localStorage.setItem(
+    "dragonboat_submit_" + roomCode,
+    JSON.stringify(submits),
+  );
+}
