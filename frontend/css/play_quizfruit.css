@@ -2652,3 +2652,108 @@ img::selection {
     background-position: 200%;
   }
 }
+
+/* =========================================
+   GAME COUNTDOWN
+========================================= */
+
+.countdown-overlay {
+  position: fixed;
+  inset: 0;
+
+  z-index: 9999999999;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 255, 255, 0.06),
+    rgba(0, 0, 0, 0.88)
+  );
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  animation: countdownFade 0.25s ease;
+}
+
+.countdown-overlay.hidden {
+  display: none;
+}
+
+.countdown-text {
+  font-size: 180px;
+  font-weight: 1000;
+
+  color: white;
+
+  text-shadow:
+    0 0 20px rgba(255, 255, 255, 0.9),
+    0 0 50px rgba(0, 255, 255, 0.9),
+    0 0 100px rgba(0, 255, 255, 0.7);
+
+  animation: countdownPop 1s ease forwards;
+}
+
+.countdown-text.start {
+  font-size: 120px;
+
+  background: linear-gradient(90deg, #fff, #ffe066, #00f5ff, #fff);
+
+  background-size: 200%;
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  animation:
+    countdownStart 0.9s ease forwards,
+    titleMove 2s linear infinite;
+}
+
+@keyframes countdownPop {
+  0% {
+    transform: scale(0.2);
+    opacity: 0;
+    filter: blur(12px);
+  }
+
+  40% {
+    transform: scale(1.25);
+    opacity: 1;
+    filter: blur(0);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes countdownStart {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+
+  40% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes countdownFade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

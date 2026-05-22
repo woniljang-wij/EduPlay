@@ -449,9 +449,7 @@ body::before {
   transform: translateY(-50%);
   z-index: 9999;
 
-  pointer-events: auto; /* cần để hover */
-
-  position: fixed;
+  pointer-events: auto;
 }
 
 /* ===== VIDEO LOGO ===== */
@@ -796,4 +794,354 @@ body::before {
 
 .google-avatar:hover {
   transform: scale(1.06);
+}
+
+/* ================= HERO CTA X10 ================= */
+
+.hero-cta-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 28px;
+
+  flex-wrap: wrap;
+
+  margin-top: -18px;
+}
+
+.edu-main-btn {
+  position: relative;
+  overflow: hidden;
+
+  width: 420px;
+  height: 75px;
+
+  padding: 0 28px;
+
+  border-radius: 40px;
+
+  display: flex;
+  align-items: center;
+  gap: 20px;
+
+  transform: scale(0.9);
+
+  transform-origin: center;
+
+  backdrop-filter: blur(14px);
+
+  transition: all 0.28s ease;
+
+  isolation: isolate;
+}
+
+/* ===== ICON ===== */
+
+.btn-icon {
+  width: 60px;
+  height: 50px;
+
+  border-radius: 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 34px;
+
+  flex-shrink: 0;
+
+  position: relative;
+  z-index: 2;
+
+  transition: 0.3s;
+}
+
+/* ===== TEXT ===== */
+
+.btn-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  position: relative;
+  z-index: 2;
+}
+
+.btn-main-text {
+  font-size: 18px;
+  font-weight: 900;
+
+  line-height: 1.1;
+}
+
+.btn-sub-text {
+  margin-top: 5px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  opacity: 0.78;
+}
+
+/* ===== TEACHER ===== */
+
+.teacher-btn {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.94),
+    rgba(255, 255, 255, 0.78)
+  );
+
+  border: 1px solid rgba(255, 255, 255, 0.55);
+
+  box-shadow:
+    0 12px 35px rgba(0, 0, 0, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+.teacher-btn .btn-main-text {
+  color: #4f46e5;
+}
+
+.teacher-btn .btn-sub-text {
+  color: #64748b;
+}
+
+.teacher-btn .btn-icon {
+  background: linear-gradient(135deg, #4f46e5, #8b5cf6);
+
+  color: white;
+
+  box-shadow: 0 10px 25px rgba(99, 102, 241, 0.45);
+}
+
+/* ===== STUDENT ===== */
+
+.student-btn {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 215, 0, 0.95),
+    rgba(250, 204, 21, 0.92)
+  );
+
+  border: 1px solid rgba(255, 255, 255, 0.25);
+
+  box-shadow:
+    0 12px 35px rgba(255, 193, 7, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.student-btn .btn-main-text {
+  color: #422006;
+}
+
+.student-btn .btn-sub-text {
+  color: rgba(66, 32, 6, 0.72);
+}
+
+.student-btn .btn-icon {
+  background: linear-gradient(135deg, #ec4899, #9333ea);
+
+  color: white;
+
+  box-shadow: 0 10px 25px rgba(236, 72, 153, 0.35);
+}
+
+/* ===== SHINE ===== */
+
+.edu-main-btn::before {
+  content: "";
+
+  position: absolute;
+  top: 0;
+  left: -120%;
+
+  width: 70%;
+  height: 100%;
+
+  transform: skewX(-25deg);
+
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.55),
+    transparent
+  );
+
+  z-index: 1;
+}
+
+.edu-main-btn:hover::before {
+  animation: heroShine 1.2s linear infinite;
+}
+
+@keyframes heroShine {
+  100% {
+    left: 140%;
+  }
+}
+
+/* ===== HOVER ===== */
+
+.edu-main-btn:hover {
+  transform: translateY(-8px) scale(1.03);
+}
+
+.teacher-btn:hover {
+  box-shadow:
+    0 20px 45px rgba(99, 102, 241, 0.28),
+    0 0 35px rgba(139, 92, 246, 0.18);
+}
+
+.student-btn:hover {
+  box-shadow:
+    0 20px 45px rgba(255, 193, 7, 0.35),
+    0 0 35px rgba(251, 191, 36, 0.25);
+}
+
+.edu-main-btn:hover .btn-icon {
+  transform: scale(1.08) rotate(-6deg);
+}
+
+/* ===== CLICK ===== */
+
+.edu-main-btn:active {
+  transform: scale(0.95);
+}
+
+/* ===== MOBILE ===== */
+
+@media (max-width: 768px) {
+  .hero-cta-wrap {
+    gap: 18px;
+  }
+
+  .edu-main-btn {
+    width: 100%;
+    max-width: 380px;
+
+    height: 82px;
+
+    padding: 0 16px;
+  }
+
+  .btn-main-text {
+    font-size: 18px;
+  }
+
+  .btn-sub-text {
+    font-size: 12px;
+  }
+
+  .btn-icon {
+    width: 62px;
+    height: 62px;
+
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 768px) {
+  .logo-layer {
+    top: 16px;
+    left: 10px;
+
+    transform: none;
+  }
+
+  .logo-floating {
+    height: 48px;
+  }
+}
+
+@media (max-width: 768px) {
+  .nav-user {
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .user-chip {
+    height: 36px;
+    padding: 0 12px;
+
+    font-size: 12px;
+  }
+
+  .logout-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .assign-history-btn {
+    height: 36px;
+
+    padding: 0 14px;
+
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .game-card-inner {
+    padding: 20px;
+  }
+
+  .game-card:hover {
+    transform: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .floating-particles {
+    display: none;
+  }
+
+  .edu-main-btn::before,
+  .btn-login::before,
+  .btn-register::before,
+  .game-btn::before {
+    animation: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  #bgVideo {
+    height: 280px;
+
+    object-fit: fill;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: clamp(52px, 11vw, 72px);
+
+    line-height: 0.95;
+
+    letter-spacing: -2px;
+
+    text-align: center;
+  }
+
+  .hero-desc {
+    font-size: 17px;
+
+    line-height: 1.5;
+
+    padding: 0 18px;
+  }
+
+  .hero-sub {
+    font-size: 15px;
+
+    line-height: 1.6;
+
+    padding: 0 20px;
+  }
+
+  #bgVideo {
+    height: 340px;
+  }
 }

@@ -791,3 +791,32 @@ document.querySelectorAll(".color-option").forEach((btn) => {
     btn.classList.add("active-color");
   });
 });
+
+// ===== CREATE PAGE MUSIC =====
+const createMusic = document.getElementById("bgMusic");
+
+function startCreateMusic() {
+  if (!createMusic) return;
+
+  createMusic.volume = 0.35;
+
+  const playPromise = createMusic.play();
+
+  if (playPromise !== undefined) {
+    playPromise.catch(() => {
+      document.body.addEventListener(
+        "click",
+        () => {
+          createMusic.play().catch(() => {});
+        },
+        { once: true },
+      );
+    });
+  }
+}
+
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    startCreateMusic();
+  }, 300);
+});

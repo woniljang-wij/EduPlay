@@ -118,7 +118,7 @@ window.onload = () => {
       bgm.play().catch(() => {});
     }
 
-    startQuestion();
+    startCountdown();
   }
 };
 
@@ -1046,7 +1046,7 @@ document.getElementById("setupStartBtn")?.addEventListener("click", () => {
 
   document.getElementById("playerSetup").classList.add("hidden");
 
-  startQuestion();
+  startCountdown();
 });
 
 // ======================================
@@ -1124,4 +1124,42 @@ function confirmExit() {
   else {
     window.location.href = "/games/quizfruit.html";
   }
+}
+
+async function startCountdown() {
+  const overlay = document.getElementById("countdownOverlay");
+  const text = document.getElementById("countdownText");
+
+  overlay.classList.remove("hidden");
+
+  const countdowns = ["3", "2", "1"];
+
+  for (const item of countdowns) {
+    text.classList.remove("start");
+
+    text.style.animation = "none";
+    void text.offsetWidth;
+
+    text.style.animation = "countdownPop 1s ease forwards";
+
+    text.innerText = item;
+
+    await new Promise((r) => setTimeout(r, 1000));
+  }
+
+  text.classList.add("start");
+
+  text.style.animation = "none";
+  void text.offsetWidth;
+
+  text.style.animation =
+    "countdownStart 0.9s ease forwards, titleMove 2s linear infinite";
+
+  text.innerText = "BẮT ĐẦU!";
+
+  await new Promise((r) => setTimeout(r, 900));
+
+  overlay.classList.add("hidden");
+
+  startQuestion();
 }

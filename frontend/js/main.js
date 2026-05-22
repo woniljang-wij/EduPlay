@@ -2,7 +2,7 @@
 const user = JSON.parse(localStorage.getItem("user"));
 
 const navAuth = document.querySelector(".nav-auth");
-const ctaButtons = document.querySelector(".cta-buttons");
+const ctaButtons = document.querySelector(".hero-cta-wrap");
 
 // nếu đã login → đổi navbar
 if (user && navAuth) {

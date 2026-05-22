@@ -355,58 +355,126 @@ function renderGames() {
 
   games.forEach((g) => {
     html += `
-    <div class="w-80 relative">
+  <div class="w-80">
 
-      <!-- PIN -->
-      <div class="absolute top-2 right-2 text-pink-500">
-        📍
+    <div class="
+      card
+      bg-white/80
+      backdrop-blur
+      rounded-2xl
+      p-5
+      shadow-lg
+      border border-white/40
+      relative
+    ">
+
+      <!-- ICON -->
+      <span class="absolute top-3 right-3 text-lg">
+        🐉
+      </span>
+
+      <!-- TITLE -->
+      <h3 class="font-bold text-lg mb-3">
+        ${g.title}
+      </h3>
+
+      <!-- TAG -->
+      <div class="flex gap-2 mb-4 text-sm flex-wrap">
+
+        <span class="
+          bg-blue-100
+          text-blue-700
+          px-3 py-1
+          rounded-full
+        ">
+          👥 ${g.players.length} đội
+        </span>
+
+        <span class="
+          bg-green-100
+          text-green-700
+          px-3 py-1
+          rounded-full
+        ">
+          🧠 ${g.questions?.length || 0} câu
+        </span>
+
+        <span class="
+          bg-red-100
+          text-red-600
+          px-3 py-1
+          rounded-full
+        ">
+          🏆 ${g.winScore || 3} điểm
+        </span>
+
       </div>
 
-      <div class="bg-white/80 backdrop-blur rounded-2xl p-5 shadow-lg hover:scale-105 transition">
+      <!-- BUTTON -->
+      <div class="flex gap-3 mb-4">
 
-        <h3 class="font-bold text-lg mb-2">${g.title}</h3>
+        <button
+          onclick="playGame(${g.id})"
+          class="
+            play-btn
+            flex-1
+            py-3
+            rounded-xl
+            font-semibold
+            shadow-lg
+            relative
+            overflow-hidden
+          "
+        >
+          ▶ Chơi
+        </button>
 
-        <div class="flex gap-2 mb-4 text-sm flex-wrap">
-          <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
-            👥 ${g.players.length} đội
-          </span>
-
-          <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full">
-            🧠 ${g.questions?.length || 0} câu
-          </span>
-        </div>
-
-        <div class="flex gap-3 mb-4">
-          <button onclick="playGame(${g.id})"
-            class="flex-1 bg-green-500 text-white py-2 rounded-xl">
-            ▶ Chơi
-          </button>
-
-          <button onclick="openAssign(${g.id}, 'dragonboat')"
-            class="px-3 py-2 border rounded-xl">
-            📋
-          </button>
-        </div>
-
-        <div class="flex gap-4 text-sm flex-wrap">
-
-          <button onclick="editGame(${g.id})" class="text-orange-500">
-            ✏️ Sửa
-          </button>
-
-          <button onclick="fakeFeature('🔗 Chia sẻ')" class="text-blue-500">
-            🔗 Chia sẻ
-          </button>
-
-          <button onclick="deleteGame(${g.id})" class="text-red-500">
-            🗑 Xóa
-          </button>
-
-        </div>
+        <button
+          onclick="openAssign(${g.id}, 'dragonboat')"
+          class="
+            px-4 py-2
+            border border-gray-200
+            rounded-xl
+            text-purple-600
+            hover:bg-purple-50
+            transition
+          "
+        >
+          📋 Giao
+        </button>
 
       </div>
+
+      <!-- ACTION -->
+      <div class="flex gap-5 text-sm font-medium">
+
+        <button
+          onclick="editGame(${g.id})"
+          class="text-orange-500 hover:underline"
+        >
+          ✏️ Sửa
+        </button>
+
+        <button
+          onclick="fakeFeature('🔗 Chia sẻ')"
+          class="text-blue-500 hover:underline"
+        >
+          🔗 Chia sẻ GV
+        </button>
+
+        <button
+          onclick="deleteGame(${g.id})"
+          class="text-red-500 hover:underline"
+        >
+          🗑 Xóa bài
+        </button>
+
+      </div>
+
     </div>
-    `;
+
+  </div>
+  `;
   });
 
   container.innerHTML = html;
@@ -1012,6 +1080,35 @@ function editQuestion(index) {
     });
   });
 }
+
+// ===== CREATE PAGE MUSIC =====
+const createMusic = document.getElementById("bgMusic");
+
+function startCreateMusic() {
+  if (!createMusic) return;
+
+  createMusic.volume = 0.35;
+
+  const playPromise = createMusic.play();
+
+  if (playPromise !== undefined) {
+    playPromise.catch(() => {
+      document.body.addEventListener(
+        "click",
+        () => {
+          createMusic.play().catch(() => {});
+        },
+        { once: true },
+      );
+    });
+  }
+}
+
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    startCreateMusic();
+  }, 300);
+});
 
 function goAssignments() {
   window.location.href = "assign.html";

@@ -772,11 +772,18 @@ body {
   width: 700px;
   max-width: 95%;
 
+  max-height: 85vh;
+
   background: white;
 
   border-radius: 30px;
 
   padding: 28px;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
 }
 
 .assign-detail-top {
@@ -785,6 +792,8 @@ body {
   align-items: center;
 
   margin-bottom: 28px;
+
+  flex-shrink: 0;
 }
 
 .assign-detail-top h2 {
@@ -811,7 +820,15 @@ body {
 .detail-submit-list {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 18px;
+
+  overflow-y: auto;
+
+  padding-right: 10px;
+
+  flex: 1;
+
+  min-height: 0;
 }
 
 .submit-item {
@@ -1071,7 +1088,7 @@ body {
 
   padding: 8px;
 
-  overflow: hidden;
+  flex-shrink: 0;
 
   box-shadow: 0 10px 30px rgba(139, 92, 246, 0.12);
 }

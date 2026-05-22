@@ -1060,10 +1060,14 @@ function deleteQuestion(index) {
   showToast("🗑 Đã xóa câu hỏi " + (index + 1));
 }
 
-// ===== PLAY =====
 function playGame(id) {
   const screen = document.getElementById("introScreen");
   const video = document.getElementById("introVideo");
+
+  if (createMusic) {
+    createMusic.pause();
+    createMusic.currentTime = 0;
+  }
 
   screen.classList.remove("hidden");
   screen.classList.add("flex");
@@ -1072,10 +1076,12 @@ function playGame(id) {
   video.currentTime = 0;
 
   video.play().catch(() => {
-    document.body.addEventListener("click", () => video.play(), { once: true });
+    document.body.addEventListener("click", () => video.play(), {
+      once: true,
+    });
   });
 
-  // 🎬 END VIDEO → CHUYỂN TRANG THẬT
+  // 🎬 END VIDEO → CHUYỂN TRANG
   video.onended = () => {
     window.location.href = `/games/play.html?id=${id}&autoplay=1`;
   };
@@ -1098,16 +1104,13 @@ function deleteGame(id) {
 
   if (!game) return;
 
-  // 🔥 lưu lại
   deletedGame = game;
 
-  // ❌ xóa
   games = games.filter((g) => g.id !== id);
   localStorage.setItem("games", JSON.stringify(games));
 
   renderGames();
 
-  // 💥 toast + undo thật sự
   showUndoToast(
     "🗑 Đã xóa bài chơi",
     () => {
@@ -1116,7 +1119,6 @@ function deleteGame(id) {
     4000,
   );
 
-  // ⏳ timeout clear
   clearTimeout(undoTimer);
   undoTimer = setTimeout(() => {
     deletedGame = null;
@@ -1138,6 +1140,35 @@ function undoDelete() {
 
   deletedGame = null;
 }
+
+// ===== CREATE PAGE MUSIC =====
+const createMusic = document.getElementById("bgMusic");
+
+function startCreateMusic() {
+  if (!createMusic) return;
+
+  createMusic.volume = 0.35;
+
+  const playPromise = createMusic.play();
+
+  if (playPromise !== undefined) {
+    playPromise.catch(() => {
+      document.body.addEventListener(
+        "click",
+        () => {
+          createMusic.play().catch(() => {});
+        },
+        { once: true },
+      );
+    });
+  }
+}
+
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    startCreateMusic();
+  }, 300);
+});
 
 function goAssignments() {
   window.location.href = "assign.html";
