@@ -41,6 +41,10 @@
     <div
       class="main-shell-x10 w-full max-w-[1135px] h-fit scale-[0.92] origin-center rounded-[38px] shadow-[0_25px_80px_rgba(0,0,0,.35)] border border-white/40 p-4"
     >
+      <video autoplay muted loop playsinline class="main-shell-video-x10">
+        <source src="../assets/videos/bg (2).mp4" type="video/mp4" />
+      </video>
+
       <!-- glow -->
       <div
         class="absolute -top-20 -left-20 w-60 h-60 bg-blue-400/20 blur-3xl rounded-full"
@@ -155,6 +159,24 @@
               >
                 Bài 5
               </button>
+              <button
+                class="music-btn music-6"
+                data-src="../assets/sounds/bai6.mp3"
+              >
+                Bài 6
+              </button>
+              <button
+                class="music-btn music-7"
+                data-src="../assets/sounds/bai7.mp3"
+              >
+                Bài 7
+              </button>
+              <button
+                class="music-btn music-8"
+                data-src="../assets/sounds/bai8.mp3"
+              >
+                Bài 8
+              </button>
             </div>
 
             <audio id="bgMusic" loop></audio>
@@ -227,15 +249,10 @@
       ></video>
     </div>
 
-    <!-- ===================================== -->
-    <!-- ULTRA VICTORY POPUP X10THINK -->
-    <!-- ===================================== -->
-
     <div
       id="victoryPopup"
       class="fixed inset-0 hidden z-[10000] flex items-center justify-center overflow-hidden"
     >
-      <!-- DARK BG -->
       <div
         class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.08),rgba(0,0,0,0.88))] backdrop-blur-xl"
       ></div>

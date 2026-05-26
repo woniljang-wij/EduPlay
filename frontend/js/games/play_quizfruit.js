@@ -61,7 +61,7 @@ let speedConfig = {
 
 let speedMultiplier = 1;
 
-const bgm = new Audio("../assets/sounds/bai4.mp3");
+const bgm = new Audio("../assets/sounds/bai9.mp3");
 bgm.loop = true;
 bgm.volume = 0.4;
 
