@@ -4,8 +4,12 @@ let currentPlayer = 0;
 
 const gameInfo = document.getElementById("gameInfo");
 
+let currentQuestionIndex = null;
 let obstacleCells = [];
 let questions = [];
+let usedQuestions = [];
+let previousPosition = 0;
+let extraTurns = {};
 
 const playerLayer = document.getElementById("playerLayer");
 const cellLayer = document.getElementById("cellLayer");
@@ -577,6 +581,7 @@ function movePlayer(steps) {
   if (isGameOver) return;
 
   let pos = positions[currentPlayer];
+  previousPosition = pos;
   const pathLength = path.length;
 
   let moveInterval = setInterval(() => {
@@ -622,6 +627,7 @@ function afterMove() {
 
   if (obstacleCells.includes(pos)) {
     zoomEffect();
+
     setTimeout(() => showQuestion(), 300);
 
     rollBtn.disabled = true;
@@ -629,12 +635,7 @@ function afterMove() {
     return;
   }
 
-  currentPlayer = (currentPlayer + 1) % game.players.length;
-
-  updatePlayerActive();
-
-  rollBtn.disabled = false;
-  rollBtn.innerText = "🎲 Tung xúc xắc";
+  nextTurn();
 }
 
 // ===== RESIZE =====
@@ -846,7 +847,27 @@ function showQuestion() {
     return;
   }
 
-  const q = questions[Math.floor(Math.random() * questions.length)];
+  // ===== LỌC CÂU CHƯA HOÀN THÀNH =====
+  const availableQuestions = questions.filter(
+    (_, index) => !usedQuestions.includes(index),
+  );
+
+  // hết câu
+  if (availableQuestions.length === 0) {
+    showToast("🎉 Đã hoàn thành hết câu hỏi!", "success");
+
+    nextTurn();
+
+    return;
+  }
+
+  // random câu
+  const randomQuestion =
+    availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
+
+  currentQuestionIndex = questions.indexOf(randomQuestion);
+
+  const q = randomQuestion;
 
   const popup = document.getElementById("questionPopup");
   const title = document.getElementById("qTitle");
@@ -964,8 +985,18 @@ function handleAnswer(selected, correct, isTimeout = false) {
 
   const isCorrect = !isTimeout && selected === correct;
 
+  if (isCorrect && !usedQuestions.includes(currentQuestionIndex)) {
+    usedQuestions.push(currentQuestionIndex);
+  }
+
   const correctSound = document.getElementById("correctSound");
   const wrongSound = document.getElementById("wrongSound");
+
+  // ===== NẾU TRẢ LỜI SAI =====
+  if (!isCorrect) {
+    // mất toàn bộ lượt bonus hiện có
+    extraTurns[currentPlayer] = 0;
+  }
 
   if (isCorrect) {
     correctSound.currentTime = 0;
@@ -1030,9 +1061,23 @@ function handleAnswer(selected, correct, isTimeout = false) {
 
     if (isCorrect) {
       const rollBtn = document.getElementById("rollBtn");
+
       rollBtn.disabled = false;
+
       rollBtn.innerText = "🎲 Tung xúc xắc";
     } else {
+      // ===== QUAY VỀ Ô CŨ =====
+      positions[currentPlayer] = previousPosition;
+
+      renderPlayersOnMap();
+
+      renderCells();
+
+      // ===== PLAYER KẾ ĐƯỢC +1 LƯỢT =====
+      const nextPlayer = (currentPlayer + 1) % game.players.length;
+
+      extraTurns[nextPlayer] = (extraTurns[nextPlayer] || 0) + 1;
+
       nextTurn();
     }
   }, 1200);
@@ -1051,7 +1096,12 @@ function flashRed() {
 function nextTurn() {
   const rollBtn = document.getElementById("rollBtn");
 
-  currentPlayer = (currentPlayer + 1) % game.players.length;
+  // ===== CÒN LƯỢT BONUS =====
+  if ((extraTurns[currentPlayer] || 0) > 0) {
+    extraTurns[currentPlayer]--;
+  } else {
+    currentPlayer = (currentPlayer + 1) % game.players.length;
+  }
 
   updatePlayerActive();
 

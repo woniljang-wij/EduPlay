@@ -1,4 +1,11 @@
 let tempQuestions = [];
+
+// ===== INDEPENDENT MODE =====
+let blueQuestions = [];
+let redQuestions = [];
+
+let currentQuestionTeam = "shared";
+
 let editingId = null;
 let deletedGame = null;
 let undoTimer = null;
@@ -21,6 +28,94 @@ requestDB.onupgradeneeded = (e) => {
 requestDB.onsuccess = (e) => {
   db = e.target.result;
 };
+
+function loadSavedMusic() {
+  if (!db) return;
+
+  const tx = db.transaction("music", "readonly");
+
+  const store = tx.objectStore("music");
+
+  const req = store.getAll();
+
+  req.onsuccess = () => {
+    const musics = req.result || [];
+
+    musics.forEach((music) => {
+      // tránh render trùng
+      const existed = [...document.querySelectorAll(".music-btn")].some(
+        (btn) => btn.dataset.src === music.id,
+      );
+
+      if (existed) return;
+
+      const url = URL.createObjectURL(music.file);
+
+      const btn = document.createElement("button");
+
+      btn.type = "button";
+
+      btn.className = `
+music-btn inline-flex items-center gap-2
+px-4 py-2 rounded-full
+border border-gray-300
+bg-white text-gray-700
+hover:bg-gray-100
+transition-all text-sm
+`;
+
+      btn.dataset.src = music.id;
+
+      btn.dataset.name = music.name;
+
+      btn.dataset.custom = "true";
+
+      const control = document.createElement("span");
+
+      control.innerHTML = "▶";
+
+      control.className = "text-green-500 text-xs cursor-pointer";
+
+      const name = document.createElement("span");
+
+      name.textContent = music.name;
+
+      btn.onclick = () => {
+        setActiveMusicButton(btn);
+
+        currentAudio.pause();
+
+        currentAudio = new Audio(url);
+
+        currentAudio.loop = true;
+
+        currentAudio.volume = 0.7;
+
+        currentAudio.play().catch(() => {});
+
+        document
+          .querySelectorAll(".music-btn span:first-child")
+          .forEach((el) => (el.innerHTML = "▶"));
+
+        control.innerHTML = "⏸";
+      };
+
+      btn.appendChild(control);
+
+      btn.appendChild(name);
+
+      document.getElementById("musicList").appendChild(btn);
+    });
+  };
+}
+
+function isIndependentMode() {
+  const selected = document.querySelector("input[name='mode']:checked");
+
+  if (!selected) return false;
+
+  return selected.parentElement.innerText.toLowerCase().includes("độc lập");
+}
 
 // ===== NAV =====
 function goIndex() {
@@ -49,6 +144,9 @@ function goCreate(isEdit = false) {
   if (!isEdit) {
     editingId = null;
     tempQuestions = [];
+
+    blueQuestions = [];
+    redQuestions = [];
 
     document.querySelector("input[placeholder='Nhập tiêu đề...']").value = "";
 
@@ -282,6 +380,9 @@ function saveGame() {
     document.querySelector("input[name='mode']:checked")?.parentElement
       .innerText || "default";
 
+  const controlMode =
+    document.querySelector("input[name='control']:checked")?.value || "screen";
+
   let games = JSON.parse(localStorage.getItem("dragonboatGames")) || [];
 
   if (editingId) {
@@ -296,8 +397,13 @@ function saveGame() {
         winScore,
         players: [team1, team2],
         mode,
+        controlMode,
         music,
-        questions: tempQuestions,
+        sharedQuestions: tempQuestions || [],
+
+        blueQuestions: blueQuestions || [],
+
+        redQuestions: redQuestions || [],
       };
     }
 
@@ -312,8 +418,13 @@ function saveGame() {
       winScore,
       players: [team1, team2],
       mode,
+      controlMode,
       music,
-      questions: tempQuestions || [],
+      sharedQuestions: tempQuestions || [],
+
+      blueQuestions: blueQuestions || [],
+
+      redQuestions: redQuestions || [],
     };
 
     games.push(game);
@@ -322,6 +433,10 @@ function saveGame() {
 
   localStorage.setItem("dragonboatGames", JSON.stringify(games));
   goHome();
+}
+
+function isIndependentGame(game) {
+  return game.mode?.toLowerCase().includes("độc lập");
 }
 
 // ===== RENDER =====
@@ -338,14 +453,21 @@ function renderGames() {
     container.innerHTML = `
       <div class="col-span-full text-center py-20">
         <div class="text-5xl mb-3">🐉</div>
-        <h2 class="text-xl font-semibold mb-3">Chưa có bài chơi nào</h2>
+        <h2 class="text-xl font-semibold mb-3">
+          Chưa có bài chơi nào
+        </h2>
 
-       <button onclick="goCreate()"
-        class="px-6 py-3 rounded-xl text-white font-semibold 
-        bg-gradient-to-r from-pink-500 via-red-500 to-purple-600 
-        shadow-lg hover:scale-105 transition">
-        ➕ Tạo bài đầu tiên
-       </button>
+        <button
+          onclick="goCreate()"
+          class="
+            px-6 py-3 rounded-xl text-white font-semibold
+            bg-gradient-to-r from-pink-500 via-red-500 to-purple-600
+            shadow-lg hover:scale-105 transition
+          "
+        >
+          ➕ Tạo bài đầu tiên
+        </button>
+
       </div>
     `;
     return;
@@ -354,135 +476,160 @@ function renderGames() {
   let html = "";
 
   games.forEach((g) => {
+    const isIndependent = isIndependentGame(g);
+
     html += `
-  <div class="w-80">
+    <div class="w-full max-w-[420px]">
 
-    <div class="
-      card
-      bg-white/80
-      backdrop-blur
-      rounded-2xl
-      p-5
-      shadow-lg
-      border border-white/40
-      relative
-    ">
+      <div class="
+        card
+        bg-white/80
+        backdrop-blur
+        rounded-2xl
+        p-5
+        shadow-lg
+        border border-white/40
+        relative
+      ">
 
-      <!-- ICON -->
-      <span class="absolute top-3 right-3 text-lg">
-        🐉
-      </span>
-
-      <!-- TITLE -->
-      <h3 class="font-bold text-lg mb-3">
-        ${g.title}
-      </h3>
-
-      <!-- TAG -->
-      <div class="flex gap-2 mb-4 text-sm flex-wrap">
-
-        <span class="
-          bg-blue-100
-          text-blue-700
-          px-3 py-1
-          rounded-full
-        ">
-          👥 ${g.players.length} đội
+        <!-- ICON -->
+        <span class="absolute top-3 right-3 text-lg">
+          🐉
         </span>
 
-        <span class="
-          bg-green-100
-          text-green-700
-          px-3 py-1
-          rounded-full
-        ">
-          🧠 ${g.questions?.length || 0} câu
-        </span>
+        <!-- TITLE -->
+        <h3 class="font-bold text-lg mb-3">
+          ${g.title}
+        </h3>
 
-        <span class="
-          bg-red-100
-          text-red-600
-          px-3 py-1
-          rounded-full
-        ">
-          🏆 ${g.winScore || 3} điểm
-        </span>
+        <!-- TAG -->
+        <div class="flex gap-2 mb-4 text-sm flex-wrap items-center">
 
-      </div>
+          <span class="
+            bg-blue-100
+            text-blue-700
+            px-3 py-1
+            rounded-full whitespace-nowrap min-w-fit
+          ">
+            👥 ${g.players.length} đội
+          </span>
 
-      <!-- BUTTON -->
-      <div class="flex gap-3 mb-4">
+          ${
+            isIndependent
+              ? `
 
-        <button
-          onclick="playGame(${g.id})"
-          class="
-            play-btn
-            flex-1
-            py-3
-            rounded-xl
-            font-semibold
-            shadow-lg
-            relative
-            overflow-hidden
-          "
-        >
-          ▶ Chơi
-        </button>
+                <span class="
+                  bg-blue-100
+                  text-blue-700
+                  px-3 py-1
+                  rounded-full whitespace-nowrap min-w-fit
+                ">
+                  🔵 ${g.blueQuestions?.length || 0}
+                </span>
 
-        <button
-          onclick="openAssign(${g.id}, 'dragonboat')"
-          class="
-            px-4 py-2
-            border border-gray-200
-            rounded-xl
-            text-purple-600
-            hover:bg-purple-50
-            transition
-          "
-        >
-          📋 Giao
-        </button>
+                <span class="
+                  bg-red-100
+                  text-red-700
+                  px-3 py-1
+                  rounded-full whitespace-nowrap min-w-fit
+                ">
+                  🔴 ${g.redQuestions?.length || 0}
+                </span>
 
-      </div>
+              `
+              : `
 
-      <!-- ACTION -->
-      <div class="flex gap-5 text-sm font-medium">
+                <span class="
+                  bg-green-100
+                  text-green-700
+                  px-3 py-1
+                  rounded-full whitespace-nowrap min-w-fit
+                ">
+                  🧠 ${g.sharedQuestions?.length || 0} câu
+                </span>
 
-        <button
-          onclick="editGame(${g.id})"
-          class="text-orange-500 hover:underline"
-        >
-          ✏️ Sửa
-        </button>
+              `
+          }
 
-        <button
-          onclick="fakeFeature('🔗 Chia sẻ')"
-          class="text-blue-500 hover:underline"
-        >
-          🔗 Chia sẻ GV
-        </button>
+          <span class="
+            bg-red-100
+            text-red-600
+            px-3 py-1
+            rounded-full whitespace-nowrap min-w-fit
+          ">
+            🏆 ${g.winScore || 3} điểm
+          </span>
 
-        <button
-          onclick="deleteGame(${g.id})"
-          class="text-red-500 hover:underline"
-        >
-          🗑 Xóa bài
-        </button>
+        </div>
+
+        <!-- BUTTON -->
+        <div class="flex gap-3 mb-4">
+
+          <button
+            onclick="playGame(${g.id})"
+            class="
+              play-btn
+              flex-1
+              py-3
+              rounded-xl
+              font-semibold
+              shadow-lg
+              relative
+              overflow-hidden
+            "
+          >
+            ▶ Chơi
+          </button>
+
+          <button
+            onclick="openAssign(${g.id}, 'dragonboat')"
+            class="
+              px-4 py-2
+              border border-gray-200
+              rounded-xl
+              text-purple-600
+              hover:bg-purple-50
+              transition
+            "
+          >
+            📋 Giao
+          </button>
+
+        </div>
+
+        <!-- ACTION -->
+        <div class="flex gap-5 text-sm font-medium">
+
+          <button
+            onclick="editGame(${g.id})"
+            class="text-orange-500 hover:underline"
+          >
+            ✏️ Sửa
+          </button>
+
+          <button
+            onclick="fakeFeature('🔗 Chia sẻ')"
+            class="text-blue-500 hover:underline"
+          >
+            🔗 Chia sẻ GV
+          </button>
+
+          <button
+            onclick="deleteGame(${g.id})"
+            class="text-red-500 hover:underline"
+          >
+            🗑 Xóa bài
+          </button>
+
+        </div>
 
       </div>
 
     </div>
-
-  </div>
-  `;
+    `;
   });
 
   container.innerHTML = html;
-}
-
-// ===== FAKE FEATURE =====
-function fakeFeature(name) {
-  showToast(name + " (đang phát triển)", "info");
 }
 
 // ===== EDIT =====
@@ -494,10 +641,82 @@ function editGame(id) {
   editingId = id;
   goCreate(true);
 
+  // chỉ load nhạc upload 1 lần
+  if (!window.musicLoadedOnce) {
+    loadSavedMusic();
+
+    window.musicLoadedOnce = true;
+  }
+
   document.querySelector("input[placeholder='Nhập tiêu đề...']").value =
     game.title;
 
-  tempQuestions = game.questions || [];
+  // ===== RESTORE CONFIG =====
+
+  const inputs = document.querySelectorAll(".input-ui");
+
+  // thời gian
+  if (inputs[1]) {
+    inputs[1].value = game.duration || "60";
+  }
+
+  // điểm thắng
+  if (inputs[2]) {
+    inputs[2].value = game.winScore || 3;
+  }
+
+  // đóng băng
+  if (inputs[3]) {
+    inputs[3].value = game.freeze || "3";
+  }
+
+  // đội xanh
+  if (inputs[4]) {
+    inputs[4].value = game.players?.[0] || "Đội Xanh";
+  }
+
+  // đội đỏ
+  if (inputs[5]) {
+    inputs[5].value = game.players?.[1] || "Đội Đỏ";
+  }
+
+  // ===== RESTORE MODE =====
+
+  const modeRadios = document.querySelectorAll("input[name='mode']");
+
+  modeRadios.forEach((radio) => {
+    const text = radio.parentElement.innerText.toLowerCase();
+
+    if (
+      game.mode?.toLowerCase().includes("độc lập") &&
+      text.includes("độc lập")
+    ) {
+      radio.checked = true;
+    }
+
+    if (
+      game.mode?.toLowerCase().includes("mặc định") &&
+      text.includes("mặc định")
+    ) {
+      radio.checked = true;
+    }
+  });
+
+  // ===== RESTORE CONTROL MODE =====
+
+  const controlRadios = document.querySelectorAll("input[name='control']");
+
+  controlRadios.forEach((radio) => {
+    radio.checked = radio.value === (game.controlMode || "screen");
+  });
+
+  // ===== RESTORE QUESTIONS =====
+
+  tempQuestions = game.sharedQuestions || [];
+
+  blueQuestions = game.blueQuestions || [];
+
+  redQuestions = game.redQuestions || [];
 
   renderQuestionPreview();
   updateQuestionCount();
@@ -507,6 +726,20 @@ function editGame(id) {
     btn.classList.remove("active");
   });
 
+  // reset active nhạc
+  document.querySelectorAll(".music-btn").forEach((btn) => {
+    btn.classList.remove("active");
+  });
+
+  // nếu game không có nhạc -> active mặc định bài 1
+  if (!game.music) {
+    const defaultBtn = document.querySelector(".music-btn");
+
+    if (defaultBtn) {
+      defaultBtn.classList.add("active");
+    }
+  }
+
   if (game.music) {
     const targetBtn = [...document.querySelectorAll(".music-btn")].find(
       (btn) => btn.dataset.src === game.music,
@@ -514,6 +747,27 @@ function editGame(id) {
 
     if (targetBtn) {
       targetBtn.classList.add("active");
+
+      // custom upload
+      if (targetBtn.dataset.custom === "true") {
+        const tx = db.transaction("music", "readonly");
+
+        const req = tx.objectStore("music").get(game.music);
+
+        req.onsuccess = () => {
+          if (req.result?.file) {
+            const url = URL.createObjectURL(req.result.file);
+
+            currentAudio.pause();
+
+            currentAudio = new Audio(url);
+
+            currentAudio.loop = true;
+
+            currentAudio.volume = 0.7;
+          }
+        };
+      }
     }
   }
 }
@@ -565,9 +819,9 @@ window.onload = () => {
   bindMusicButtons();
 };
 
-// ===== QUESTION SYSTEM =====
+function openQuestionManager(team = "shared") {
+  currentQuestionTeam = team;
 
-function openQuestionManager() {
   const modal = document.getElementById("questionManager");
 
   modal.classList.remove("hidden");
@@ -577,14 +831,20 @@ function openQuestionManager() {
 
   list.innerHTML = "";
 
-  if (tempQuestions.length === 0) {
+  const data = isIndependentMode()
+    ? team === "blue"
+      ? blueQuestions
+      : redQuestions
+    : tempQuestions;
+
+  if (data.length === 0) {
     list.innerHTML = `
       <p class="text-gray-400 text-center">
         Chưa có câu hỏi nào
       </p>
     `;
   } else {
-    tempQuestions.forEach((q, i) => {
+    data.forEach((q, i) => {
       list.insertAdjacentHTML(
         "beforeend",
 
@@ -623,49 +883,25 @@ function openQuestionManager() {
 
             <input
               value="${q.answers[0]}"
-              oninput="
-                updateAnswer(
-                  ${i},
-                  0,
-                  this.value
-                )
-              "
+              oninput="updateAnswer(${i},0,this.value)"
               class="border p-2 rounded"
             />
 
             <input
               value="${q.answers[1]}"
-              oninput="
-                updateAnswer(
-                  ${i},
-                  1,
-                  this.value
-                )
-              "
+              oninput="updateAnswer(${i},1,this.value)"
               class="border p-2 rounded"
             />
 
             <input
               value="${q.answers[2]}"
-              oninput="
-                updateAnswer(
-                  ${i},
-                  2,
-                  this.value
-                )
-              "
+              oninput="updateAnswer(${i},2,this.value)"
               class="border p-2 rounded"
             />
 
             <input
               value="${q.answers[3]}"
-              oninput="
-                updateAnswer(
-                  ${i},
-                  3,
-                  this.value
-                )
-              "
+              oninput="updateAnswer(${i},3,this.value)"
               class="border p-2 rounded"
             />
 
@@ -682,19 +918,19 @@ function openQuestionManager() {
             class="mt-2 border p-2 rounded w-full"
           >
 
-            <option value="0">
+            <option value="0" ${q.correct == 0 ? "selected" : ""}>
               ✅ A đúng
             </option>
 
-            <option value="1">
+            <option value="1" ${q.correct == 1 ? "selected" : ""}>
               ✅ B đúng
             </option>
 
-            <option value="2">
+            <option value="2" ${q.correct == 2 ? "selected" : ""}>
               ✅ C đúng
             </option>
 
-            <option value="3">
+            <option value="3" ${q.correct == 3 ? "selected" : ""}>
               ✅ D đúng
             </option>
 
@@ -883,7 +1119,15 @@ function saveAllQuestions() {
     });
   }
 
-  tempQuestions = newQuestions;
+  if (isIndependentMode()) {
+    if (currentQuestionTeam === "blue") {
+      blueQuestions = newQuestions;
+    } else if (currentQuestionTeam === "red") {
+      redQuestions = newQuestions;
+    }
+  } else {
+    tempQuestions = newQuestions;
+  }
 
   closeQuestionManager();
 
@@ -898,33 +1142,55 @@ function saveAllQuestions() {
 }
 
 function updateQuestion(index, key, value) {
-  if (!tempQuestions[index]) {
-    tempQuestions[index] = {
+  let target = tempQuestions;
+
+  if (isIndependentMode()) {
+    target = currentQuestionTeam === "blue" ? blueQuestions : redQuestions;
+  }
+
+  if (!target[index]) {
+    target[index] = {
       question: "",
       answers: ["", "", "", ""],
       correct: 0,
     };
   }
 
-  tempQuestions[index][key] = value;
+  target[index][key] = value;
 }
 
 function updateAnswer(index, answerIndex, value) {
-  if (!tempQuestions[index]) {
-    tempQuestions[index] = {
+  let target = tempQuestions;
+
+  if (isIndependentMode()) {
+    target = currentQuestionTeam === "blue" ? blueQuestions : redQuestions;
+  }
+
+  if (!target[index]) {
+    target[index] = {
       question: "",
       answers: ["", "", "", ""],
       correct: 0,
     };
   }
 
-  tempQuestions[index].answers[answerIndex] = value;
+  target[index].answers[answerIndex] = value;
 }
 
 function updateQuestionCount() {
   const el = document.getElementById("questionCount");
 
-  if (el) {
+  if (!el) return;
+
+  // ===== MODE ĐỘC LẬP =====
+  if (isIndependentMode()) {
+    el.classList.add("hidden");
+  }
+
+  // ===== MODE MẶC ĐỊNH =====
+  else {
+    el.classList.remove("hidden");
+
     el.innerText = `❓ Bộ câu hỏi (${tempQuestions.length})`;
   }
 }
@@ -938,7 +1204,78 @@ function updateQuestionCount2() {
 function renderQuestionPreview() {
   const box = document.getElementById("questionPreview");
 
+  const manualBtn = document.getElementById("manualQuestionBtn");
+
   if (!box) return;
+
+  // ===== MODE ĐỘC LẬP =====
+
+  if (isIndependentMode()) {
+    manualBtn.classList.add("hidden");
+
+    box.innerHTML = `
+  <div class="grid grid-cols-2 gap-10 relative">
+
+    <div class="
+      absolute
+      left-1/2
+      top-0
+      -translate-x-1/2
+      w-px
+      h-full
+      bg-gradient-to-b
+      from-transparent
+      via-gray-300
+      to-transparent
+    "></div>
+
+        <div>
+
+          <div class="text-blue-600 font-bold mb-3">
+            🔵 Bộ câu hỏi đội xanh (${blueQuestions.length})
+          </div>
+
+          <button
+            onclick="openQuestionManager('blue')"
+            class="mb-4 px-4 py-2 rounded-xl border border-blue-300 text-blue-600"
+          >
+            ✏️ Nhập câu hỏi đội xanh
+          </button>
+
+          <div id="bluePreview"></div>
+
+        </div>
+
+        <div>
+
+          <div class="text-red-600 font-bold mb-3">
+            🔴 Bộ câu hỏi đội đỏ (${redQuestions.length})
+          </div>
+
+          <button
+            onclick="openQuestionManager('red')"
+            class="mb-4 px-4 py-2 rounded-xl border border-red-300 text-red-600"
+          >
+            ✏️ Nhập câu hỏi đội đỏ
+          </button>
+
+          <div id="redPreview"></div>
+
+        </div>
+
+      </div>
+    `;
+
+    renderPreviewList("bluePreview", blueQuestions);
+
+    renderPreviewList("redPreview", redQuestions);
+
+    return;
+  }
+
+  // ===== MODE MẶC ĐỊNH =====
+
+  manualBtn.classList.remove("hidden");
 
   if (tempQuestions.length === 0) {
     box.innerHTML = `
@@ -950,89 +1287,54 @@ function renderQuestionPreview() {
     return;
   }
 
+  renderPreviewList("questionPreview", tempQuestions);
+}
+
+function renderPreviewList(id, data) {
+  const box = document.getElementById(id);
+
+  if (!box) return;
+
   let html = "";
 
-  tempQuestions.forEach((q, i) => {
+  data.forEach((q, i) => {
     html += `
-    <div class="
-      border-b py-4 flex justify-between items-start
-    ">
+      <div class="border-b py-4">
 
-      <div class="flex-1">
-
-        <div class="font-semibold mb-2">
+        <div class="font-semibold mb-3">
           ${i + 1}. ${q.question}
         </div>
 
-        <div class="
-  flex flex-wrap gap-2
-  w-full
-">
+        <div class="grid grid-cols-2 gap-2">
 
-${q.answers
-  .map((a, idx) => {
-    const labels = ["A", "B", "C", "D"];
+          ${q.answers
+            .map((a, idx) => {
+              const labels = ["A", "B", "C", "D"];
 
-    return `
-<span class="
-  flex-1 min-w-[220px]
-  px-4 py-2
-  rounded-xl
-  text-sm xl:text-base
-  font-semibold
-  border
-  transition-all
-  break-words
-  text-center
+              return `
+                <div class="
+                  p-3 rounded-xl border text-center font-semibold
 
-        ${
-          idx === q.correct
-            ? "bg-green-100 text-green-700 border-green-400"
-            : "bg-gray-100 text-gray-600 border-gray-200"
-        }
-      ">
+                  ${
+                    idx === q.correct
+                      ? "bg-green-100 border-green-400 text-green-700"
+                      : "bg-gray-100 border-gray-200 text-gray-600"
+                  }
+                ">
 
-        ${labels[idx]}: ${a}
+                  ${labels[idx]}: ${a}
 
-        ${idx === q.correct ? "✔" : ""}
+                  ${idx === q.correct ? "✔" : ""}
 
-      </span>
-    `;
-  })
-  .join("")}
+                </div>
+              `;
+            })
+            .join("")}
 
         </div>
 
       </div>
-
-      <div class="flex gap-2 ml-4">
-
-        <button
-          onclick="editQuestion(${i})"
-          class="
-            px-3 py-1 rounded-lg
-            bg-orange-100 text-orange-600
-            hover:bg-orange-200
-          "
-        >
-          ✏️
-        </button>
-
-        <button
-          onclick="deleteQuestion(${i})"
-          class="
-            px-3 py-1 rounded-lg
-            bg-red-100 text-red-600
-            hover:bg-red-200
-          "
-        >
-          🗑
-        </button>
-
-      </div>
-
-    </div>
-  `;
+    `;
   });
 
   box.innerHTML = html;
@@ -1108,6 +1410,14 @@ window.addEventListener("load", () => {
   setTimeout(() => {
     startCreateMusic();
   }, 300);
+});
+
+document.querySelectorAll("input[name='mode']").forEach((radio) => {
+  radio.addEventListener("change", () => {
+    renderQuestionPreview();
+
+    updateQuestionCount();
+  });
 });
 
 function goAssignments() {

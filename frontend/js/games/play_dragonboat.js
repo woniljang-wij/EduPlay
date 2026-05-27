@@ -80,12 +80,23 @@ if (titleEl) {
   titleEl.textContent = gameTitle;
 }
 
-// ===== QUESTIONS =====
+// ===== MODE =====
+const isIndependentMode = game.mode?.toLowerCase().includes("độc lập");
 
-const questions = game?.questions || [];
+// ===== QUESTIONS =====
+const sharedQuestions = game.sharedQuestions || [];
+
+const blueQuestions = isIndependentMode
+  ? game.blueQuestions || []
+  : sharedQuestions;
+
+const redQuestions = isIndependentMode
+  ? game.redQuestions || []
+  : sharedQuestions;
+
 const raceTrack = document.querySelector(".race-track");
 
-const totalQuestions = questions.length;
+const totalQuestions = Math.max(blueQuestions.length, redQuestions.length);
 
 const checkpoints = [];
 
@@ -228,7 +239,7 @@ function renderQuestion() {
 function renderTeamQuestion(team) {
   const index = team === "blue" ? blueQuestionIndex : redQuestionIndex;
 
-  const q = questions[index];
+  const q = team === "blue" ? blueQuestions[index] : redQuestions[index];
 
   if (!q) return;
 
@@ -256,6 +267,11 @@ function renderAnswers(container, q, team) {
     btn.innerHTML = `<span>${answer}</span>`;
 
     btn.onclick = () => {
+      const gameControlMode = game.controlMode || "screen";
+
+      // mode bàn phím thì khóa click đáp án
+      if (gameControlMode === "keyboard") return;
+
       chooseAnswer(index, team);
     };
 
@@ -298,7 +314,10 @@ function chooseAnswer(index, team) {
 
   const questionIndex = team === "blue" ? blueQuestionIndex : redQuestionIndex;
 
-  const q = questions[questionIndex];
+  const q =
+    team === "blue"
+      ? blueQuestions[questionIndex]
+      : redQuestions[questionIndex];
 
   if (!q) return;
 
@@ -411,12 +430,12 @@ function checkWinner() {
   const red = Number(document.getElementById("redScore").textContent);
 
   // ===== WIN BY FINISH =====
-  if (blueQuestionIndex >= questions.length) {
+  if (blueQuestionIndex >= blueQuestions.length) {
     showWinner(blueTeamName || teamBlue);
     return;
   }
 
-  if (redQuestionIndex >= questions.length) {
+  if (redQuestionIndex >= redQuestions.length) {
     showWinner(redTeamName || teamRed);
     return;
   }
@@ -689,3 +708,27 @@ function saveDragonBoatResult(winnerTeam) {
     JSON.stringify(submits),
   );
 }
+
+document.addEventListener("keydown", (e) => {
+  const gameControlMode = game.controlMode || "screen";
+
+  // chỉ bật ở mode bàn phím
+  if (gameControlMode !== "keyboard") return;
+
+  // game kết thúc thì khóa
+  if (gameEnded) return;
+
+  const key = e.key.toLowerCase();
+
+  // ===== ĐỘI XANH =====
+  if (key === "q") chooseAnswer(0, "blue");
+  if (key === "w") chooseAnswer(1, "blue");
+  if (key === "a") chooseAnswer(2, "blue");
+  if (key === "s") chooseAnswer(3, "blue");
+
+  // ===== ĐỘI ĐỎ =====
+  if (key === "o") chooseAnswer(0, "red");
+  if (key === "p") chooseAnswer(1, "red");
+  if (key === "k") chooseAnswer(2, "red");
+  if (key === "l") chooseAnswer(3, "red");
+});

@@ -145,39 +145,81 @@
               </div>
 
               <!-- RIGHT -->
-              <div class="space-y-4">
+              <div class="space-y-5">
+                <!-- ===== CHẾ ĐỘ CHƠI ===== -->
                 <div class="config-card">
-                  <label class="flex gap-2 font-semibold">
-                    <input type="radio" name="mode" checked />
-                    🎯 Mặc định
-                  </label>
-                  <p class="text-sm text-gray-500 ml-6">Mỗi đội riêng</p>
+                  <div class="font-semibold mb-4 text-[18px]">
+                    🎯 Chế độ chơi
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-3">
+                    <!-- MẶC ĐỊNH -->
+                    <label class="mode-option">
+                      <input type="radio" name="mode" value="default" checked />
+
+                      <div class="mode-content">
+                        <div class="mode-title">🎯 Mặc định</div>
+
+                        <div class="mode-desc">
+                          2 đội dùng chung 1 bộ câu hỏi
+                        </div>
+                      </div>
+                    </label>
+
+                    <!-- ĐỘC LẬP -->
+                    <label class="mode-option">
+                      <input type="radio" name="mode" value="independent" />
+
+                      <div class="mode-content">
+                        <div class="mode-title">🚩 Độc lập</div>
+
+                        <div class="mode-desc">Mỗi đội có bộ câu hỏi riêng</div>
+                      </div>
+                    </label>
+                  </div>
                 </div>
 
+                <!-- ===== ĐIỀU KHIỂN ===== -->
                 <div class="config-card">
-                  <label class="flex gap-2 font-semibold">
-                    <input type="radio" name="mode" />
-                    ⚡ Cùng câu hỏi
-                  </label>
-                </div>
+                  <div class="font-semibold mb-4 text-[18px]">
+                    🎮 Phương thức điều khiển
+                  </div>
 
-                <div class="config-card">
-                  <label class="flex gap-2 font-semibold">
-                    <input type="radio" name="mode" />
-                    🚩 Chạm mốc thắng
-                  </label>
-                </div>
+                  <div class="grid grid-cols-2 gap-3">
+                    <!-- SCREEN -->
+                    <label class="mode-option">
+                      <input
+                        type="radio"
+                        name="control"
+                        value="screen"
+                        checked
+                      />
 
-                <div class="config-card">
-                  <label class="flex gap-2 font-semibold">
-                    <input type="radio" name="control" checked />
-                    🖥 Màn hình
-                  </label>
+                      <div class="mode-content">
+                        <div class="mode-title">
+                          🖥️ Sử dụng màn hình tương tác
+                        </div>
+                      </div>
+                    </label>
 
-                  <label class="flex gap-2 text-sm mt-2 ml-6">
-                    <input type="radio" name="control" />
-                    ⌨️ Bàn phím
-                  </label>
+                    <!-- KEYBOARD -->
+                    <label class="mode-option">
+                      <input type="radio" name="control" value="keyboard" />
+
+                      <div class="mode-content">
+                        <div class="mode-title text-[15px] leading-6">
+                          ⌨️ Sử dụng bàn phím
+                          <br />
+
+                          <span class="font-normal text-gray-500 text-[13px]">
+                            Đội Xanh: Q W A S
+                            <br />
+                            Đội Đỏ: O P K L
+                          </span>
+                        </div>
+                      </div>
+                    </label>
+                  </div>
                 </div>
               </div>
             </div>
@@ -209,10 +251,17 @@
 
           <!-- QUESTIONS -->
           <div class="form-section">
-            <h3 id="questionCount" class="label-ui mb-4">❓ Bộ câu hỏi (0)</h3>
+            <h3 id="questionCount" class="label-ui mb-4">
+              ❓ Bộ câu hỏi
+              <span id="questionCountNumber">(0)</span>
+            </h3>
 
-            <div class="flex gap-3 mb-4">
-              <button onclick="openQuestionManager()" class="btn-outline">
+            <div id="questionActionButtons" class="flex gap-3 mb-4">
+              <button
+                id="manualQuestionBtn"
+                onclick="openQuestionManager()"
+                class="btn-outline"
+              >
                 ✏️ Nhập thủ công
               </button>
               <button
@@ -299,7 +348,33 @@
           </button>
         </div>
 
-        <div class="p-8 space-y-6">
+        <div id="aiTeamSelect" class="hidden px-8 pt-6 pb-3 bg-gray-50/40">
+          <label class="block text-sm font-semibold mb-3 text-gray-700">
+            Bộ câu hỏi cho đội
+          </label>
+
+          <div class="grid grid-cols-2 gap-3">
+            <label
+              class="border border-blue-300 rounded-2xl p-4 cursor-pointer hover:bg-blue-50 transition"
+            >
+              <input type="radio" name="aiTeam" value="blue" checked />
+
+              <span class="ml-2 font-semibold text-blue-600">
+                🔵 Đội xanh
+              </span>
+            </label>
+
+            <label
+              class="border border-red-300 rounded-2xl p-4 cursor-pointer hover:bg-red-50 transition"
+            >
+              <input type="radio" name="aiTeam" value="red" />
+
+              <span class="ml-2 font-semibold text-red-600"> 🔴 Đội đỏ </span>
+            </label>
+          </div>
+        </div>
+
+        <div class="p-8 pt-6 space-y-6">
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-semibold mb-2 text-gray-700"
