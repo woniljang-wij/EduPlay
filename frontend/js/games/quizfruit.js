@@ -3,7 +3,9 @@ function goIndex() {
 }
 
 let selectedSpeed = "medium";
+
 let tempQuestions = [];
+
 let editingId = null;
 
 function setActive(type) {
@@ -168,122 +170,210 @@ function saveGame() {
     score: scorePerQuestion,
   }));
 
-  let games = JSON.parse(localStorage.getItem("fruitGames")) || [];
+  const user = JSON.parse(localStorage.getItem("user"));
 
-  if (editingId) {
-    const index = games.findIndex((g) => g.id === editingId);
+  if (!user || !user.id) {
+    showToast("Bạn chưa đăng nhập!", "error");
+    return;
+  }
 
-    if (index !== -1) {
-      games[index] = {
-        ...games[index],
-        title,
-        time,
-        speed: selectedSpeed,
-        questions: questionsWithScore,
-      };
-    }
+  const payload = {
+    title,
 
-    editingId = null;
-    showToast("✅ Cập nhật thành công!");
-  } else {
-    const newGame = {
-      id: Date.now(),
+    subject: "QuizFruit",
+
+    music: "",
+
+    game_type: "quizfruit",
+
+    game_data: {
       title,
       time,
       speed: selectedSpeed,
       questions: questionsWithScore,
-    };
+    },
+  };
 
-    games.push(newGame);
-    showToast("🎉 Lưu thành công!");
+  // ===== EDIT =====
+  if (editingId) {
+    fetch(`http://127.0.0.1:5000/api/games/${editingId}`, {
+      method: "PUT",
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify(payload),
+    })
+      .then((res) => res.json())
+
+      .then(() => {
+        showToast("✅ Cập nhật thành công!");
+
+        editingId = null;
+
+        goHome();
+      });
+
+    return;
   }
 
-  localStorage.setItem("fruitGames", JSON.stringify(games));
-  goHome();
+  // ===== CREATE =====
+  fetch("http://127.0.0.1:5000/api/games", {
+    method: "POST",
+
+    headers: {
+      "Content-Type": "application/json",
+    },
+
+    body: JSON.stringify({
+      user_id: user.id,
+      ...payload,
+    }),
+  })
+    .then((res) => res.json())
+
+    .then(() => {
+      showToast("🎉 Lưu thành công!");
+
+      goHome();
+    });
 }
 
-// RENDER
-function renderGames() {
+async function renderGames() {
   const container = document.getElementById("gameList");
-  let games = JSON.parse(localStorage.getItem("fruitGames")) || [];
+
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  if (!user || !user.id) return;
+
+  const res = await fetch(`http://127.0.0.1:5000/api/games/${user.id}`);
+
+  const data = await res.json();
+
+  games = data
+    .filter((g) => g.game_type === "quizfruit")
+
+    .map((g) => ({
+      ...JSON.parse(g.game_data),
+
+      db_id: g.id,
+
+      title: g.title,
+    }));
 
   container.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6";
 
   if (games.length === 0) {
     container.innerHTML = `
       <div class="col-span-full text-center py-20">
-        <div class="text-5xl mb-3">🍉</div>
-        <h2 class="text-xl font-semibold mb-4">Chưa có bài học nào</h2>
-        <button onclick="goCreate()" 
+
+        <div class="text-5xl mb-3">
+          🍉
+        </div>
+
+        <h2 class="text-xl font-semibold mb-4">
+          Chưa có bài học nào
+        </h2>
+
+        <button
+          onclick="goCreate()"
           class="bg-green-500 text-white px-5 py-2 rounded-xl">
+
           ➕ Tạo bài đầu tiên
+
         </button>
+
       </div>
     `;
+
     return;
   }
 
   container.innerHTML = games
     .map(
       (g) => `
-     <div class="w-80">
-     <div class="card bg-white/80 backdrop-blur rounded-2xl p-5 shadow-lg border border-white/40 relative">
+<div
+  class="w-80"
+  data-id="${g.db_id}"
+>
 
-      <span class="absolute top-3 right-3 text-lg">🍉</span>
+<div class="card bg-white/80 backdrop-blur rounded-2xl p-5 shadow-lg border border-white/40 relative">
 
-      <h3 class="font-bold text-lg mb-3">${g.title}</h3>
+<span class="absolute top-3 right-3 text-lg">
+🍉
+</span>
 
-      <div class="flex gap-2 mb-4 text-sm">
-        <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full">
-          🧠 ${g.questions.length} câu
-        </span>
+<h3 class="font-bold text-lg mb-3">
+${g.title}
+</h3>
 
-        <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
-          ⏱ ${g.time}s
-        </span>
+<div class="flex gap-2 mb-4 text-sm">
 
-        <span class="bg-red-100 text-red-600 px-3 py-1 rounded-full">
-          🚀 ${g.speed || "medium"}
-        </span>
-      </div>
+<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full">
+🧠 ${g.questions.length} câu
+</span>
 
-      <!-- BUTTON -->
-      <div class="flex gap-3 mb-4">
+<span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
+⏱ ${g.time}s
+</span>
 
-        <button onclick="playGame(${g.id})"
-          class="play-btn flex-1 py-3 rounded-xl font-semibold shadow-lg relative overflow-hidden">
-          ▶ Chơi
-        </button>
+<span class="bg-red-100 text-red-600 px-3 py-1 rounded-full">
+🚀 ${g.speed || "medium"}
+</span>
 
-        <button onclick="openAssign(${g.id}, 'quizfruit')"
-          class="px-4 py-2 border rounded-xl text-purple-600 hover:bg-purple-50">
-          📋 Giao
-        </button>
+</div>
 
-      </div>
+<div class="flex gap-3 mb-4">
 
-      <!-- ACTION -->
-      <div class="flex gap-5 text-sm font-medium">
+<button
+onclick="playGame(${g.db_id})"
+class="play-btn flex-1 py-3 rounded-xl font-semibold shadow-lg relative overflow-hidden">
 
-        <button onclick="editGame(${g.id})"
-          class="text-orange-500 hover:underline">
-          ✏️ Sửa
-        </button>
+▶ Chơi
 
-        <button onclick="shareGame(${g.id})"
-          class="text-blue-500 hover:underline">
-          🔗 Chia sẻ GV
-        </button>
+</button>
 
-        <button onclick="deleteGame(${g.id})"
-          class="text-red-500 hover:underline">
-          🗑 Xóa bài
-        </button>
+<button
+onclick="openAssign(${g.db_id}, 'quizfruit')"
+class="px-4 py-2 border rounded-xl text-purple-600 hover:bg-purple-50">
 
-      </div>
+📋 Giao
 
-    </div>
-  </div>
+</button>
+
+</div>
+
+<div class="flex gap-5 text-sm font-medium flex-wrap">
+
+<button
+onclick="editGame(${g.db_id})"
+class="text-orange-500 hover:underline">
+
+✏️ Sửa
+
+</button>
+
+<button
+onclick="shareGame(${g.db_id})"
+class="text-blue-500 hover:underline">
+
+🔗 Chia sẻ GV
+
+</button>
+
+<button
+onclick="deleteGame(${g.db_id})"
+class="text-red-500 hover:underline">
+
+🗑 Xóa bài
+
+</button>
+
+</div>
+
+</div>
+</div>
 `,
     )
     .join("");
@@ -298,80 +388,82 @@ function playGame(id) {
 
 // ===== SHARE =====
 function shareGame(id) {
-  showToast("🔗 Đã copy link chia sẻ (fake 😆)");
+  const link = `${window.location.origin}/games/play_quizfruit.html?id=${id}`;
+
+  navigator.clipboard.writeText(link);
+
+  showToast("🔗 Đã copy link giáo viên!");
 }
 
-// ===== DELETE =====
-let deletedGame = null;
-let undoTimer = null;
-
-function deleteGame(id) {
-  let games = JSON.parse(localStorage.getItem("fruitGames")) || [];
-  const game = games.find((g) => g.id === id);
+async function deleteGame(id) {
+  const game = games.find((g) => Number(g.db_id) === Number(id));
 
   if (!game) return;
 
-  deletedGame = game;
+  try {
+    const res = await fetch(`http://127.0.0.1:5000/api/games/${id}`, {
+      method: "DELETE",
+    });
 
-  games = games.filter((g) => g.id !== id);
-  localStorage.setItem("fruitGames", JSON.stringify(games));
+    if (!res.ok) {
+      throw new Error("DELETE FAILED");
+    }
 
-  renderGames();
-  showUndoToast(
-    "🗑 Đã xóa bài chơi",
-    () => {
-      undoDelete();
-    },
-    5000,
-  );
+    games = games.filter((g) => Number(g.db_id) !== Number(id));
 
-  clearTimeout(undoTimer);
-  undoTimer = setTimeout(() => {
-    deletedGame = null;
-  }, 5000);
-}
+    // ===== RENDER LẠI =====
+    renderGames();
 
-function undoDelete() {
-  if (!deletedGame) return;
+    // ===== TOAST =====
+    showToast("🗑 Đã xóa bài chơi!", "success");
+  } catch (err) {
+    console.error("DELETE GAME ERROR:", err);
 
-  let games = JSON.parse(localStorage.getItem("fruitGames")) || [];
-
-  games.push(deletedGame);
-
-  localStorage.setItem("fruitGames", JSON.stringify(games));
-
-  renderGames();
-
-  showToast("↩ Đã khôi phục!", "success");
-
-  deletedGame = null;
+    showToast("❌ Xóa thất bại!", "error");
+  }
 }
 
 // ===== EDIT =====
-function editGame(id) {
-  let games = JSON.parse(localStorage.getItem("fruitGames")) || [];
-  const game = games.find((g) => g.id == id);
+async function editGame(id) {
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  if (!user || !user.id) return;
+
+  const res = await fetch(`http://127.0.0.1:5000/api/games/${user.id}`);
+
+  const data = await res.json();
+
+  const games = data
+    .filter((g) => g.game_type === "quizfruit")
+    .map((g) => ({
+      ...JSON.parse(g.game_data),
+
+      db_id: g.id,
+
+      title: g.title,
+    }));
+
+  const game = games.find((g) => Number(g.db_id) === Number(id));
 
   if (!game) return;
-
-  editingId = id;
-
-  history.pushState({}, "", `?mode=edit&id=${id}`);
 
   editingId = id;
 
   history.pushState({}, "", `?mode=edit&id=${id}`);
 
   selectedSpeed = game.speed;
+
   tempQuestions = JSON.parse(JSON.stringify(game.questions || []));
 
   goCreate(true);
 
   document.getElementById("title").value = game.title;
+
   document.getElementById("time").value = game.time;
 
   document.querySelectorAll(".speed-btn").forEach((b) => {
     b.classList.remove("active-speed");
+
     if (b.dataset.speed === game.speed) {
       b.classList.add("active-speed");
     }

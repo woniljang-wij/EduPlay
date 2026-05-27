@@ -129,67 +129,133 @@ if (autoPlay || roomCode) {
   }, 300);
 }
 
-const games = JSON.parse(localStorage.getItem("games")) || [];
-
-const rooms = JSON.parse(localStorage.getItem("turn_rooms")) || [];
-
 let game = null;
 
 const isStudentJoin = urlParams.get("join");
 
-if (roomCode) {
-  const room = rooms.find((r) => r.roomCode === roomCode);
+let games = [];
 
-  if (!room) {
-    showToast("Phòng không tồn tại!", "error");
+async function loadGame() {
+  const user = JSON.parse(localStorage.getItem("user"));
 
-    throw new Error("ROOM_NOT_FOUND");
-  }
-
-  // ===== KIỂM TRA HẾT HẠN =====
-  const expireTime = room.createdAt + room.expireDay * 24 * 60 * 60 * 1000;
-
-  const isExpired = Date.now() > expireTime;
-
-  // 👨‍🎓 CHẶN HỌC SINH
-  if (isStudentJoin && isExpired) {
-    showToast("⛔ Bài tập đã hết hạn!", "error");
+  // ===== HỌC SINH JOIN ROOM KHÔNG CẦN LOGIN =====
+  if (!roomCode && (!user || !user.id)) {
+    showToast("Bạn chưa đăng nhập!", "error");
 
     setTimeout(() => {
-      window.location.href = "../join.html";
-    }, 1500);
+      window.location.href = "../login.html";
+    }, 1200);
 
-    throw new Error("ROOM_EXPIRED");
+    return;
   }
 
-  game = games.find((g) => String(g.id) === String(room.gameId));
+  try {
+    let apiUrl = "";
 
-  // 👨‍🎓 Sinh viên nhập mã phòng
-  if (isStudentJoin) {
-    setupRoomPlayers(game);
+    // ===== VÀO TỪ ROOM =====
+    if (roomCode) {
+      apiUrl = "http://127.0.0.1:5000/api/games";
+    }
+
+    // ===== GIÁO VIÊN =====
+    else {
+      apiUrl = `http://127.0.0.1:5000/api/games/${user.id}`;
+    }
+
+    const res = await fetch(apiUrl);
+
+    const dbGames = await res.json();
+
+    games = dbGames.map((g) => {
+      const parsed = JSON.parse(g.game_data);
+
+      return {
+        ...parsed,
+
+        db_id: g.id,
+
+        title: g.title,
+        subject: g.subject,
+        music: g.music,
+        game_type: g.game_type,
+      };
+    });
+
+    // ================= ROOM =================
+    if (roomCode) {
+      const roomRes = await fetch(`http://127.0.0.1:5000/api/room/${roomCode}`);
+
+      if (!roomRes.ok) {
+        showToast("Phòng không tồn tại!", "error");
+
+        throw new Error("ROOM_NOT_FOUND");
+      }
+
+      const room = await roomRes.json();
+
+      if (!room) {
+        showToast("Phòng không tồn tại!", "error");
+
+        throw new Error("ROOM_NOT_FOUND");
+      }
+
+      const expireTime =
+        new Date(room.created_at).getTime() +
+        room.expire_day * 24 * 60 * 60 * 1000;
+
+      const isExpired = Date.now() > expireTime;
+
+      if (isStudentJoin && isExpired) {
+        showToast("⛔ Bài tập đã hết hạn!", "error");
+
+        setTimeout(() => {
+          window.location.href = "../join.html";
+        }, 1500);
+
+        throw new Error("ROOM_EXPIRED");
+      }
+
+      game = games.find((g) => String(g.db_id) === String(room.game_id));
+
+      if (!game) {
+        showToast("Không tìm thấy game!", "error");
+
+        return;
+      }
+
+      if (isStudentJoin) {
+        setupRoomPlayers(game);
+      } else {
+        startNormalGame();
+      }
+    }
+
+    // ================= NORMAL =================
+    else {
+      const id = Number(urlParams.get("id"));
+
+      game = games.find((g) => Number(g.db_id) === id);
+
+      if (!game) {
+        showToast("Không tìm thấy game!", "error");
+
+        setTimeout(() => {
+          window.location.href = "../games/turnbased.html";
+        }, 1500);
+
+        return;
+      }
+
+      startNormalGame();
+    }
+  } catch (err) {
+    console.error("LOAD GAME ERROR:", err);
+
+    showToast("Lỗi tải game!", "error");
   }
-
-  // 👨‍🏫 Giáo viên vào thẳng game
-  else {
-    startNormalGame();
-  }
-} else {
-  const id = Number(urlParams.get("id"));
-
-  game = games.find((g) => g.id === id);
-
-  if (!game) {
-    showToast("Không tìm thấy game!", "error");
-
-    setTimeout(() => {
-      window.location.href = "../games/turnbased.html";
-    }, 1500);
-
-    throw new Error("GAME_NOT_FOUND");
-  }
-
-  startNormalGame();
 }
+
+loadGame();
 
 function setupRoomPlayers(gameData) {
   const setupScreen = document.getElementById("playerSetup");
@@ -206,9 +272,7 @@ function setupRoomPlayers(gameData) {
 
   inputsWrap.innerHTML = "";
 
-  const totalPlayers = Array.isArray(gameData.players)
-    ? gameData.players.length
-    : Number(gameData.players || 2);
+  const totalPlayers = 1;
 
   for (let i = 0; i < totalPlayers; i++) {
     const input = document.createElement("input");
@@ -259,6 +323,11 @@ function setupRoomPlayers(gameData) {
 
 function startNormalGame() {
   if (!game) return;
+
+  // fallback nếu players lỗi
+  if (!Array.isArray(game.players) || game.players.length === 0) {
+    game.players = ["Người chơi"];
+  }
 
   positions = new Array(game.players.length).fill(0);
 
@@ -709,8 +778,8 @@ function startGameMusic() {
   }
 }
 
-function showVictory(playerName, playerIndex) {
-  saveAllTurnResults(playerName);
+async function showVictory(playerName, playerIndex) {
+  await saveAllTurnResults(playerName);
 
   const screen = document.getElementById("victoryScreen");
 
@@ -764,54 +833,129 @@ function showVictory(playerName, playerIndex) {
   };
 }
 
-function saveAllTurnResults(winnerName) {
+async function saveAllTurnResults(winnerName) {
   if (!roomCode) return;
 
-  let submits =
-    JSON.parse(localStorage.getItem("turn_submit_" + roomCode)) || [];
+  try {
+    // ===== LOAD ROOM =====
+    const roomRes = await fetch(`http://127.0.0.1:5000/api/room/${roomCode}`);
 
-  const matchId = Date.now();
+    const room = await roomRes.json();
 
-  game.players.forEach((player) => {
-    submits.push({
-      name: player,
+    if (!room) {
+      console.error("ROOM NOT FOUND");
+      return;
+    }
 
-      result: player === winnerName ? "WIN" : "LOSE",
+    // ===== CHECK ĐÃ SAVE CHƯA =====
+    const oldRes = await fetch(`http://127.0.0.1:5000/api/results/${room.id}`);
 
-      submittedAt: Date.now(),
+    const oldResults = await oldRes.json();
 
-      roomCode,
+    const existed = oldResults.find(
+      (r) => r.game_type === "turnbased" && r.match_id,
+    );
 
-      matchId,
+    if (existed) {
+      console.log("TURN RESULT ALREADY SAVED");
+      return;
+    }
+
+    // ===== SAVE 1 RECORD ONLY =====
+    await fetch("http://127.0.0.1:5000/api/results", {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        room_id: room.id,
+
+        game_type: "turnbased",
+
+        // chỉ lưu người thắng
+        player_name: winnerName,
+
+        // lưu info trận
+        extra_data: {
+          players: game.players,
+          winner: winnerName,
+        },
+
+        team_name: "TEAM",
+
+        score: null,
+
+        result_text: "WIN",
+
+        match_id: Date.now(),
+      }),
     });
-  });
 
-  localStorage.setItem("turn_submit_" + roomCode, JSON.stringify(submits));
+    console.log("TURN RESULT SAVED");
+  } catch (err) {
+    console.error("SAVE TURN RESULT ERROR:", err);
+  }
 }
 
 // ================= ASSIGNMENT SUBMIT =================
-
-function saveTurnAssignment(playerName) {
+async function saveTurnAssignment(playerName) {
   if (!roomCode) return;
 
-  let submits =
-    JSON.parse(localStorage.getItem("turn_submit_" + roomCode)) || [];
+  try {
+    const roomRes = await fetch(`http://127.0.0.1:5000/api/room/${roomCode}`);
 
-  const existed = submits.find((s) => s.name === playerName);
+    const room = await roomRes.json();
 
-  if (existed) return;
+    if (!room) return;
 
-  submits.push({
-    name: playerName,
+    // ===== CHECK EXIST =====
+    const resultRes = await fetch(
+      `http://127.0.0.1:5000/api/results/${room.id}`,
+    );
 
-    result: "HOÀN THÀNH",
+    const oldResults = await resultRes.json();
 
-    submittedAt: Date.now(),
+    const existed = oldResults.find(
+      (r) =>
+        r.game_type === "turnbased" &&
+        r.player_name === playerName &&
+        r.result_text === "HOAN_THANH",
+    );
 
-    roomCode,
-  });
+    if (existed) return;
 
-  localStorage.setItem("turn_submit_" + roomCode, JSON.stringify(submits));
+    await fetch("http://127.0.0.1:5000/api/results", {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        room_id: room.id,
+
+        game_type: "turnbased",
+
+        player_name: playerName,
+
+        team_name: null,
+
+        score: null,
+
+        result_text: "HOAN_THANH",
+
+        extra_data: null,
+
+        match_id: null,
+      }),
+    });
+
+    console.log("TURN ASSIGNMENT SAVED");
+  } catch (err) {
+    console.error("SAVE TURN ASSIGN ERROR:", err);
+  }
 }
 
 function toggleSound() {
@@ -1100,6 +1244,11 @@ function nextTurn() {
   if ((extraTurns[currentPlayer] || 0) > 0) {
     extraTurns[currentPlayer]--;
   } else {
+    if (!game || !game.players) {
+      console.error("GAME INVALID:", game);
+      return;
+    }
+
     currentPlayer = (currentPlayer + 1) % game.players.length;
   }
 

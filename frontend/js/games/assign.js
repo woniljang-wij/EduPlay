@@ -1,22 +1,11 @@
 let currentAssignGame = null;
 
+let games = [];
+
 function openAssign(gameId, gameType = "turnbased") {
-  let storageKey = "games";
-
-  if (gameType === "quizfruit") {
-    storageKey = "fruitGames";
-  } else if (gameType === "memory") {
-    storageKey = "memoryGames";
-  } else if (gameType === "dragonboat") {
-    storageKey = "dragonboatGames";
-  }
-
-  const games = JSON.parse(localStorage.getItem(storageKey)) || [];
-
-  const game = games.find((g) => String(g.id) === String(gameId));
-
+  const game = games.find((g) => String(g.db_id) === String(gameId));
   if (!game) {
-    console.log("GAME NOT FOUND", gameId, storageKey);
+    showToast("❌ Không tìm thấy game!", "error");
     return;
   }
 
@@ -48,11 +37,18 @@ function generateRoomCode() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-function createAssign() {
+async function createAssign() {
   const name = document.getElementById("assignName").value.trim();
 
   if (!name) {
     showToast("⚠️ Nhập tên gợi nhớ!", "error");
+    return;
+  }
+
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  if (!user || !user.id) {
+    showToast("❌ Chưa đăng nhập!", "error");
     return;
   }
 
@@ -62,35 +58,89 @@ function createAssign() {
 
   const expireDay = parseInt(activeDay.dataset.day);
 
-  let roomStorage = "turn_rooms";
+  try {
+    const res = await fetch("http://127.0.0.1:5000/api/rooms", {
+      method: "POST",
 
-  if (currentAssignGame.gameType === "quizfruit") {
-    roomStorage = "fruit_rooms";
-  } else if (currentAssignGame.gameType === "memory") {
-    roomStorage = "memory_rooms";
-  } else if (currentAssignGame.gameType === "dragonboat") {
-    roomStorage = "dragonboat_rooms";
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        game_id: currentAssignGame.db_id,
+
+        game_title: currentAssignGame.title,
+
+        teacher_id: user.id,
+
+        game_type: currentAssignGame.gameType,
+
+        room_code: roomCode,
+
+        assign_name: name,
+
+        expire_day: expireDay,
+      }),
+    });
+
+    // ===== CHECK ERROR =====
+    if (!res.ok) {
+      const errorText = await res.text();
+
+      console.error("CREATE ROOM ERROR:", errorText);
+
+      showToast("❌ Tạo phòng thất bại!", "error");
+
+      return;
+    }
+
+    const data = await res.json();
+
+    closeAssign();
+
+    // ===== ADD UI NGAY =====
+    const newRoom = {
+      id: data.id,
+
+      roomCode,
+
+      assignName: name,
+
+      gameId: currentAssignGame.db_id,
+
+      gameTitle: currentAssignGame.title,
+
+      gameType: currentAssignGame.gameType,
+
+      expireDay,
+
+      createdAt: Date.now(),
+
+      results: [],
+    };
+
+    // tạo nếu chưa có
+    if (!window.assignRooms) {
+      window.assignRooms = [];
+    }
+
+    // thêm lên đầu
+    window.assignRooms.unshift(newRoom);
+
+    // render ngay
+    renderAssignmentsPage();
+
+    // popup success
+    showAssignSuccess({
+      roomCode,
+    });
+
+    showToast("✅ Đã tạo bài tập!", "success");
+  } catch (err) {
+    console.error(err);
+
+    showToast("❌ Lỗi tạo phòng!", "error");
   }
-
-  let rooms = JSON.parse(localStorage.getItem(roomStorage)) || [];
-
-  const roomData = {
-    roomCode,
-    assignName: name,
-    gameId: currentAssignGame.id,
-    gameTitle: currentAssignGame.title,
-    gameType: currentAssignGame.gameType,
-    createdAt: Date.now(),
-    expireDay,
-  };
-
-  rooms.push(roomData);
-
-  localStorage.setItem(roomStorage, JSON.stringify(rooms));
-
-  closeAssign();
-
-  showAssignSuccess(roomData);
 }
 
 function showAssignSuccess(data) {
@@ -120,13 +170,98 @@ function copyRoomLink() {
   showToast("📋 Đã sao chép link!", "success");
 }
 
+// ================= LOAD GAMES FROM DATABASE =================
+async function loadAssignGames() {
+  try {
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if (!user || !user.id) return;
+
+    // ===== LOAD GAMES =====
+    const res = await fetch(`http://127.0.0.1:5000/api/games/${user.id}`);
+
+    const data = await res.json();
+
+    games = data.map((g) => ({
+      ...JSON.parse(g.game_data),
+
+      db_id: g.id,
+
+      title: g.title,
+
+      subject: g.subject,
+
+      music: g.music,
+
+      game_type: g.game_type,
+    }));
+
+    // ===== LOAD ROOMS =====
+    const roomRes = await fetch(`http://127.0.0.1:5000/api/rooms/${user.id}`);
+
+    const roomData = await roomRes.json();
+
+    let resultData = [];
+
+    for (const room of roomData) {
+      try {
+        const res = await fetch(`http://127.0.0.1:5000/api/results/${room.id}`);
+
+        const data = await res.json();
+
+        resultData.push(...data);
+      } catch (err) {
+        console.error("LOAD RESULT ERROR:", err);
+      }
+    }
+
+    window.assignRooms = roomData.map((r) => {
+      const roomResults = resultData.filter(
+        (x) => Number(x.room_id) === Number(r.id),
+      );
+
+      const game = games.find((g) => Number(g.db_id) === Number(r.game_id));
+
+      return {
+        id: r.id,
+
+        roomCode: r.room_code,
+
+        assignName: r.assign_name,
+
+        gameId: r.game_id,
+
+        gameTitle: game?.title || r.game_title || "Bài đã bị xóa",
+
+        gameType: r.game_type,
+
+        expireDay: r.expire_day,
+
+        createdAt: new Date(r.created_at).getTime(),
+
+        results: roomResults,
+      };
+    });
+
+    renderAssignmentsPage();
+  } catch (err) {
+    console.error("LOAD ASSIGN GAMES ERROR:", err);
+
+    showToast("❌ Lỗi tải dữ liệu!", "error");
+  }
+}
+
 // ================= ASSIGN PAGE =================
 if (window.location.pathname.includes("assign.html")) {
-  renderAssignmentsPage();
+  (async () => {
+    await loadAssignGames();
 
-  setInterval(() => {
-    renderAssignmentsPage();
-  }, 1000);
+    setInterval(() => {
+      if (window.assignRooms?.length) {
+        renderAssignmentsPage();
+      }
+    }, 1000);
+  })();
 }
 
 function renderAssignmentsPage() {
@@ -134,30 +269,10 @@ function renderAssignmentsPage() {
 
   if (!container) return;
 
-  const turnRooms = JSON.parse(localStorage.getItem("turn_rooms")) || [];
+  const rooms = Array.isArray(window.assignRooms) ? window.assignRooms : null;
 
-  const fruitRooms = JSON.parse(localStorage.getItem("fruit_rooms")) || [];
-
-  const memoryRooms = JSON.parse(localStorage.getItem("memory_rooms")) || [];
-
-  const dragonboatRooms =
-    JSON.parse(localStorage.getItem("dragonboat_rooms")) || [];
-
-  const rooms = [
-    ...turnRooms,
-    ...fruitRooms,
-    ...memoryRooms,
-    ...dragonboatRooms,
-  ];
-
-  const expiredRooms = rooms.filter((r) => isRoomExpired(r));
-
-  const clearBtn = document.getElementById("clearExpiredBtn");
-
-  if (clearBtn) {
-    clearBtn.classList.toggle("hidden", expiredRooms.length === 0);
-
-    clearBtn.innerText = `🗑 XÓA BÀI HẾT HẠN (${expiredRooms.length})`;
+  if (!rooms) {
+    return;
   }
 
   document.getElementById("assignCount").innerText = rooms.length;
@@ -193,18 +308,11 @@ function renderAssignmentsPage() {
   let html = "";
 
   rooms.forEach((room, index) => {
-    let submitKey = "turn_submit_";
+    const gameExist = games.some(
+      (g) => String(g.db_id) === String(room.gameId),
+    );
 
-    if (room.gameType === "quizfruit") {
-      submitKey = "fruit_submit_";
-    } else if (room.gameType === "memory") {
-      submitKey = "memory_submit_";
-    } else if (room.gameType === "dragonboat") {
-      submitKey = "dragonboat_submit_";
-    }
-
-    const submits =
-      JSON.parse(localStorage.getItem(submitKey + room.roomCode)) || [];
+    const submits = room.results || [];
 
     html += `
 <div class="assign-table-row">
@@ -288,14 +396,20 @@ function renderAssignmentsPage() {
   <!-- TRẠNG THÁI -->
   <div class="assign-col status">
 
-    <div class="
-      assign-expire
-      ${isRoomExpired(room) ? "expired" : ""}
-    ">
+<div class="
+  assign-expire
+  ${!gameExist ? "deleted" : isRoomExpired(room) ? "expired" : ""}
+">
 
-      ${isRoomExpired(room) ? "🔴 Đã kết thúc" : "⏰ " + getRemainingTime(room)}
+${
+  !gameExist
+    ? "⚫ Bài đã bị xóa"
+    : isRoomExpired(room)
+      ? "🔴 Đã kết thúc"
+      : "⏰ " + getRemainingTime(room)
+}
 
-    </div>
+</div>
 
   </div>
 
@@ -305,18 +419,22 @@ function renderAssignmentsPage() {
 
   ${(() => {
     // ===== QUIZ / MEMORY =====
-    if (room.gameType !== "turnbased" && room.gameType !== "dragonboat") {
-      return submits.length;
+    if (room.gameType === "quizfruit" || room.gameType === "memory") {
+      const matches = [
+        ...new Set(submits.map((s) => s.match_id || s.submitted_at)),
+      ];
+
+      return matches.length;
     }
 
     // ===== TURNBASED =====
     if (room.gameType === "turnbased") {
-      const games = JSON.parse(localStorage.getItem("games")) || [];
+      const game = games.find((g) => String(g.db_id) === String(room.gameId));
 
-      const game = games.find((g) => String(g.id) === String(room.gameId));
+      if (!game) return 0;
 
       const matches = [
-        ...new Set(submits.map((s) => s.matchId || s.submittedAt)),
+        ...new Set(submits.map((s) => s.match_id || s.submitted_at)),
       ];
 
       return matches.length;
@@ -324,24 +442,37 @@ function renderAssignmentsPage() {
 
     // ===== DRAGONBOAT =====
     const matches = [
-      ...new Set(submits.map((s) => s.matchId || s.submittedAt)),
+      ...new Set(submits.map((s) => s.match_id || s.submitted_at)),
     ];
 
     return matches.length;
   })()}
 </div>
 
-  <!-- THAO TÁC -->
-  <div class="assign-col action">
+<!-- THAO TÁC -->
+<div class="assign-col action">
 
-    <button
-      class="assign-view-btn"
-      onclick="openAssignDetail('${room.roomCode}')"
-    >
-      <i class="bi bi-eye-fill"></i>
-    </button>
+${
+  !gameExist || isRoomExpired(room)
+    ? `
+      <button
+        class="assign-action-btn assign-delete-btn"
+        onclick="deleteAssignment('${room.roomCode}', '${room.gameType}')"
+      >
+        <i class="bi bi-trash-fill"></i>
+      </button>
+    `
+    : `
+      <button
+        class="assign-action-btn assign-view-btn"
+        onclick="openAssignDetail('${room.roomCode}')"
+      >
+        <i class="bi bi-eye-fill"></i>
+      </button>
+    `
+}
 
-  </div>
+</div>
 
 </div>
 `;
@@ -371,12 +502,7 @@ function openAssignDetail(roomCode) {
 
   const list = document.getElementById("detailSubmitList");
 
-  const rooms = [
-    ...(JSON.parse(localStorage.getItem("turn_rooms")) || []),
-    ...(JSON.parse(localStorage.getItem("fruit_rooms")) || []),
-    ...(JSON.parse(localStorage.getItem("memory_rooms")) || []),
-    ...(JSON.parse(localStorage.getItem("dragonboat_rooms")) || []),
-  ];
+  const rooms = window.assignRooms || [];
 
   const room = rooms.find((r) => r.roomCode === roomCode);
 
@@ -387,17 +513,7 @@ function openAssignDetail(roomCode) {
 
   document.getElementById("detailCode").innerText = "Mã phòng: " + roomCode;
 
-  let submitKey = "turn_submit_";
-
-  if (room.gameType === "quizfruit") {
-    submitKey = "fruit_submit_";
-  } else if (room.gameType === "memory") {
-    submitKey = "memory_submit_";
-  } else if (room.gameType === "dragonboat") {
-    submitKey = "dragonboat_submit_";
-  }
-
-  const submits = JSON.parse(localStorage.getItem(submitKey + roomCode)) || [];
+  const submits = room.results || [];
 
   if (submits.length === 0) {
     list.innerHTML = `
@@ -421,7 +537,7 @@ function openAssignDetail(roomCode) {
       const grouped = {};
 
       submits.forEach((s) => {
-        const key = s.matchId || "old";
+        const key = s.match_id || "old";
 
         if (!grouped[key]) {
           grouped[key] = [];
@@ -446,13 +562,13 @@ function openAssignDetail(roomCode) {
             <div>
 
               <div class="submit-name">
-                ${s.name}
+                ${s.player_name}
               </div>
 
               <div class="submit-time">
                 🕒 ${
-                  s.submittedAt
-                    ? new Date(s.submittedAt).toLocaleString("vi-VN")
+                  s.submitted_at
+                    ? new Date(s.submitted_at).toLocaleString("vi-VN")
                     : "Không có thời gian"
                 }
               </div>
@@ -462,7 +578,7 @@ function openAssignDetail(roomCode) {
           </div>
 
           <div class="submit-result">
-            ${s.result === "WIN" ? "🏆 Người chiến thắng" : "💀 Người thua"}
+            ${s.result_text === "WIN" ? "🏆 Người chiến thắng" : "💀 Người thua"}
           </div>
 
         </div>
@@ -471,14 +587,11 @@ function openAssignDetail(roomCode) {
 
         html += `</div>`;
       });
-    }
-
-    // ===== QUIZFRUIT + MEMORY =====
-    else if (room.gameType === "quizfruit" || room.gameType === "memory") {
+    } else if (room.gameType === "quizfruit" || room.gameType === "memory") {
       const grouped = {};
 
       submits.forEach((s) => {
-        const key = s.name || "Unknown";
+        const key = s.match_id || s.submitted_at || crypto.randomUUID();
 
         if (!grouped[key]) {
           grouped[key] = [];
@@ -487,32 +600,30 @@ function openAssignDetail(roomCode) {
         grouped[key].push(s);
       });
 
-      let globalIndex = 1;
-      Object.entries(grouped).forEach(([player, attempts]) => {
+      Object.values(grouped).forEach((attempts, index) => {
+        const s = attempts[0];
+
         html += `
       <div class="submit-group">
-    `;
 
-        attempts.forEach((s, index) => {
-          html += `
         <div class="submit-item">
 
           <div class="submit-left">
 
             <div class="submit-stt">
-              ${globalIndex++}
+              ${index + 1}
             </div>
 
             <div>
 
               <div class="submit-name">
-                ${s.name}
+                ${s.player_name || "Không rõ"}
               </div>
 
               <div class="submit-time">
                 🕒 ${
-                  s.submittedAt
-                    ? new Date(s.submittedAt).toLocaleString("vi-VN")
+                  s.submitted_at
+                    ? new Date(s.submitted_at).toLocaleString("vi-VN")
                     : s.time || "Không có thời gian"
                 }
               </div>
@@ -523,19 +634,35 @@ function openAssignDetail(roomCode) {
 
           <div class="submit-result">
 
-            ${
-              room.gameType === "quizfruit"
-                ? `🎯 ${s.correct}/${s.total} • ⭐ ${s.score}/10`
-                : "🧠 Hoàn thành"
-            }
+${
+  room.gameType === "quizfruit"
+    ? (() => {
+        let extra = {};
+
+        try {
+          if (typeof s.extra_data === "object") {
+            extra = s.extra_data || {};
+          } else if (typeof s.extra_data === "string") {
+            extra = JSON.parse(s.extra_data);
+          }
+        } catch (e) {
+          extra = {};
+        }
+
+        return `
+          🎯 ${extra.correct || 0}/${extra.total || 0}
+          • ⭐ ${s.score || 0}/10
+        `;
+      })()
+    : "🧠 Hoàn thành"
+}
 
           </div>
 
         </div>
-      `;
-        });
 
-        html += `</div>`;
+      </div>
+    `;
       });
     }
 
@@ -544,7 +671,7 @@ function openAssignDetail(roomCode) {
       const grouped = {};
 
       submits.forEach((s) => {
-        const key = s.matchId || "old";
+        const key = s.match_id || "old";
 
         if (!grouped[key]) {
           grouped[key] = [];
@@ -569,13 +696,13 @@ function openAssignDetail(roomCode) {
             <div>
 
               <div class="submit-name">
-                ${s.name}
+                ${s.player_name}
               </div>
 
               <div class="submit-time">
                 🕒 ${
-                  s.submittedAt
-                    ? new Date(s.submittedAt).toLocaleString("vi-VN")
+                  s.submitted_at
+                    ? new Date(s.submitted_at).toLocaleString("vi-VN")
                     : "Không có thời gian"
                 }
               </div>
@@ -587,9 +714,9 @@ function openAssignDetail(roomCode) {
           <div class="submit-result">
 
             ${
-              s.result === "WIN"
+              s.result_text === "WIN"
                 ? "🏆 Người chiến thắng"
-                : s.result === "DRAW"
+                : s.result_text === "DRAW"
                   ? "🤝 Hòa"
                   : "💀 Người thua"
             }
@@ -614,10 +741,6 @@ function openAssignDetail(roomCode) {
 
 function closeAssignDetail() {
   document.getElementById("assignDetailOverlay").classList.add("hidden");
-}
-
-function getTurnSubmit(roomCode) {
-  return JSON.parse(localStorage.getItem("turn_submit_" + roomCode)) || [];
 }
 
 function isRoomExpired(room) {
@@ -665,23 +788,29 @@ function getRemainingTime(room) {
   return `${seconds} giây`;
 }
 
-function clearExpiredAssignments() {
-  const storages = [
-    "turn_rooms",
-    "fruit_rooms",
-    "memory_rooms",
-    "dragonboat_rooms",
-  ];
+async function deleteAssignment(roomCode) {
+  try {
+    const res = await fetch(`http://127.0.0.1:5000/api/rooms/${roomCode}`, {
+      method: "DELETE",
+    });
 
-  storages.forEach((key) => {
-    let rooms = JSON.parse(localStorage.getItem(key)) || [];
+    if (!res.ok) {
+      throw new Error("DELETE FAILED");
+    }
 
-    rooms = rooms.filter((room) => !isRoomExpired(room));
+    // ===== XÓA KHỎI ARRAY =====
+    window.assignRooms = window.assignRooms.filter(
+      (r) => r.roomCode !== roomCode,
+    );
 
-    localStorage.setItem(key, JSON.stringify(rooms));
-  });
+    // ===== RENDER LẠI =====
+    renderAssignmentsPage();
 
-  showToast("🗑 Đã xóa bài hết hạn!", "success");
+    // ===== TOAST =====
+    showToast("🗑 Đã xóa bài tập!", "success");
+  } catch (err) {
+    console.error("DELETE ASSIGN ERROR:", err);
 
-  renderAssignmentsPage();
+    showToast("❌ Lỗi xóa!", "error");
+  }
 }

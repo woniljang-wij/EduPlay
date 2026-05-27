@@ -211,7 +211,11 @@
             <h3 class="form-title question-title">❓ Câu hỏi (0/0)</h3>
 
             <div class="flex gap-3 mb-3">
-              <button onclick="openQuestionManager()" class="btn-manual">
+              <button
+                type="button"
+                onclick="openQuestionManager()"
+                class="btn-manual"
+              >
                 ✏️ Nhập thủ công
               </button>
               <button
@@ -229,11 +233,15 @@
 
           <!-- ACTION -->
           <div class="flex justify-end gap-3">
-            <button onclick="goHome()" class="px-4 py-2 border rounded-xl">
+            <button
+              type="button"
+              onclick="goHome()"
+              class="px-4 py-2 border rounded-xl"
+            >
               Hủy
             </button>
 
-            <button onclick="saveMemoryGame()" class="btn-create">
+            <button type="button" onclick="saveMemoryGame()" class="btn-create">
               💾 Lưu game
             </button>
           </div>
@@ -641,7 +649,7 @@
     </div>
 
     <audio id="bgMusic" src="../assets/sounds/saveme.mp3" loop></audio>
-    
+
     <script src="../js/games/api.js"></script>
     <script src="../js/games/assign.js"></script>
     <script src="../js/games/toast.js"></script>

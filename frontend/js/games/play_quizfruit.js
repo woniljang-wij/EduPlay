@@ -122,40 +122,151 @@ window.onload = () => {
   }
 };
 
-function loadGame() {
+async function loadGame() {
   const params = new URLSearchParams(window.location.search);
 
   const id = params.get("id");
+
   const room = params.get("room");
 
-  // ===== CHƠI THƯỜNG =====
-  if (id) {
-    let games = JSON.parse(localStorage.getItem("fruitGames") || "[]");
+  try {
+    // =========================
+    // PLAY THƯỜNG
+    // =========================
+    if (id) {
+      const user = JSON.parse(localStorage.getItem("user"));
 
-    game = games.find((g) => String(g.id) === String(id));
-  }
+      if (!user || !user.id) {
+        showToast("Bạn chưa đăng nhập!", "error");
 
-  // ===== CHƠI BẰNG ROOM =====
-  else if (room) {
-    let rooms = JSON.parse(localStorage.getItem("fruit_rooms") || "[]");
+        setTimeout(() => {
+          location.href = "../login.html";
+        }, 1200);
 
-    const roomData = rooms.find((r) => r.roomCode === room);
+        return;
+      }
 
-    if (roomData) {
-      const games = JSON.parse(localStorage.getItem("fruitGames")) || [];
+      const res = await fetch(`http://127.0.0.1:5000/api/games/${user.id}`);
 
-      game = games.find((g) => String(g.id) === String(roomData.gameId));
+      const data = await res.json();
+
+      const games = data
+        .filter((g) => g.game_type === "quizfruit")
+        .map((g) => ({
+          ...JSON.parse(g.game_data),
+
+          db_id: g.id,
+
+          title: g.title,
+        }));
+
+      game = games.find((g) => String(g.db_id) === String(id));
+
+      if (!game) {
+        showToast("❌ Bài chơi đã bị xóa!", "error");
+
+        setTimeout(() => {
+          location.href = "quizfruit.html";
+        }, 1500);
+
+        return;
+      }
     }
-  }
 
-  // ===== KHÔNG TÌM THẤY =====
-  if (!game) {
-    alert("Không tìm thấy game!");
-    window.location.href = "quizfruit.html";
-    return;
-  }
+    // ROOM
+    else if (room) {
+      // ===== LOAD ROOM DATABASE =====
+      const roomRes = await fetch(`http://127.0.0.1:5000/api/room/${room}`);
 
-  speedMultiplier = speedConfig[game.speed] || 1;
+      if (!roomRes.ok) {
+        showToast("Không tìm thấy phòng!", "error");
+
+        setTimeout(() => {
+          location.href = "../join.html";
+        }, 1200);
+
+        return;
+      }
+
+      const roomData = await roomRes.json();
+
+      if (!roomData) {
+        showToast("Không tìm thấy phòng!", "error");
+
+        setTimeout(() => {
+          location.href = "../join.html";
+        }, 1200);
+
+        return;
+      }
+
+      // ===== CHECK EXPIRE =====
+      const expireTime =
+        new Date(roomData.created_at).getTime() +
+        roomData.expire_day * 24 * 60 * 60 * 1000;
+
+      const isExpired = Date.now() > expireTime;
+
+      if (isExpired) {
+        showToast("⛔ Bài tập đã hết hạn!", "error");
+
+        setTimeout(() => {
+          location.href = "../join.html";
+        }, 1500);
+
+        return;
+      }
+
+      // ===== LOAD GAME =====
+      const res = await fetch("http://127.0.0.1:5000/api/games");
+
+      const data = await res.json();
+
+      const games = data
+        .filter((g) => g.game_type === "quizfruit")
+        .map((g) => ({
+          ...JSON.parse(g.game_data),
+
+          db_id: g.id,
+
+          title: g.title,
+        }));
+
+      game = games.find((g) => String(g.db_id) === String(roomData.game_id));
+
+      if (!game) {
+        showToast("❌ Bài chơi đã bị xóa!", "error");
+
+        setTimeout(() => {
+          location.href = "../join.html";
+        }, 1500);
+
+        return;
+      }
+
+      // ===== SAVE SESSION =====
+      sessionStorage.setItem("joined_room", JSON.stringify(roomData));
+    }
+
+    // =========================
+    // NOT FOUND
+    // =========================
+    if (!game) {
+      showToast("Không tìm thấy game!", "error");
+
+      setTimeout(() => {
+        window.location.href = "quizfruit.html";
+      }, 1200);
+
+      return;
+    }
+
+    speedMultiplier = speedConfig[game.speed] || 1;
+  } catch (err) {
+    console.error(err);
+
+    showToast("Lỗi tải game!", "error");
+  }
 }
 
 let spawnLoop;
@@ -180,7 +291,7 @@ function startQuestion() {
     box.style.transform = "translateX(-50%) translateY(0)";
   }, 50);
 
-  const maxTime = parseInt(game.time) || 10;
+  const maxTime = parseInt(q.time) || parseInt(game.time) || 10;
   totalTime = maxTime * 1000;
   startTime = Date.now();
 
@@ -805,7 +916,7 @@ function closeExit() {
   }, 250);
 }
 
-function endGame() {
+async function endGame() {
   const total = game.questions.length;
   const correct = score;
 
@@ -813,7 +924,8 @@ function endGame() {
 
   document.querySelector(".game-controls").style.display = "none";
 
-  saveQuizFruitResult();
+  await saveQuizFruitResult();
+
   showEndScene(correct, total);
 }
 
@@ -1067,37 +1179,64 @@ document.getElementById("setupBackBtn")?.addEventListener("click", () => {
   history.back();
 });
 
-// ======================================
-// SAVE RESULT
-// ======================================
-function saveQuizFruitResult() {
+async function saveQuizFruitResult() {
   const room = JSON.parse(sessionStorage.getItem("joined_room")) || {};
 
-  if (!room.roomCode) return;
+  if (!room.id) return;
 
-  const submitKey = "fruit_submit_" + room.roomCode;
+  try {
+    // ===== CHECK EXIST =====
+    const oldRes = await fetch(`http://127.0.0.1:5000/api/results/${room.id}`);
 
-  const submits = JSON.parse(localStorage.getItem(submitKey)) || [];
+    const oldResults = await oldRes.json();
 
-  const total = game.questions.length;
+    const existed = oldResults.find(
+      (r) => r.game_type === "quizfruit" && r.player_name === playerName,
+    );
 
-  const finalScore = Number(((score / total) * 10).toFixed(1));
+    if (existed) {
+      console.log("QUIZFRUIT RESULT EXIST");
+      return;
+    }
 
-  submits.push({
-    name: playerName,
+    const total = game.questions.length;
 
-    score: finalScore,
+    const finalScore = Number(((score / total) * 10).toFixed(1));
 
-    correct: score,
+    // ===== SAVE DATABASE =====
+    await fetch("http://127.0.0.1:5000/api/results", {
+      method: "POST",
 
-    total,
+      headers: {
+        "Content-Type": "application/json",
+      },
 
-    submittedAt: Date.now(),
-  });
+      body: JSON.stringify({
+        room_id: room.id,
 
-  localStorage.setItem(submitKey, JSON.stringify(submits));
+        game_type: "quizfruit",
 
-  console.log("QUIZFRUIT SUBMIT SAVED");
+        player_name: playerName,
+
+        team_name: null,
+
+        score: finalScore,
+
+        result_text: `${score}/${total}`,
+
+        extra_data: {
+          correct: score,
+          total,
+        },
+
+        match_id: null,
+      }),
+    });
+
+    console.log("QUIZFRUIT RESULT SAVED");
+  } catch (err) {
+    console.error("SAVE QUIZFRUIT ERROR:", err);
+  }
 }
 
 function replayGame() {

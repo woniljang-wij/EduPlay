@@ -6,365 +6,399 @@ const gameId = Number(params.get("id"));
 
 const roomCode = params.get("room");
 
-const isJoin = params.get("join");
+const isJoin = !!roomCode;
 
 let game = null;
 let blueTeamName = "";
 let redTeamName = "";
 
-// lưu tên đội vào room
-const rooms = JSON.parse(localStorage.getItem("dragonboat_rooms")) || [];
+async function loadDragonGame() {
+  // ===== TEACHER PLAY =====
+  if (gameId) {
+    try {
+      const user = JSON.parse(localStorage.getItem("user"));
 
-const roomIndex = rooms.findIndex(
-  (r) => String(r.roomCode) === String(roomCode),
-);
+      const res = await fetch(`http://127.0.0.1:5000/api/games/${user.id}`);
 
-if (roomIndex !== -1) {
-  rooms[roomIndex].blueTeamName = blueTeamName;
+      const data = await res.json();
 
-  rooms[roomIndex].redTeamName = redTeamName;
+      const dbGames = data
+        .filter((g) => g.game_type === "dragonboat")
+        .map((g) => ({
+          ...JSON.parse(g.game_data),
 
-  localStorage.setItem("dragonboat_rooms", JSON.stringify(rooms));
-}
+          db_id: g.id,
+        }));
 
-// ===============================
-// TEACHER PLAY DIRECT
-// ===============================
-
-if (gameId) {
-  const games = JSON.parse(localStorage.getItem("dragonboatGames")) || [];
-
-  game = games.find((g) => g.id === gameId);
-}
-
-// ===============================
-// STUDENT JOIN ROOM
-// ===============================
-else if (roomCode) {
-  const rooms = JSON.parse(localStorage.getItem("dragonboat_rooms")) || [];
-
-  const room = rooms.find(
-    (r) => String(r.roomCode).trim() === String(roomCode).trim(),
-  );
-
-  if (room) {
-    const games = JSON.parse(localStorage.getItem("dragonboatGames")) || [];
-
-    game = games.find((g) => String(g.id) === String(room.gameId));
+      game = dbGames.find((g) => Number(g.db_id) === Number(gameId));
+    } catch (err) {
+      console.error(err);
+    }
   }
-}
 
-console.log("GAME DATA:", game);
+  // ===== ROOM =====
+  else if (roomCode) {
+    const roomRes = await fetch(`http://127.0.0.1:5000/api/room/${roomCode}`);
 
-// ===== GAME DATA =====
+    if (!roomRes.ok) {
+      showToast("Không tìm thấy phòng!", "error");
+      return;
+    }
 
-const gameTitle = game?.title || "Đua Thuyền Rồng";
+    const room = await roomRes.json();
 
-const gameMusic = game?.music || "";
+    if (!room) {
+      showToast("Không tìm thấy phòng!", "error");
+      return;
+    }
 
-const gameDuration = parseInt(game?.duration || 60);
+    try {
+      // ===== KHÔNG CẦN LOGIN =====
+      const res = await fetch("http://127.0.0.1:5000/api/games");
 
-const freezeTime = parseInt(game?.freeze || 3);
+      const data = await res.json();
 
-const winScore = parseInt(game?.winScore || 3);
+      const dbGames = data
+        .filter((g) => g.game_type === "dragonboat")
+        .map((g) => ({
+          ...JSON.parse(g.game_data),
 
-const teamBlue = game?.players?.[0] || "Đội Xanh";
+          db_id: g.id,
+        }));
 
-const teamRed = game?.players?.[1] || "Đội Đỏ";
+      game = dbGames.find((g) => Number(g.db_id) === Number(room.game_id));
 
-// ===== TITLE =====
-
-const titleEl = document.getElementById("gameTitle");
-
-if (titleEl) {
-  titleEl.textContent = gameTitle;
-}
-
-// ===== MODE =====
-const isIndependentMode = game.mode?.toLowerCase().includes("độc lập");
-
-// ===== QUESTIONS =====
-const sharedQuestions = game.sharedQuestions || [];
-
-const blueQuestions = isIndependentMode
-  ? game.blueQuestions || []
-  : sharedQuestions;
-
-const redQuestions = isIndependentMode
-  ? game.redQuestions || []
-  : sharedQuestions;
-
-const raceTrack = document.querySelector(".race-track");
-
-const totalQuestions = Math.max(blueQuestions.length, redQuestions.length);
-
-const checkpoints = [];
-
-for (let i = 0; i < totalQuestions; i++) {
-  const checkpoint = document.createElement("div");
-
-  checkpoint.className = "checkpoint";
-
-  const percent = ((i + 1) / (totalQuestions + 1)) * 100;
-
-  checkpoint.style.left = `calc(${percent}% - 12px)`;
-
-  raceTrack.appendChild(checkpoint);
-
-  checkpoints.push(percent);
-}
-
-// ===== TEAM =====
-
-document.querySelector(".team-blue-name").textContent = teamBlue;
-
-document.querySelector(".team-red-name").textContent = teamRed;
-
-// ===== MUSIC =====
-
-const bgMusic = document.getElementById("bgMusic");
-
-const victorySound = document.getElementById("victorySound");
-
-const musicBtn = document.getElementById("musicBtn");
-
-let muted = false;
-
-if (bgMusic && gameMusic) {
-  const requestDB = indexedDB.open("EduPlayDB", 1);
-
-  requestDB.onsuccess = (e) => {
-    const db = e.target.result;
-
-    const tx = db.transaction("music", "readonly");
-
-    const req = tx.objectStore("music").get(gameMusic);
-
-    req.onsuccess = () => {
-      // ===== CUSTOM MUSIC =====
-      if (req.result) {
-        const file = req.result.file;
-
-        const url = URL.createObjectURL(file);
-
-        bgMusic.src = url;
+      if (!game) {
+        showToast("Không tìm thấy game!", "error");
+        return;
       }
+    } catch (err) {
+      console.error(err);
 
-      // ===== DEFAULT MUSIC =====
-      else {
-        bgMusic.src = gameMusic;
-      }
+      showToast("Lỗi tải game!", "error");
+    }
+  }
 
-      bgMusic.loop = true;
+  if (!game) {
+    showToast("Không tìm thấy game!", "error");
+    return;
+  }
 
-      bgMusic.volume = 0.6;
+  startLoadedGame();
+}
 
-      bgMusic.autoplay = true;
+function startLoadedGame() {
+  console.log("GAME DATA:", game);
 
-      bgMusic.muted = true;
+  // ===== GAME DATA =====
 
-      const startMusic = () => {
+  const gameTitle = game?.title || "Đua Thuyền Rồng";
+
+  const gameMusic = game?.music || "";
+
+  const gameDuration = parseInt(game?.duration || 60);
+
+  const freezeTime = parseInt(game?.freeze || 3);
+
+  const winScore = parseInt(game?.winScore || 3);
+
+  const teamBlue = game?.players?.[0] || "Đội Xanh";
+
+  const teamRed = game?.players?.[1] || "Đội Đỏ";
+
+  // ===== TITLE =====
+
+  const titleEl = document.getElementById("gameTitle");
+
+  if (titleEl) {
+    titleEl.textContent = gameTitle;
+  }
+
+  // ===== MODE =====
+  const isIndependentMode = game.mode?.toLowerCase().includes("độc lập");
+
+  // ===== QUESTIONS =====
+  const sharedQuestions = game.sharedQuestions || [];
+
+  const blueQuestions = isIndependentMode
+    ? game.blueQuestions || []
+    : sharedQuestions;
+
+  const redQuestions = isIndependentMode
+    ? game.redQuestions || []
+    : sharedQuestions;
+
+  const raceTrack = document.querySelector(".race-track");
+
+  const totalQuestions = Math.max(blueQuestions.length, redQuestions.length);
+
+  if (totalQuestions <= 0) {
+    showToast("Game chưa có câu hỏi!", "error");
+    return;
+  }
+
+  const checkpoints = [];
+
+  for (let i = 0; i < totalQuestions; i++) {
+    const checkpoint = document.createElement("div");
+
+    checkpoint.className = "checkpoint";
+
+    const percent = ((i + 1) / (totalQuestions + 1)) * 100;
+
+    checkpoint.style.left = `calc(${percent}% - 12px)`;
+
+    raceTrack.appendChild(checkpoint);
+
+    checkpoints.push(percent);
+  }
+
+  // ===== TEAM =====
+
+  document.querySelector(".team-blue-name").textContent = teamBlue;
+
+  document.querySelector(".team-red-name").textContent = teamRed;
+
+  // ===== MUSIC =====
+
+  const bgMusic = document.getElementById("bgMusic");
+
+  const victorySound = document.getElementById("victorySound");
+
+  const musicBtn = document.getElementById("musicBtn");
+
+  let muted = false;
+
+  if (bgMusic && gameMusic) {
+    const requestDB = indexedDB.open("EduPlayDB", 1);
+
+    requestDB.onsuccess = (e) => {
+      const db = e.target.result;
+
+      const tx = db.transaction("music", "readonly");
+
+      const req = tx.objectStore("music").get(gameMusic);
+
+      req.onsuccess = () => {
+        // ===== CUSTOM MUSIC =====
+        if (req.result) {
+          const file = req.result.file;
+
+          const url = URL.createObjectURL(file);
+
+          bgMusic.src = url;
+        }
+
+        // ===== DEFAULT MUSIC =====
+        else {
+          bgMusic.src = gameMusic;
+        }
+
+        bgMusic.loop = true;
+
+        bgMusic.volume = 0.6;
+
+        bgMusic.autoplay = true;
+
+        // autoplay muted trước
+        bgMusic.muted = true;
+
         bgMusic
           .play()
           .then(() => {
             setTimeout(() => {
               bgMusic.muted = false;
-            }, 300);
+            }, 500);
           })
           .catch((err) => {
-            console.log("Music blocked:", err);
+            console.log("Autoplay blocked:", err);
           });
+      };
+    };
+  }
 
-        document.removeEventListener("click", startMusic);
+  // ===== MUTE =====
+
+  if (musicBtn) {
+    musicBtn.onclick = () => {
+      muted = !muted;
+
+      bgMusic.muted = muted;
+
+      musicBtn.innerHTML = muted ? "🔇" : "🔊";
+    };
+  }
+
+  // ===== FULLSCREEN =====
+
+  const fullscreenBtn = document.getElementById("fullscreenBtn");
+
+  if (fullscreenBtn) {
+    fullscreenBtn.onclick = () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    };
+  }
+
+  // ===== EXIT =====
+  const exitBtn = document.getElementById("exitBtn");
+
+  if (exitBtn) {
+    exitBtn.onclick = () => {
+      if (isJoin) {
+        window.location.href = "/index.html";
+      } else {
+        window.location.href = "/games/dragonboat.html";
+      }
+    };
+  }
+
+  // ===== QUESTION =====
+  let blueQuestionIndex = 0;
+  let redQuestionIndex = 0;
+  let blueFrozen = false;
+  let redFrozen = false;
+  let gameEnded = false;
+
+  function renderQuestion() {
+    renderTeamQuestion("blue");
+    renderTeamQuestion("red");
+  }
+
+  function renderTeamQuestion(team) {
+    const index = team === "blue" ? blueQuestionIndex : redQuestionIndex;
+
+    const q = team === "blue" ? blueQuestions[index] : redQuestions[index];
+
+    if (!q) return;
+
+    const questionBox = team === "blue" ? ".blue-question" : ".red-question";
+
+    const answerBox = team === "blue" ? ".blue-answers" : ".red-answers";
+
+    document.querySelector(questionBox).innerHTML = `<p>${q.question}</p>`;
+
+    renderAnswers(answerBox, q, team);
+  }
+
+  function renderAnswers(container, q, team) {
+    const box = document.querySelector(container);
+
+    if (!box) return;
+
+    box.innerHTML = "";
+
+    q.answers.forEach((answer, index) => {
+      const btn = document.createElement("button");
+
+      btn.className = "answer-btn";
+
+      btn.innerHTML = `<span>${answer}</span>`;
+
+      btn.onclick = () => {
+        const gameControlMode = game.controlMode || "screen";
+
+        // mode bàn phím thì khóa click đáp án
+        if (gameControlMode === "keyboard") return;
+
+        chooseAnswer(index, team);
       };
 
-      startMusic();
-
-      document.addEventListener("click", startMusic);
-    };
-  };
-}
-
-// ===== MUTE =====
-
-if (musicBtn) {
-  musicBtn.onclick = () => {
-    muted = !muted;
-
-    bgMusic.muted = muted;
-
-    musicBtn.innerHTML = muted ? "🔇" : "🔊";
-  };
-}
-
-// ===== FULLSCREEN =====
-
-const fullscreenBtn = document.getElementById("fullscreenBtn");
-
-if (fullscreenBtn) {
-  fullscreenBtn.onclick = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
-    } else {
-      document.exitFullscreen();
-    }
-  };
-}
-
-// ===== EXIT =====
-const exitBtn = document.getElementById("exitBtn");
-
-if (exitBtn) {
-  exitBtn.onclick = () => {
-    if (isJoin) {
-      window.location.href = "/index.html";
-    } else {
-      window.location.href = "/games/dragonboat.html";
-    }
-  };
-}
-
-// ===== QUESTION =====
-let blueQuestionIndex = 0;
-let redQuestionIndex = 0;
-let blueFrozen = false;
-let redFrozen = false;
-let gameEnded = false;
-
-function renderQuestion() {
-  renderTeamQuestion("blue");
-  renderTeamQuestion("red");
-}
-
-function renderTeamQuestion(team) {
-  const index = team === "blue" ? blueQuestionIndex : redQuestionIndex;
-
-  const q = team === "blue" ? blueQuestions[index] : redQuestions[index];
-
-  if (!q) return;
-
-  const questionBox = team === "blue" ? ".blue-question" : ".red-question";
-
-  const answerBox = team === "blue" ? ".blue-answers" : ".red-answers";
-
-  document.querySelector(questionBox).innerHTML = `<p>${q.question}</p>`;
-
-  renderAnswers(answerBox, q, team);
-}
-
-function renderAnswers(container, q, team) {
-  const box = document.querySelector(container);
-
-  if (!box) return;
-
-  box.innerHTML = "";
-
-  q.answers.forEach((answer, index) => {
-    const btn = document.createElement("button");
-
-    btn.className = "answer-btn";
-
-    btn.innerHTML = `<span>${answer}</span>`;
-
-    btn.onclick = () => {
-      const gameControlMode = game.controlMode || "screen";
-
-      // mode bàn phím thì khóa click đáp án
-      if (gameControlMode === "keyboard") return;
-
-      chooseAnswer(index, team);
-    };
-
-    box.appendChild(btn);
-  });
-}
-
-// ===== MOVE =====
-
-let bluePos = 0;
-let redPos = 0;
-
-function moveBoat(team) {
-  if (team === "blue") {
-    bluePos++;
-
-    const percent = checkpoints[Math.min(bluePos - 1, checkpoints.length - 1)];
-
-    document.querySelector(".blue-racer").style.left =
-      `calc(${percent}% - 22px)`;
+      box.appendChild(btn);
+    });
   }
 
-  if (team === "red") {
-    redPos++;
+  // ===== MOVE =====
 
-    const percent = checkpoints[Math.min(redPos - 1, checkpoints.length - 1)];
+  let bluePos = 0;
+  let redPos = 0;
 
-    document.querySelector(".red-racer").style.left =
-      `calc(${percent}% - 22px)`;
-  }
-}
-
-// ===== ANSWER =====
-let locked = false;
-function chooseAnswer(index, team) {
-  if (gameEnded) return;
-
-  if (team === "blue" && blueFrozen) return;
-  if (team === "red" && redFrozen) return;
-
-  const questionIndex = team === "blue" ? blueQuestionIndex : redQuestionIndex;
-
-  const q =
-    team === "blue"
-      ? blueQuestions[questionIndex]
-      : redQuestions[questionIndex];
-
-  if (!q) return;
-
-  const isCorrect = index === q.correct;
-
-  // ===== ĐÚNG =====
-  if (isCorrect) {
-    moveBoat(team);
-
+  function moveBoat(team) {
     if (team === "blue") {
-      blueQuestionIndex++;
+      bluePos++;
 
-      const score = document.getElementById("blueScore");
+      const percent =
+        checkpoints[Math.min(bluePos - 1, checkpoints.length - 1)];
 
-      score.textContent = Number(score.textContent) + 1;
+      document.querySelector(".blue-racer").style.left =
+        `calc(${percent}% - 22px)`;
     }
 
     if (team === "red") {
-      redQuestionIndex++;
+      redPos++;
 
-      const score = document.getElementById("redScore");
+      const percent = checkpoints[Math.min(redPos - 1, checkpoints.length - 1)];
 
-      score.textContent = Number(score.textContent) + 1;
+      document.querySelector(".red-racer").style.left =
+        `calc(${percent}% - 22px)`;
+    }
+  }
+
+  // ===== ANSWER =====
+  let locked = false;
+  function chooseAnswer(index, team) {
+    if (gameEnded) return;
+
+    if (team === "blue" && blueFrozen) return;
+    if (team === "red" && redFrozen) return;
+
+    const questionIndex =
+      team === "blue" ? blueQuestionIndex : redQuestionIndex;
+
+    const q =
+      team === "blue"
+        ? blueQuestions[questionIndex]
+        : redQuestions[questionIndex];
+
+    if (!q) return;
+
+    const isCorrect = index === q.correct;
+
+    // ===== ĐÚNG =====
+    if (isCorrect) {
+      moveBoat(team);
+
+      if (team === "blue") {
+        blueQuestionIndex++;
+
+        const score = document.getElementById("blueScore");
+
+        score.textContent = Number(score.textContent) + 1;
+      }
+
+      if (team === "red") {
+        redQuestionIndex++;
+
+        const score = document.getElementById("redScore");
+
+        score.textContent = Number(score.textContent) + 1;
+      }
+
+      checkWinner();
     }
 
-    checkWinner();
+    // ===== SAI =====
+    else {
+      freezeTeam(team);
+    }
+
+    renderQuestion();
   }
 
-  // ===== SAI =====
-  else {
-    freezeTeam(team);
-  }
+  function freezeTeam(team) {
+    const freezeBox =
+      team === "blue"
+        ? document.querySelector(".blue-panel")
+        : document.querySelector(".red-panel");
 
-  renderQuestion();
-}
+    freezeBox.classList.add("frozen");
 
-function freezeTeam(team) {
-  const freezeBox =
-    team === "blue"
-      ? document.querySelector(".blue-panel")
-      : document.querySelector(".red-panel");
-
-  freezeBox.classList.add("frozen");
-
-  freezeBox.insertAdjacentHTML(
-    "beforeend",
-    `
+    freezeBox.insertAdjacentHTML(
+      "beforeend",
+      `
       <div class="freeze-overlay">
 
         <div class="freeze-glow"></div>
@@ -387,348 +421,366 @@ function freezeTeam(team) {
 
       </div>
     `,
-  );
-
-  if (team === "blue") {
-    blueFrozen = true;
-  } else {
-    redFrozen = true;
-  }
-
-  const overlay = freezeBox.querySelector(".freeze-overlay");
-
-  const timeEl = overlay.querySelector(".freeze-time");
-
-  let remain = freezeTime;
-
-  const interval = setInterval(() => {
-    remain--;
-
-    if (remain > 0) {
-      timeEl.textContent = remain;
-    }
-  }, 1000);
-
-  setTimeout(() => {
-    clearInterval(interval);
-
-    freezeBox.classList.remove("frozen");
-
-    overlay.remove();
+    );
 
     if (team === "blue") {
-      blueFrozen = false;
+      blueFrozen = true;
     } else {
-      redFrozen = false;
+      redFrozen = true;
     }
-  }, freezeTime * 1000);
-}
 
-function checkWinner() {
-  const blue = Number(document.getElementById("blueScore").textContent);
+    const overlay = freezeBox.querySelector(".freeze-overlay");
 
-  const red = Number(document.getElementById("redScore").textContent);
+    const timeEl = overlay.querySelector(".freeze-time");
 
-  // ===== WIN BY FINISH =====
-  if (blueQuestionIndex >= blueQuestions.length) {
-    showWinner(blueTeamName || teamBlue);
-    return;
+    let remain = freezeTime;
+
+    const interval = setInterval(() => {
+      remain--;
+
+      if (remain > 0) {
+        timeEl.textContent = remain;
+      }
+    }, 1000);
+
+    setTimeout(() => {
+      clearInterval(interval);
+
+      freezeBox.classList.remove("frozen");
+
+      overlay.remove();
+
+      if (team === "blue") {
+        blueFrozen = false;
+      } else {
+        redFrozen = false;
+      }
+    }, freezeTime * 1000);
   }
 
-  if (redQuestionIndex >= redQuestions.length) {
-    showWinner(redTeamName || teamRed);
-    return;
-  }
+  function checkWinner() {
+    const blue = Number(document.getElementById("blueScore").textContent);
 
-  // ===== WIN BY GAP =====
-  if (blue - red >= winScore) {
-    showWinner(blueTeamName || teamBlue);
-    return;
-  }
+    const red = Number(document.getElementById("redScore").textContent);
 
-  if (red - blue >= winScore) {
-    showWinner(redTeamName || teamRed);
-    return;
-  }
-}
-
-function showWinner(teamName) {
-  if (gameEnded) return;
-
-  saveDragonBoatResult(teamName);
-
-  gameEnded = true;
-
-  // ===== STOP GAME =====
-
-  clearInterval(timerInterval);
-
-  blueFrozen = true;
-  redFrozen = true;
-
-  // ===== STOP MUSIC =====
-
-  if (bgMusic) {
-    bgMusic.pause();
-  }
-
-  // ===== PLAY VICTORY =====
-
-  if (victorySound) {
-    victorySound.src = "../assets/sounds/win.mp3";
-
-    victorySound.volume = 1;
-
-    victorySound.currentTime = 0;
-
-    victorySound.play().catch(() => {});
-  }
-
-  // ===== SHOW POPUP =====
-
-  const popup = document.getElementById("winnerPopup");
-
-  const winnerText = document.getElementById("winnerTeam");
-
-  const winnerSub = popup.querySelector(".winner-sub");
-
-  winnerText.textContent = teamName;
-
-  if (teamName === "Hòa") {
-    winnerSub.textContent = "Hai đội ngang tài ngang sức!";
-  } else {
-    winnerSub.textContent = "đã giành chiến thắng!";
-  }
-
-  popup.classList.remove("hidden");
-  document.body.classList.add("game-finished");
-
-  // ===== REPLAY =====
-  document.getElementById("replayBtn").onclick = () => {
-    location.reload();
-  };
-
-  document.getElementById("backBtn").onclick = () => {
-    if (isJoin) {
-      window.location.href = "/index.html";
-    } else {
-      window.location.href = "/games/dragonboat.html";
+    // ===== WIN BY FINISH =====
+    if (blueQuestionIndex >= blueQuestions.length) {
+      showWinner(blueTeamName || teamBlue);
+      return;
     }
-  };
-}
 
-// ===== TIMER =====
+    if (redQuestionIndex >= redQuestions.length) {
+      showWinner(redTeamName || teamRed);
+      return;
+    }
 
-let time = gameDuration;
+    // ===== WIN BY GAP =====
+    if (blue - red >= winScore) {
+      showWinner(blueTeamName || teamBlue);
+      return;
+    }
 
-function updateTimer() {
-  const min = String(Math.floor(time / 60)).padStart(2, "0");
-
-  const sec = String(time % 60).padStart(2, "0");
-
-  const timer = document.getElementById("timer");
-
-  if (timer) {
-    timer.textContent = `${min}:${sec}`;
+    if (red - blue >= winScore) {
+      showWinner(redTeamName || teamRed);
+      return;
+    }
   }
 
-  time--;
+  function showWinner(teamName) {
+    if (gameEnded) return;
 
-  if (time < 0) {
+    saveDragonBoatResult(teamName);
+
+    gameEnded = true;
+
+    // ===== STOP GAME =====
+
     clearInterval(timerInterval);
 
-    endGame();
+    blueFrozen = true;
+    redFrozen = true;
+
+    // ===== STOP MUSIC =====
+
+    if (bgMusic) {
+      bgMusic.pause();
+    }
+
+    // ===== PLAY VICTORY =====
+
+    if (victorySound) {
+      victorySound.src = "../assets/sounds/win.mp3";
+
+      victorySound.volume = 1;
+
+      victorySound.currentTime = 0;
+
+      victorySound.play().catch(() => {});
+    }
+
+    // ===== SHOW POPUP =====
+
+    const popup = document.getElementById("winnerPopup");
+
+    const winnerText = document.getElementById("winnerTeam");
+
+    const winnerSub = popup.querySelector(".winner-sub");
+
+    winnerText.textContent = teamName;
+
+    if (teamName === "Hòa") {
+      winnerSub.textContent = "Hai đội ngang tài ngang sức!";
+    } else {
+      winnerSub.textContent = "đã giành chiến thắng!";
+    }
+
+    popup.classList.remove("hidden");
+    document.body.classList.add("game-finished");
+
+    // ===== REPLAY =====
+    document.getElementById("replayBtn").onclick = () => {
+      location.reload();
+    };
+
+    document.getElementById("backBtn").onclick = () => {
+      if (isJoin) {
+        window.location.href = "/index.html";
+      } else {
+        window.location.href = "/games/dragonboat.html";
+      }
+    };
   }
-}
 
-let timerInterval = null;
+  // ===== TIMER =====
 
-// ===== END GAME =====
-function endGame() {
-  if (gameEnded) return;
+  let time = gameDuration;
 
-  const blue = Number(document.getElementById("blueScore").textContent);
+  function updateTimer() {
+    const min = String(Math.floor(time / 60)).padStart(2, "0");
 
-  const red = Number(document.getElementById("redScore").textContent);
+    const sec = String(time % 60).padStart(2, "0");
 
-  let winner = "Hòa";
+    const timer = document.getElementById("timer");
 
-  if (blue > red) {
-    winner = blueTeamName || teamBlue;
+    if (timer) {
+      timer.textContent = `${min}:${sec}`;
+    }
+
+    time--;
+
+    if (time < 0) {
+      clearInterval(timerInterval);
+
+      endGame();
+    }
   }
 
-  if (red > blue) {
-    winner = redTeamName || teamRed;
+  let timerInterval = null;
+
+  // ===== END GAME =====
+  function endGame() {
+    if (gameEnded) return;
+
+    const blue = Number(document.getElementById("blueScore").textContent);
+
+    const red = Number(document.getElementById("redScore").textContent);
+
+    let winner = "Hòa";
+
+    if (blue > red) {
+      winner = blueTeamName || teamBlue;
+    }
+
+    if (red > blue) {
+      winner = redTeamName || teamRed;
+    }
+
+    showWinner(winner);
   }
 
-  showWinner(winner);
-}
+  // ===== START =====
 
-// ===== START =====
+  if (isJoin) {
+    document.querySelector(".question-layout").style.pointerEvents = "none";
 
-if (isJoin) {
-  document.querySelector(".question-layout").style.pointerEvents = "none";
+    document.querySelector(".race-section").style.pointerEvents = "none";
 
-  document.querySelector(".race-section").style.pointerEvents = "none";
-
-  openTeamSetup();
-} else {
-  startDragonGame();
-}
-
-function startDragonGame() {
-  renderQuestion();
-
-  if (!timerInterval) {
-    timerInterval = setInterval(updateTimer, 1000);
-
-    updateTimer();
+    openTeamSetup();
+  } else {
+    startDragonGame();
   }
 
-  if (bgMusic) {
-    bgMusic.play().catch(() => {});
-  }
-}
-
-function openTeamSetup() {
-  const popup = document.getElementById("playerSetup");
-
-  if (!popup) {
+  function startDragonGame() {
     renderQuestion();
-    return;
+
+    if (!timerInterval) {
+      timerInterval = setInterval(updateTimer, 1000);
+
+      updateTimer();
+    }
+
+    if (bgMusic) {
+      bgMusic.play().catch(() => {});
+    }
   }
 
-  popup.style.display = "flex";
+  function openTeamSetup() {
+    const popup = document.getElementById("playerSetup");
 
-  popup.classList.add("flex");
+    if (!popup) {
+      renderQuestion();
+      return;
+    }
 
-  document.getElementById("setupGameTitle").innerText =
-    game?.title || "Đua Thuyền Rồng";
+    popup.style.display = "flex";
+
+    popup.classList.add("flex");
+
+    document.getElementById("setupGameTitle").innerText =
+      game?.title || "Đua Thuyền Rồng";
+  }
+
+  document
+    .getElementById("startRoomBtn")
+    ?.addEventListener("click", async () => {
+      const blueInput = document.getElementById("blueTeamInput");
+
+      const redInput = document.getElementById("redTeamInput");
+
+      const blue = blueInput.value.trim();
+      const red = redInput.value.trim();
+
+      if (!blue || !red) {
+        showToast("Nhập tên cho cả 2 đội!", "error");
+        return;
+      }
+
+      blueTeamName = blue;
+      redTeamName = red;
+
+      try {
+        await fetch(`http://127.0.0.1:5000/api/room/${roomCode}`, {
+          method: "PUT",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            blue_team: blueTeamName,
+            red_team: redTeamName,
+          }),
+        });
+      } catch (err) {
+        console.error("ROOM UPDATE ERROR:", err);
+      }
+
+      document.querySelector(".team-blue-name").textContent = blueTeamName;
+
+      document.querySelector(".team-red-name").textContent = redTeamName;
+
+      document.getElementById("playerSetup").classList.remove("flex");
+
+      document.getElementById("playerSetup").style.display = "none";
+
+      document.querySelector(".question-layout").style.pointerEvents = "auto";
+
+      document.querySelector(".race-section").style.pointerEvents = "auto";
+
+      startDragonGame();
+    });
+
+  async function saveDragonBoatResult(winnerTeam) {
+    if (!roomCode) return;
+
+    try {
+      // ===== GET ROOM =====
+      const roomRes = await fetch(`http://127.0.0.1:5000/api/room/${roomCode}`);
+
+      if (!roomRes.ok) return;
+
+      const room = await roomRes.json();
+
+      if (!room?.id) return;
+
+      const blueName = blueTeamName || teamBlue;
+
+      const redName = redTeamName || teamRed;
+
+      const matchId = Date.now();
+
+      // ===== SAVE BLUE =====
+      await fetch("http://127.0.0.1:5000/api/results", {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          room_id: room.id,
+
+          game_type: "dragonboat",
+
+          player_name: blueName,
+
+          team_name: blueName,
+
+          score: winnerTeam === blueName ? 10 : winnerTeam === "Hòa" ? 5 : 0,
+
+          result_text:
+            winnerTeam === blueName
+              ? "WIN"
+              : winnerTeam === "Hòa"
+                ? "DRAW"
+                : "LOSE",
+
+          extra_data: {
+            winner: winnerTeam,
+          },
+
+          match_id: matchId,
+        }),
+      });
+
+      // ===== SAVE RED =====
+      await fetch("http://127.0.0.1:5000/api/results", {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          room_id: room.id,
+
+          game_type: "dragonboat",
+
+          player_name: redName,
+
+          team_name: redName,
+
+          score: winnerTeam === redName ? 10 : winnerTeam === "Hòa" ? 5 : 0,
+
+          result_text:
+            winnerTeam === redName
+              ? "WIN"
+              : winnerTeam === "Hòa"
+                ? "DRAW"
+                : "LOSE",
+
+          extra_data: {
+            winner: winnerTeam,
+          },
+
+          match_id: matchId,
+        }),
+      });
+
+      console.log("DRAGON RESULT SAVED");
+    } catch (err) {
+      console.error("SAVE RESULT ERROR:", err);
+    }
+  }
 }
-
-document.getElementById("startRoomBtn")?.addEventListener("click", () => {
-  const blueInput = document.getElementById("blueTeamInput");
-
-  const redInput = document.getElementById("redTeamInput");
-
-  const blue = blueInput.value.trim();
-  const red = redInput.value.trim();
-
-  if (!blue || !red) {
-    showToast("Nhập tên cho cả 2 đội!", "error");
-    return;
-  }
-
-  blueTeamName = blue;
-  redTeamName = red;
-
-  document.querySelector(".team-blue-name").textContent = blueTeamName;
-
-  document.querySelector(".team-red-name").textContent = redTeamName;
-
-  document.getElementById("playerSetup").classList.remove("flex");
-
-  document.getElementById("playerSetup").style.display = "none";
-
-  document.querySelector(".question-layout").style.pointerEvents = "auto";
-
-  document.querySelector(".race-section").style.pointerEvents = "auto";
-
-  startDragonGame();
-});
-
-function saveDragonBoatResult(winnerTeam) {
-  if (!roomCode) return;
-
-  let submits =
-    JSON.parse(localStorage.getItem("dragonboat_submit_" + roomCode)) || [];
-
-  const matchId = Date.now();
-
-  const blueName = blueTeamName || teamBlue;
-
-  const redName = redTeamName || teamRed;
-
-  // ===== HÒA =====
-  if (winnerTeam === "Hòa") {
-    submits.push({
-      name: blueName,
-
-      result: "DRAW",
-
-      submittedAt: Date.now(),
-
-      roomCode,
-
-      matchId,
-    });
-
-    submits.push({
-      name: redName,
-
-      result: "DRAW",
-
-      submittedAt: Date.now(),
-
-      roomCode,
-
-      matchId,
-    });
-  }
-
-  // ===== CÓ THẮNG THUA =====
-  else {
-    submits.push({
-      name: blueName,
-
-      result: winnerTeam === blueName ? "WIN" : "LOSE",
-
-      submittedAt: Date.now(),
-
-      roomCode,
-
-      matchId,
-    });
-
-    submits.push({
-      name: redName,
-
-      result: winnerTeam === redName ? "WIN" : "LOSE",
-
-      submittedAt: Date.now(),
-
-      roomCode,
-
-      matchId,
-    });
-  }
-
-  localStorage.setItem(
-    "dragonboat_submit_" + roomCode,
-    JSON.stringify(submits),
-  );
-}
-
-document.addEventListener("keydown", (e) => {
-  const gameControlMode = game.controlMode || "screen";
-
-  // chỉ bật ở mode bàn phím
-  if (gameControlMode !== "keyboard") return;
-
-  // game kết thúc thì khóa
-  if (gameEnded) return;
-
-  const key = e.key.toLowerCase();
-
-  // ===== ĐỘI XANH =====
-  if (key === "q") chooseAnswer(0, "blue");
-  if (key === "w") chooseAnswer(1, "blue");
-  if (key === "a") chooseAnswer(2, "blue");
-  if (key === "s") chooseAnswer(3, "blue");
-
-  // ===== ĐỘI ĐỎ =====
-  if (key === "o") chooseAnswer(0, "red");
-  if (key === "p") chooseAnswer(1, "red");
-  if (key === "k") chooseAnswer(2, "red");
-  if (key === "l") chooseAnswer(3, "red");
-});
+loadDragonGame();

@@ -8,10 +8,9 @@ let editingId = null;
 function goCreate(isEdit = false) {
   if (!isEdit) {
     tempQuestions = [];
-    sessionStorage.removeItem(DRAFT_KEY);
-  }
 
-  if (!isEdit) {
+    sessionStorage.removeItem(DRAFT_KEY);
+
     history.pushState({}, "", "/games/turnbased.html?mode=create");
   }
 
@@ -62,12 +61,16 @@ function goCreate(isEdit = false) {
   renderQuestionPreview();
 }
 
-function goHome() {
+async function goHome() {
   history.pushState({}, "", "/games/turnbased.html");
+
   document.getElementById("page-create").classList.add("hidden");
+
   document.getElementById("page-list").classList.remove("hidden");
+
   setActive("home");
-  renderGames();
+
+  await loadGames();
 }
 
 function setActive(type) {
@@ -232,100 +235,244 @@ function generateObstacles(count, maxCell = 48) {
   return arr;
 }
 
-// ===== SAVE GAME =====
-function saveGame() {
-  const titleInput = document.getElementById("gameTitleInput");
-  const title = titleInput ? titleInput.value.trim() : "";
+async function loadGames() {
+  const user = JSON.parse(localStorage.getItem("user"));
 
-  if (!title) {
-    showToast("⚠️ Vui lòng nhập tiêu đề bài chơi!", "error");
-    titleInput.focus();
+  if (!user || !user.id) {
+    games = [];
+    renderGames();
     return;
   }
 
-  if (!tempQuestions || tempQuestions.length === 0) {
-    showToast("⚠️ Phải có ít nhất 1 câu hỏi!", "error");
-    return;
-  }
+  try {
+    const res = await fetch(`http://127.0.0.1:5000/api/games/${user.id}`);
 
-  for (let i = 0; i < tempQuestions.length; i++) {
-    const q = tempQuestions[i];
+    const dbGames = await res.json();
 
-    if (!q.question || q.question.trim() === "") {
-      showToast(`⚠️ Câu ${i + 1} chưa có nội dung!`, "error");
-      return;
-    }
+    const filteredGames = dbGames.filter((g) => g.game_type === "turnbased");
 
-    if (!q.answers || q.answers.some((a) => !a || a.trim() === "")) {
-      showToast(`⚠️ Câu ${i + 1} chưa đủ đáp án!`, "error");
-      return;
-    }
-  }
+    games = [];
+    games = filteredGames.map((g) => {
+      const parsed = JSON.parse(g.game_data);
 
-  const players = [];
+      // ===== FIX PLAYERS =====
+      if (!Array.isArray(parsed.players)) {
+        const total = Number(parsed.players) || 2;
 
-  document.querySelectorAll("#playerInputs input").forEach((input) => {
-    players.push(input.value.trim() || "");
-  });
+        parsed.players = Array.from(
+          { length: total },
+          (_, i) => `Người chơi ${i + 1}`,
+        );
+      }
 
-  const obstacles = parseInt(document.getElementById("slider").value);
+      return {
+        ...parsed,
 
-  const activeBtn = document.querySelector(".music-btn.bg-green-500");
-  const selectedMusicFinal = activeBtn
-    ? activeBtn.dataset.src
-    : "../assets/sounds/bai1.mp3";
-
-  let games = JSON.parse(localStorage.getItem("games")) || [];
-
-  // ===== EDIT MODE =====
-  if (editingId) {
-    const index = games.findIndex((g) => g.id === editingId);
-
-    if (index !== -1) {
-      games[index] = {
-        ...games[index],
-        title,
-        players,
-        obstacles,
-        music: selectedMusicFinal,
-        questions: tempQuestions,
-        obstacleCells: generateObstacles(obstacles),
+        db_id: g.id,
       };
-    }
+    });
 
-    editingId = null;
-    showToast("✅ Cập nhật thành công!", "success");
+    renderGames();
+  } catch (err) {
+    console.error("LOAD GAME ERROR:", err);
+  }
+}
+
+let isSavingGame = false;
+
+// ===== SAVE GAME =====
+async function saveGame() {
+  // ===== CHỐNG SPAM CLICK =====
+  if (isSavingGame) return;
+
+  isSavingGame = true;
+
+  const saveBtn = document.getElementById("saveBtn");
+
+  if (saveBtn) {
+    saveBtn.disabled = true;
+    saveBtn.innerText = "⏳ Đang lưu...";
   }
 
-  // ===== CREATE MODE =====
-  else {
+  try {
+    const titleInput = document.getElementById("gameTitleInput");
+
+    const title = titleInput ? titleInput.value.trim() : "";
+
+    // ===== VALIDATE =====
+    if (!title) {
+      showToast("⚠️ Vui lòng nhập tiêu đề bài chơi!", "error");
+
+      titleInput.focus();
+
+      return;
+    }
+
+    if (!tempQuestions || tempQuestions.length === 0) {
+      showToast("⚠️ Phải có ít nhất 1 câu hỏi!", "error");
+
+      return;
+    }
+
+    for (let i = 0; i < tempQuestions.length; i++) {
+      const q = tempQuestions[i];
+
+      if (!q.question || q.question.trim() === "") {
+        showToast(`⚠️ Câu ${i + 1} chưa có nội dung!`, "error");
+        return;
+      }
+
+      if (!q.answers || q.answers.some((a) => !a || a.trim() === "")) {
+        showToast(`⚠️ Câu ${i + 1} chưa đủ đáp án!`, "error");
+        return;
+      }
+    }
+
+    // ===== PLAYERS =====
+    const players = [];
+
+    document.querySelectorAll("#playerInputs input").forEach((input) => {
+      players.push(input.value.trim() || "");
+    });
+
+    // ===== SETTINGS =====
+    const obstacles = parseInt(document.getElementById("slider").value);
+
+    const activeBtn = document.querySelector(".music-btn.bg-green-500");
+
+    const selectedMusicFinal = activeBtn
+      ? activeBtn.dataset.src
+      : "../assets/sounds/bai1.mp3";
+
+    // ===== USER =====
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if (!user || !user.id) {
+      showToast("Bạn chưa đăng nhập!", "error");
+      return;
+    }
+
+    // ===== GAME OBJECT =====
     const newGame = {
       id: Date.now(),
+
       title,
+
       players,
+
       obstacles,
+
       music: selectedMusicFinal,
+
       questions: tempQuestions,
+
       obstacleCells: generateObstacles(obstacles),
     };
 
-    games.push(newGame);
+    // ================= EDIT MODE =================
+    if (editingId) {
+      const editingGame = games.find(
+        (g) => Number(g.db_id) === Number(editingId),
+      );
+
+      const res = await fetch(
+        `http://127.0.0.1:5000/api/games/${editingGame.db_id}`,
+        {
+          method: "PUT",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            user_id: user.id,
+
+            game_type: "turnbased",
+
+            title: newGame.title,
+
+            subject: "",
+
+            music: newGame.music,
+
+            game_data: newGame,
+          }),
+        },
+      );
+
+      if (!res.ok) {
+        throw new Error("UPDATE GAME FAILED");
+      }
+
+      showToast("✏️ Cập nhật thành công!", "success");
+
+      sessionStorage.removeItem(DRAFT_KEY);
+
+      editingId = null;
+
+      await goHome();
+
+      return;
+    }
+
+    // ================= CREATE MODE =================
+    const res = await fetch("http://127.0.0.1:5000/api/games", {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        user_id: user.id,
+
+        game_type: "turnbased",
+
+        title: newGame.title,
+
+        subject: "",
+
+        music: newGame.music,
+
+        game_data: newGame,
+      }),
+    });
+
+    // ===== CHECK API =====
+    if (!res.ok) {
+      const errorText = await res.text();
+
+      console.error("API ERROR:", errorText);
+
+      throw new Error("CREATE GAME FAILED");
+    }
+
     showToast("🎉 Lưu thành công!", "success");
+
+    // ===== CLEAR DRAFT =====
+    sessionStorage.removeItem(DRAFT_KEY);
+
+    // ===== RELOAD =====
+    await goHome();
+    return;
+  } catch (err) {
+    console.error("SAVE GAME ERROR:", err);
+
+    showToast("❌ Lỗi lưu database!", "error");
+  } finally {
+    // ===== RESET =====
+    isSavingGame = false;
+
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.innerText = "💾 Lưu game";
+    }
   }
-
-  localStorage.setItem("games", JSON.stringify(games));
-  sessionStorage.removeItem(DRAFT_KEY);
-
-  updateQuestionCount();
-  goHome();
-  renderGames();
 }
 
 function renderGames() {
   const container = document.getElementById("gameList");
   if (!container) return;
-
-  let games = JSON.parse(localStorage.getItem("games")) || [];
 
   container.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6";
 
@@ -347,6 +494,7 @@ function renderGames() {
     return;
   }
 
+  container.innerHTML = "";
   let html = "";
 
   games.forEach((game) => {
@@ -411,7 +559,7 @@ function renderGames() {
 
           <!-- PLAY -->
           <button
-            onclick="playGame(${game.id})"
+            onclick="playGame(${game.db_id})"
             class="
               play-btn
               flex-1
@@ -428,7 +576,7 @@ function renderGames() {
 
           <!-- ASSIGN -->
           <button
-            onclick="openAssign(${game.id})"
+            onclick="openAssign(${game.db_id})"
             class="
             px-4 py-2
             border border-gray-200
@@ -447,7 +595,7 @@ function renderGames() {
         <div class="flex justify-between text-sm font-medium">
 
           <button
-            onclick="editGame(${game.id})"
+            onclick="editGame(${game.db_id})"
             class="text-orange-500 hover:underline"
           >
             ✏️ Sửa
@@ -460,7 +608,7 @@ function renderGames() {
           </button>
 
           <button
-            onclick="deleteGame(${game.id})"
+            onclick="deleteGame(${game.db_id})"
             class="text-red-500 hover:underline"
           >
             🗑 Xóa bài
@@ -478,8 +626,7 @@ function renderGames() {
 }
 
 function editGame(id) {
-  const games = JSON.parse(localStorage.getItem("games")) || [];
-  const game = games.find((g) => g.id === id);
+  const game = games.find((g) => Number(g.db_id) === Number(id));
 
   if (!game) return;
 
@@ -1094,51 +1241,30 @@ function playGame(id) {
   };
 }
 
-// ===== DELETE =====
-let deletedGame = null;
-let undoTimer = null;
-
-function deleteGame(id) {
-  let games = JSON.parse(localStorage.getItem("games")) || [];
-  const game = games.find((g) => g.id === id);
+async function deleteGame(id) {
+  const game = games.find((g) => Number(g.db_id) === Number(id));
 
   if (!game) return;
 
-  deletedGame = game;
+  try {
+    const res = await fetch(`http://127.0.0.1:5000/api/games/${id}`, {
+      method: "DELETE",
+    });
 
-  games = games.filter((g) => g.id !== id);
-  localStorage.setItem("games", JSON.stringify(games));
+    if (!res.ok) {
+      throw new Error("DELETE FAILED");
+    }
 
-  renderGames();
+    games = games.filter((g) => Number(g.db_id) !== Number(id));
 
-  showUndoToast(
-    "🗑 Đã xóa bài chơi",
-    () => {
-      undoDelete();
-    },
-    4000,
-  );
+    renderGames();
 
-  clearTimeout(undoTimer);
-  undoTimer = setTimeout(() => {
-    deletedGame = null;
-  }, 4000);
-}
+    showToast("🗑 Đã xóa game!", "success");
+  } catch (err) {
+    console.error("DELETE GAME ERROR:", err);
 
-function undoDelete() {
-  if (!deletedGame) return;
-
-  let games = JSON.parse(localStorage.getItem("games")) || [];
-
-  games.push(deletedGame);
-
-  localStorage.setItem("games", JSON.stringify(games));
-
-  renderGames();
-
-  showToast("↩ Đã khôi phục!", "success");
-
-  deletedGame = null;
+    showToast("❌ Xóa thất bại!", "error");
+  }
 }
 
 // ===== CREATE PAGE MUSIC =====

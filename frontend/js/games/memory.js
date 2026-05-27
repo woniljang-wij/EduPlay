@@ -122,9 +122,25 @@ function handleImgTypeChange() {
   document.getElementById("previewImg").src = "";
 }
 
-function editMemoryGame(id) {
-  let games = JSON.parse(localStorage.getItem("memoryGames")) || [];
-  const game = games.find((g) => g.id === id);
+async function editMemoryGame(id) {
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  const res = await fetch(`http://127.0.0.1:5000/api/games/${user.id}`);
+
+  const data = await res.json();
+
+  const games = data
+    .filter((g) => g.game_type === "memory")
+    .map((g) => ({
+      ...JSON.parse(g.game_data),
+
+      db_id: g.id,
+
+      title: g.title,
+    }));
+
+  const game = games.find((g) => g.db_id === id);
+
   if (!game) return;
 
   goCreate(true);
@@ -222,110 +238,87 @@ function saveGameWithImage(image) {
 
   const guessTime = guessTimeRaw === "" ? 0 : parseInt(guessTimeRaw);
 
-  let games = JSON.parse(localStorage.getItem("memoryGames")) || [];
+  const user = JSON.parse(localStorage.getItem("user"));
 
-  // =========================================
-  // EDIT
-  // =========================================
+  const payload = {
+    title,
 
+    answer,
+
+    image,
+
+    grid,
+
+    time,
+
+    guessTime,
+
+    questions: tempQuestions,
+
+    theme: selectedTheme,
+  };
+
+  // ================= EDIT =================
   if (window.editingId) {
-    games = games.map((g) => {
-      if (g.id === window.editingId) {
-        return {
-          ...g,
+    fetch(`http://127.0.0.1:5000/api/games/${window.editingId}`, {
+      method: "PUT",
 
-          title,
-          answer,
-          image,
+      headers: {
+        "Content-Type": "application/json",
+      },
 
-          grid,
+      body: JSON.stringify({
+        title,
 
-          time,
+        subject: "Memory",
 
-          // ===== FIX =====
-          guessTime,
+        game_type: "memory",
 
-          questions: tempQuestions,
+        music: "",
 
-          theme: selectedTheme,
-        };
-      }
+        game_data: payload,
+      }),
+    })
+      .then((res) => res.json())
+      .then(() => {
+        showToast("✅ Đã cập nhật!", "success");
 
-      return g;
-    });
+        window.editingId = null;
 
-    showToast("✅ Đã cập nhật!", "success");
+        goHome();
+      });
 
-    window.editingId = null;
+    return;
   }
 
-  // =========================================
-  // CREATE
-  // =========================================
-  else {
-    games.push({
-      id: Date.now(),
+  // ================= CREATE =================
+  fetch("http://127.0.0.1:5000/api/games", {
+    method: "POST",
+
+    headers: {
+      "Content-Type": "application/json",
+    },
+
+    body: JSON.stringify({
+      user_id: user.id,
 
       title,
 
-      answer,
+      subject: "Memory",
 
-      image,
+      game_type: "memory",
 
-      grid,
+      music: "",
 
-      time,
+      game_data: payload,
+    }),
+  })
+    .then((res) => res.json())
+    .then(() => {
+      showToast("🎉 Lưu thành công!", "success");
 
-      // ===== FIX =====
-      guessTime,
-
-      questions: tempQuestions,
-
-      theme: selectedTheme,
+      goHome();
     });
-
-    showToast("🎉 Lưu thành công!", "success");
-  }
-
-  // =========================================
-  // SAVE
-  // =========================================
-
-  localStorage.setItem("memoryGames", JSON.stringify(games));
-
-  // =========================================
-  // UI
-  // =========================================
-
-  goHome();
-
-  renderMemoryGames();
-
-  // =========================================
-  // RESET
-  // =========================================
-
-  document.getElementById("title").value = "";
-
-  document.getElementById("answer").value = "";
-
-  document.getElementById("time").value = "";
-
-  document.getElementById("guessTime").value = "";
-
-  document.getElementById("imageUrl").value = "";
-
-  document.getElementById("imageFile").value = "";
-
-  document.getElementById("previewBox").classList.add("hidden");
-
-  document.getElementById("previewImg").src = "";
-
-  tempQuestions = [];
-
-  renderQuestionPreview();
-
-  updateQuestionCount();
 
   selectedTheme = "blue";
 
@@ -341,30 +334,46 @@ function saveGameWithImage(image) {
 }
 
 // ===== RENDER LIST =====
-function renderMemoryGames() {
+async function renderMemoryGames() {
   const container = document.getElementById("memoryList");
+
   if (!container) return;
 
-  let games = JSON.parse(localStorage.getItem("memoryGames")) || [];
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  const res = await fetch(`http://127.0.0.1:5000/api/games/${user.id}`);
+
+  const data = await res.json();
+
+  games = data
+    .filter((g) => g.game_type === "memory")
+    .map((g) => ({
+      ...JSON.parse(g.game_data),
+
+      db_id: g.id,
+
+      title: g.title,
+    }));
 
   container.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6";
 
   if (games.length === 0) {
     container.innerHTML = `
-  <div class="col-span-full text-center py-20 text-gray-500">
-    <div class="text-5xl mb-3">🧩</div>
+    <div class="col-span-full text-center py-20 text-gray-500">
+      <div class="text-5xl mb-3">🧩</div>
 
-    <p>Chưa có bài chơi nào</p>
+      <p>Chưa có bài chơi nào</p>
 
-    <button
-      onclick="goCreate()"
-      class="mt-5 px-6 py-3 rounded-xl text-white font-semibold 
-      bg-gradient-to-r from-orange-400 to-orange-500 shadow hover:scale-105 transition"
-    >
-      ➕ Tạo bài đầu tiên
-    </button>
-  </div>
-`;
+      <button
+        onclick="goCreate()"
+        class="mt-5 px-6 py-3 rounded-xl text-white font-semibold 
+        bg-gradient-to-r from-orange-400 to-orange-500 shadow hover:scale-105 transition"
+      >
+        ➕ Tạo bài đầu tiên
+      </button>
+    </div>
+    `;
+
     return;
   }
 
@@ -380,10 +389,14 @@ function renderMemoryGames() {
 
         <div class="flex justify-between items-start mb-3">
           <h3 class="font-bold text-lg">${game.title}</h3>
-          <span class="text-orange-500">🧩</span>
+
+          <span class="text-orange-500">
+            🧩
+          </span>
         </div>
 
         <div class="flex gap-2 mb-4 text-sm">
+
           <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
             🔲 ${game.grid}x${game.grid}
           </span>
@@ -395,31 +408,161 @@ function renderMemoryGames() {
           <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full">
             🧠 ${game.questions?.length || 0}
           </span>
+
         </div>
 
-       <div class="flex gap-3 mb-4">
+        <div class="flex gap-3 mb-4">
 
-       <!-- CHƠI -->
-       <button onclick="playMemory(${game.id})"
-        class="flex-1 bg-gradient-to-r from-green-400 to-emerald-500 text-white py-3 rounded-xl font-semibold shadow">
-        ▶ Chơi
-       </button>
+          <!-- CHƠI -->
+          <button
+            onclick="playMemory(${game.db_id})"
+            class="flex-1 bg-gradient-to-r from-green-400 to-emerald-500 text-white py-3 rounded-xl font-semibold shadow"
+          >
+            ▶ Chơi
+          </button>
 
-       <!-- GIAO -->
-       <button onclick="openAssign(${game.id}, 'memory')"
-        class="px-4 py-2 border rounded-xl text-purple-600 hover:bg-purple-50">
-        📋 Giao
-       </button>
+          <!-- GIAO -->
+          <button
+            onclick="openAssign(${game.db_id}, 'memory')"
+            class="px-4 py-2 border rounded-xl text-purple-600 hover:bg-purple-50"
+          >
+            📋 Giao
+          </button>
 
-       </div>
+        </div>
 
         <div class="flex gap-5 text-sm font-medium">
-          <button onclick="editMemoryGame(${game.id})"
-           class="text-orange-500 hover:underline">✏️ Sửa</button>
 
-          <button onclick="shareMemoryGame(${game.id})"
-           class="text-blue-500 hover:underline">🔗 Chia sẻ</button>
-          <button onclick="deleteMemoryGame(${game.id})" class="text-red-500">🗑 Xóa</button>
+          <button
+            onclick="editMemoryGame(${game.db_id})"
+            class="text-orange-500 hover:underline"
+          >
+            ✏️ Sửa
+          </button>
+
+          <button
+            onclick="shareMemoryGame(${game.db_id})"
+            class="text-blue-500 hover:underline"
+          >
+            🔗 Chia sẻ
+          </button>
+
+          <button
+            onclick="deleteMemoryGame(${game.db_id})"
+            class="text-red-500"
+          >
+            🗑 Xóa
+          </button>
+
+        </div>
+
+      </div>
+    </div>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+function renderMemoryCards() {
+  const container = document.getElementById("memoryList");
+
+  if (!container) return;
+
+  container.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6";
+
+  if (games.length === 0) {
+    container.innerHTML = `
+      <div class="col-span-full text-center py-20 text-gray-500">
+        <div class="text-5xl mb-3">🧩</div>
+
+        <p>Chưa có bài chơi nào</p>
+
+        <button
+          onclick="goCreate()"
+          class="mt-5 px-6 py-3 rounded-xl text-white font-semibold 
+          bg-gradient-to-r from-orange-400 to-orange-500 shadow hover:scale-105 transition"
+        >
+          ➕ Tạo bài đầu tiên
+        </button>
+      </div>
+    `;
+    return;
+  }
+
+  let html = "";
+
+  games.forEach((game) => {
+    html += `
+    <div class="w-80">
+      <div class="bg-white/80 backdrop-blur rounded-2xl p-5 shadow-lg border border-white/40 hover:scale-105 transition">
+
+        <img src="${game.image}" 
+          class="w-full h-40 object-cover rounded-xl mb-3">
+
+        <div class="flex justify-between items-start mb-3">
+          <h3 class="font-bold text-lg">${game.title}</h3>
+
+          <span class="text-orange-500">🧩</span>
+        </div>
+
+        <div class="flex gap-2 mb-4 text-sm">
+
+          <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
+            🔲 ${game.grid}x${game.grid}
+          </span>
+
+          <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full">
+            ⏱ ${game.time}s
+          </span>
+
+          <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full">
+            🧠 ${game.questions?.length || 0}
+          </span>
+
+        </div>
+
+        <div class="flex gap-3 mb-4">
+
+          <button
+            onclick="playMemory(${game.db_id})"
+            class="flex-1 bg-gradient-to-r from-green-400 to-emerald-500 text-white py-3 rounded-xl font-semibold shadow"
+          >
+            ▶ Chơi
+          </button>
+
+          <button
+            onclick="openAssign(${game.db_id}, 'memory')"
+            class="px-4 py-2 border rounded-xl text-purple-600 hover:bg-purple-50"
+          >
+            📋 Giao
+          </button>
+
+        </div>
+
+        <div class="flex gap-5 text-sm font-medium">
+
+          <button
+            onclick="editMemoryGame(${game.db_id})"
+            class="text-orange-500 hover:underline"
+          >
+            ✏️ Sửa
+          </button>
+
+          <button
+            onclick="shareMemoryGame(${game.db_id})"
+            class="text-blue-500 hover:underline"
+          >
+            🔗 Chia sẻ
+          </button>
+
+          <button
+            onclick="deleteMemoryGame(${game.db_id})"
+            class="text-red-500"
+          >
+            🗑 Xóa
+          </button>
+
         </div>
 
       </div>
@@ -435,58 +578,36 @@ function playMemory(id) {
   window.location.href = `play_memory.html?id=${id}`;
 }
 
-// ===== DELETE + UNDO =====
-let deletedGame = null;
-let undoTimer = null;
-
-function deleteMemoryGame(id) {
-  let games = JSON.parse(localStorage.getItem("memoryGames")) || [];
-  const game = games.find((g) => g.id === id);
+async function deleteMemoryGame(id) {
+  const game = games.find((g) => Number(g.db_id) === Number(id));
 
   if (!game) return;
 
-  deletedGame = game;
+  try {
+    const res = await fetch(`http://127.0.0.1:5000/api/games/${id}`, {
+      method: "DELETE",
+    });
 
-  games = games.filter((g) => g.id !== id);
-  localStorage.setItem("memoryGames", JSON.stringify(games));
+    if (!res.ok) {
+      throw new Error("DELETE FAILED");
+    }
 
-  renderMemoryGames();
+    games = games.filter((g) => Number(g.db_id) !== Number(id));
 
-  showUndoToast(
-    "🗑 Đã xóa game",
-    () => {
-      undoDeleteMemory();
-    },
-    4000,
-  );
+    renderMemoryCards();
 
-  clearTimeout(undoTimer);
-  undoTimer = setTimeout(() => {
-    deletedGame = null;
-  }, 4000);
-}
+    showToast("🗑 Đã xóa game!", "success");
+  } catch (err) {
+    console.error("DELETE MEMORY ERROR:", err);
 
-function undoDeleteMemory() {
-  if (!deletedGame) return;
-
-  let games = JSON.parse(localStorage.getItem("memoryGames")) || [];
-
-  games.push(deletedGame);
-
-  localStorage.setItem("memoryGames", JSON.stringify(games));
-
-  renderMemoryGames();
-
-  showToast("↩ Đã khôi phục!", "success");
-
-  deletedGame = null;
+    showToast("❌ Xóa thất bại!", "error");
+  }
 }
 
 // ===== INIT =====
 window.onload = () => {
   goHome();
   handleImgTypeChange();
-  renderMemoryGames();
 
   // RADIO
   document.querySelectorAll("input[name='imgType']").forEach((r) => {
@@ -800,7 +921,7 @@ function startCreateMusic() {
 
   createMusic.volume = 0.35;
 
-  const playPromise = createMusic.play();
+  const playPromise = createMusic.play().catch(() => {});
 
   if (playPromise !== undefined) {
     playPromise.catch(() => {

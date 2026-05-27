@@ -7,8 +7,6 @@ let redQuestions = [];
 let currentQuestionTeam = "shared";
 
 let editingId = null;
-let deletedGame = null;
-let undoTimer = null;
 
 // ===== INDEXED DB =====
 let db;
@@ -359,7 +357,7 @@ function undoDeleteMusic() {
 }
 
 // ===== SAVE GAME =====
-function saveGame() {
+async function saveGame() {
   const title =
     document.querySelector("input[placeholder='Nhập tiêu đề...']")?.value ||
     "Chưa đặt tên";
@@ -374,6 +372,7 @@ function saveGame() {
   const team2 = inputs[5]?.value || "Đội Đỏ";
 
   const musicBtn = document.querySelector(".music-btn.active");
+
   const music = musicBtn?.dataset.src || null;
 
   const mode =
@@ -383,68 +382,134 @@ function saveGame() {
   const controlMode =
     document.querySelector("input[name='control']:checked")?.value || "screen";
 
-  let games = JSON.parse(localStorage.getItem("dragonboatGames")) || [];
+  const user = JSON.parse(localStorage.getItem("user"));
 
-  if (editingId) {
-    const index = games.findIndex((g) => g.id === editingId);
-
-    if (index !== -1) {
-      games[index] = {
-        ...games[index],
-        title,
-        duration,
-        freeze,
-        winScore,
-        players: [team1, team2],
-        mode,
-        controlMode,
-        music,
-        sharedQuestions: tempQuestions || [],
-
-        blueQuestions: blueQuestions || [],
-
-        redQuestions: redQuestions || [],
-      };
-    }
-
-    editingId = null;
-    showToast("✅ Đã cập nhật!", "success");
-  } else {
-    const game = {
-      id: Date.now(),
-      title,
-      duration,
-      freeze,
-      winScore,
-      players: [team1, team2],
-      mode,
-      controlMode,
-      music,
-      sharedQuestions: tempQuestions || [],
-
-      blueQuestions: blueQuestions || [],
-
-      redQuestions: redQuestions || [],
-    };
-
-    games.push(game);
-    showToast("🎉 Đã lưu!", "success");
+  if (!user || !user.id) {
+    showToast("Bạn chưa đăng nhập!", "error");
+    return;
   }
 
-  localStorage.setItem("dragonboatGames", JSON.stringify(games));
-  goHome();
+  const payload = {
+    title,
+    duration,
+    freeze,
+    winScore,
+    players: [team1, team2],
+    mode,
+    controlMode,
+    music,
+    sharedQuestions: tempQuestions || [],
+    blueQuestions: blueQuestions || [],
+    redQuestions: redQuestions || [],
+  };
+
+  try {
+    // ===== EDIT =====
+    if (editingId) {
+      await fetch(`http://127.0.0.1:5000/api/games/${editingId}`, {
+        method: "PUT",
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          user_id: user.id,
+
+          game_type: "dragonboat",
+
+          title,
+
+          subject: "Dragon Boat",
+
+          music: music || "",
+
+          game_data: payload,
+        }),
+      });
+
+      showToast("✅ Đã cập nhật!", "success");
+
+      editingId = null;
+
+      await loadGames();
+
+      goHome();
+
+      return;
+    }
+
+    // ===== CREATE =====
+    await fetch("http://127.0.0.1:5000/api/games", {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        user_id: user.id,
+
+        game_type: "dragonboat",
+
+        title,
+
+        subject: "Dragon Boat",
+
+        music: music || "",
+
+        game_data: payload,
+      }),
+    });
+
+    showToast("🎉 Đã lưu!", "success");
+
+    await loadGames();
+
+    goHome();
+  } catch (err) {
+    console.error(err);
+
+    showToast("❌ Lỗi database!", "error");
+  }
 }
 
 function isIndependentGame(game) {
   return game.mode?.toLowerCase().includes("độc lập");
 }
 
+async function loadGames() {
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  if (!user || !user.id) {
+    games = [];
+    renderGames();
+    return;
+  }
+
+  try {
+    const res = await fetch(`http://127.0.0.1:5000/api/games/${user.id}`);
+
+    const dbGames = await res.json();
+
+    games = dbGames
+      .filter((g) => g.game_type === "dragonboat")
+      .map((g) => ({
+        ...JSON.parse(g.game_data),
+
+        db_id: g.id,
+      }));
+
+    renderGames();
+  } catch (err) {
+    console.error("LOAD GAME ERROR:", err);
+  }
+}
+
 // ===== RENDER =====
 function renderGames() {
   const container = document.getElementById("gameList");
   if (!container) return;
-
-  let games = JSON.parse(localStorage.getItem("dragonboatGames")) || [];
 
   container.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6";
 
@@ -566,7 +631,7 @@ function renderGames() {
         <div class="flex gap-3 mb-4">
 
           <button
-            onclick="playGame(${g.id})"
+            onclick="playGame(${g.db_id})"
             class="
               play-btn
               flex-1
@@ -582,7 +647,7 @@ function renderGames() {
           </button>
 
           <button
-            onclick="openAssign(${g.id}, 'dragonboat')"
+            onclick="openAssign(${g.db_id}, 'dragonboat')"
             class="
               px-4 py-2
               border border-gray-200
@@ -601,7 +666,7 @@ function renderGames() {
         <div class="flex gap-5 text-sm font-medium">
 
           <button
-            onclick="editGame(${g.id})"
+            onclick="editGame(${g.db_id})"
             class="text-orange-500 hover:underline"
           >
             ✏️ Sửa
@@ -615,7 +680,7 @@ function renderGames() {
           </button>
 
           <button
-            onclick="deleteGame(${g.id})"
+            onclick="deleteGame(${g.db_id})"
             class="text-red-500 hover:underline"
           >
             🗑 Xóa bài
@@ -634,14 +699,12 @@ function renderGames() {
 
 // ===== EDIT =====
 function editGame(id) {
-  const games = JSON.parse(localStorage.getItem("dragonboatGames")) || [];
-  const game = games.find((g) => g.id === id);
+  const game = games.find((g) => Number(g.db_id) === Number(id));
   if (!game) return;
 
   editingId = id;
   goCreate(true);
 
-  // chỉ load nhạc upload 1 lần
   if (!window.musicLoadedOnce) {
     loadSavedMusic();
 
@@ -772,40 +835,30 @@ function editGame(id) {
   }
 }
 
-// ===== DELETE =====
-function deleteGame(id) {
-  let games = JSON.parse(localStorage.getItem("dragonboatGames")) || [];
-  const game = games.find((g) => g.id === id);
+async function deleteGame(id) {
+  const game = games.find((g) => Number(g.db_id) === Number(id));
+
   if (!game) return;
 
-  deletedGame = game;
+  try {
+    const res = await fetch(`http://127.0.0.1:5000/api/games/${id}`, {
+      method: "DELETE",
+    });
 
-  games = games.filter((g) => g.id !== id);
+    if (!res.ok) {
+      throw new Error("DELETE FAILED");
+    }
 
-  localStorage.setItem("dragonboatGames", JSON.stringify(games));
+    games = games.filter((g) => Number(g.db_id) !== Number(id));
 
-  renderGames();
+    renderGames();
 
-  showUndoToast("🗑 Đã xóa", () => undoDelete(), 4000);
+    showToast("🗑 Đã xóa game!", "success");
+  } catch (err) {
+    console.error("DELETE GAME ERROR:", err);
 
-  clearTimeout(undoTimer);
-  undoTimer = setTimeout(() => {
-    deletedGame = null;
-  }, 4000);
-}
-
-function undoDelete() {
-  if (!deletedGame) return;
-
-  let games = JSON.parse(localStorage.getItem("dragonboatGames")) || [];
-
-  games.push(deletedGame);
-  localStorage.setItem("dragonboatGames", JSON.stringify(games));
-
-  renderGames();
-  showToast("↩ Đã khôi phục!", "success");
-
-  deletedGame = null;
+    showToast("❌ Xóa thất bại!", "error");
+  }
 }
 
 // ===== PLAY =====
@@ -814,9 +867,12 @@ function playGame(id) {
 }
 
 // ===== INIT =====
-window.onload = () => {
-  goHome();
+window.onload = async () => {
   bindMusicButtons();
+
+  await loadGames();
+
+  goHome();
 };
 
 function openQuestionManager(team = "shared") {

@@ -44,17 +44,25 @@ if (googleBtn) {
 
       const user = result.user;
 
-      const userData = {
-        full_name: user.displayName || "",
+      const res = await fetch("http://127.0.0.1:5000/auth/google-login", {
+        method: "POST",
 
-        email: user.email || "",
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-        avatar: user.photoURL ? user.photoURL.replace("s96-c", "s400-c") : "",
+        body: JSON.stringify({
+          full_name: user.displayName || "",
 
-        loginType: "google",
-      };
+          email: user.email || "",
 
-      localStorage.setItem("user", JSON.stringify(userData));
+          avatar: user.photoURL ? user.photoURL.replace("s96-c", "s400-c") : "",
+        }),
+      });
+
+      const data = await res.json();
+
+      localStorage.setItem("user", JSON.stringify(data.user));
 
       window.showToast("Đăng nhập Google thành công 🎉", "success");
 

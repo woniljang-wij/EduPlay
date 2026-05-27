@@ -35,7 +35,7 @@ if (startMemoryBtn) {
       return;
     }
 
-    localStorage.setItem("memory_player_name", name);
+    sessionStorage.setItem("memory_player_name", name);
 
     document.getElementById("playerSetup").classList.add("hidden");
   };
@@ -51,83 +51,139 @@ if (startMemoryBtn) {
 
 let game = null;
 
-// ===== VÀO BẰNG MÃ PHÒNG =====
-if (roomCode) {
-  const rooms = JSON.parse(localStorage.getItem("memory_rooms")) || [];
+async function loadGame() {
+  try {
+    const res = await fetch("http://127.0.0.1:5000/api/games");
 
-  const room = rooms.find(
-    (r) => String(r.roomCode).trim() === String(roomCode).trim(),
-  );
+    const data = await res.json();
 
-  if (!room) {
-    showToast("Không tìm thấy phòng!", "error");
+    const games = data
+      .filter((g) => g.game_type === "memory")
+      .map((g) => ({
+        ...JSON.parse(g.game_data),
 
-    setTimeout(() => {
-      window.location.href = "../join.html";
-    }, 1200);
+        db_id: g.id,
 
-    throw new Error("ROOM_NOT_FOUND");
+        title: g.title,
+      }));
+
+    // ===== PLAY BY ROOM =====
+    if (roomCode) {
+      const roomRes = await fetch(`http://127.0.0.1:5000/api/room/${roomCode}`);
+
+      if (!roomRes.ok) {
+        showToast("Không tìm thấy phòng!", "error");
+
+        setTimeout(() => {
+          window.location.href = "../join.html";
+        }, 1200);
+
+        return;
+      }
+
+      const room = await roomRes.json();
+
+      if (!room) {
+        showToast("Không tìm thấy phòng!", "error");
+
+        setTimeout(() => {
+          window.location.href = "../join.html";
+        }, 1200);
+
+        return;
+      }
+
+      game = games.find((g) => g.db_id === room.game_id);
+    }
+
+    // ===== PLAY NORMAL =====
+    else {
+      game = games.find((g) => g.db_id === id);
+    }
+
+    if (!game) {
+      showToast("Không tìm thấy game!", "error");
+
+      setTimeout(() => {
+        window.location.href = "memory.html";
+      }, 1200);
+
+      return;
+    }
+
+    startGame();
+  } catch (err) {
+    console.error(err);
+
+    showToast("Lỗi tải game!", "error");
   }
-
-  const games = JSON.parse(localStorage.getItem("memoryGames")) || [];
-
-  game = games.find((g) => String(g.id) === String(room.gameId));
 }
 
-// ===== VÀO BÌNH THƯỜNG =====
-else {
-  const games = JSON.parse(localStorage.getItem("memoryGames")) || [];
+let gridSize = 0;
 
-  game = games.find((g) => g.id === id);
+let total = 0;
 
-  if (!game) {
-    showToast("Không tìm thấy game!", "error");
+let questions = [];
+
+let imageUrl = "";
+
+let answer = "";
+
+let theme = "blue";
+
+let guessDuration = 0;
+
+let opened = [];
+
+let doneCount = 0;
+
+let currentIndex = null;
+
+let selectedAnswer = null;
+
+let guessRemain = 0;
+
+let guessTimer = null;
+
+function startGame() {
+  gridSize = parseInt(game.grid);
+
+  total = gridSize * gridSize;
+
+  questions = [...(game.questions || [])];
+
+  questions.sort(() => Math.random() - 0.5);
+
+  if (questions.length < total) {
+    showToast("Số câu hỏi không đủ!", "error");
 
     setTimeout(() => {
       window.location.href = "memory.html";
     }, 1200);
 
-    throw new Error("GAME_NOT_FOUND");
+    return;
   }
-}
 
-// ===== DATA =====
-const gridSize = parseInt(game.grid);
-const total = gridSize * gridSize;
+  imageUrl = game.image;
 
-let questions = [...(game.questions || [])];
-questions.sort(() => Math.random() - 0.5);
+  answer = game.answer || game.name || "???";
 
-if (questions.length < total) {
-  showToast("Số câu hỏi không đủ!", "error");
-  setTimeout(() => {
-    window.location.href = "memory.html";
-  }, 1200);
-}
+  theme = game.theme || "blue";
 
-const imageUrl = game.image;
-const answer = game.answer || game.name || "???";
-const theme = game.theme || "blue";
-timerDuration = parseInt(game.time) || 0;
+  timerDuration = parseInt(game.time) || 0;
 
-const guessDuration = parseInt(game.guessTime) || 0;
+  guessDuration = parseInt(game.guessTime) || 0;
 
-let guessTimer = null;
-let guessRemain = guessDuration;
+  opened = Array(total).fill(false);
 
-// ===== STATE =====
-let opened = Array(total).fill(false);
-let currentIndex = null;
-let doneCount = 0;
-let selectedAnswer = null;
-
-// ===== INIT =====
-window.onload = () => {
   document.getElementById("gameTitle").innerText = game.title || "Memory Game";
 
   renderGrid();
+
   updateProgress();
-};
+}
+
+loadGame();
 
 // ===== GRID =====
 function renderGrid() {
@@ -418,52 +474,7 @@ function showLose() {
 function showWin() {
   // ===== SAVE PLAYER RESULT =====
   if (roomCode) {
-    let rooms = JSON.parse(localStorage.getItem("memory_rooms")) || [];
-
-    console.log("ROOM CODE:", roomCode);
-    console.log("ALL ROOMS:", rooms);
-
-    const room = rooms.find(
-      (r) => String(r.roomCode).trim() === String(roomCode).trim(),
-    );
-
-    console.log("FOUND ROOM:", room);
-
-    if (room) {
-      // tạo players nếu chưa có
-      if (!Array.isArray(room.players)) {
-        room.players = [];
-      }
-
-      const playerName =
-        localStorage.getItem("memory_player_name") || "Người chơi";
-
-      // lưu player
-      room.players.push({
-        name: playerName,
-        time: new Date().toLocaleString("vi-VN"),
-        status: "win",
-      });
-
-      const submitKey = "memory_submit_" + roomCode;
-
-      let submits = JSON.parse(localStorage.getItem(submitKey)) || [];
-
-      submits.push({
-        name: playerName,
-        time: new Date().toLocaleString("vi-VN"),
-        status: "win",
-      });
-
-      localStorage.setItem(submitKey, JSON.stringify(submits));
-
-      // save lại localStorage
-      localStorage.setItem("memory_rooms", JSON.stringify(rooms));
-
-      console.log("ĐÃ LƯU PLAYER:", room.players);
-    } else {
-      console.log("KHÔNG TÌM THẤY ROOM");
-    }
+    saveMemoryResult();
   }
 
   const box = document.getElementById("resultBox");
@@ -489,6 +500,68 @@ function showWin() {
   audio.volume = 0.6;
 
   audio.play();
+}
+
+async function saveMemoryResult() {
+  try {
+    const roomRes = await fetch(`http://127.0.0.1:5000/api/room/${roomCode}`);
+
+    if (!roomRes.ok) return;
+
+    const room = await roomRes.json();
+
+    if (!room?.id) return;
+
+    const playerName =
+      sessionStorage.getItem("memory_player_name") || "Người chơi";
+
+    // ===== CHECK EXIST =====
+    const oldRes = await fetch(`http://127.0.0.1:5000/api/results/${room.id}`);
+
+    const oldResults = await oldRes.json();
+
+    const existed = oldResults.find(
+      (r) => r.game_type === "memory" && r.player_name === playerName,
+    );
+
+    if (existed) {
+      console.log("MEMORY RESULT EXIST");
+      return;
+    }
+
+    // ===== SAVE DATABASE =====
+    await fetch("http://127.0.0.1:5000/api/results", {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        room_id: room.id,
+
+        game_type: "memory",
+
+        player_name: playerName,
+
+        team_name: null,
+
+        score: 10,
+
+        result_text: "WIN",
+
+        extra_data: {
+          status: "win",
+        },
+
+        match_id: null,
+      }),
+    });
+
+    console.log("MEMORY RESULT SAVED");
+  } catch (err) {
+    console.error("SAVE MEMORY ERROR:", err);
+  }
 }
 
 // ===== GUESS =====

@@ -3,7 +3,7 @@ const joinBtn = document.getElementById("joinBtn");
 
 inputs[0].focus();
 
-// ===== PASTE FULL CODE =====
+// ================= PASTE FULL CODE =================
 inputs.forEach((input) => {
   input.addEventListener("paste", (e) => {
     e.preventDefault();
@@ -30,7 +30,7 @@ inputs.forEach((input) => {
   });
 });
 
-// ===== INPUT =====
+// ================= INPUT =================
 inputs.forEach((input, index) => {
   input.addEventListener("input", (e) => {
     let value = e.target.value;
@@ -57,7 +57,7 @@ inputs.forEach((input, index) => {
   });
 });
 
-// ===== CHECK =====
+// ================= CHECK COMPLETE =================
 function checkComplete() {
   const code = Array.from(inputs)
     .map((i) => i.value)
@@ -72,8 +72,8 @@ function checkComplete() {
   }
 }
 
-// ===== JOIN =====
-joinBtn.addEventListener("click", () => {
+// ================= JOIN ROOM =================
+joinBtn.addEventListener("click", async () => {
   const code = Array.from(inputs)
     .map((i) => i.value.trim())
     .join("")
@@ -81,112 +81,82 @@ joinBtn.addEventListener("click", () => {
     .trim();
 
   if (!code || code.length !== 6) {
-    showToast("Mã phòng không hợp lệ!", "error");
+    showToast("❌ Mã phòng không hợp lệ!", "error");
     return;
   }
 
   console.log("JOIN CODE:", code);
 
-  // ==================================================
-  // TURNBASED
-  // ==================================================
-  const turnRooms = JSON.parse(localStorage.getItem("turn_rooms")) || [];
+  try {
+    // ===== LOAD ALL ROOMS =====
+    const res = await fetch("http://127.0.0.1:5000/api/rooms");
 
-  console.log("TURN ROOMS:", turnRooms);
+    if (!res.ok) {
+      throw new Error("LOAD ROOM FAILED");
+    }
 
-  const turnRoom = turnRooms.find(
-    (r) => String(r.roomCode).trim().toUpperCase() === code,
-  );
+    const rooms = await res.json();
 
-  console.log("FOUND TURN ROOM:", turnRoom);
+    console.log("ALL ROOMS:", rooms);
 
-  if (turnRoom) {
-    sessionStorage.setItem("joined_room", JSON.stringify(turnRoom));
+    // ===== FIND ROOM =====
+    const room = rooms.find(
+      (r) => String(r.roomCode).trim().toUpperCase() === code,
+    );
 
-    showToast("Vào phòng thành công!", "success");
+    console.log("FOUND ROOM:", room);
 
+    // ===== NOT FOUND =====
+    if (!room) {
+      showToast("❌ Không tìm thấy phòng!", "error");
+      return;
+    }
+
+    // ===== CHECK EXPIRE =====
+    const created = new Date(room.createdAt).getTime();
+
+    const end = created + room.expireDay * 24 * 60 * 60 * 1000;
+
+    if (Date.now() > end) {
+      showToast("⏰ Phòng đã hết hạn!", "error");
+      return;
+    }
+
+    // ===== SAVE SESSION =====
+    sessionStorage.setItem("joined_room", JSON.stringify(room));
+
+    showToast("✅ Vào phòng thành công!", "success");
+
+    // ===== REDIRECT =====
     setTimeout(() => {
-      window.location.href = `games/play.html?room=${encodeURIComponent(code)}&join=1`;
+      // TURNBASED
+      if (room.gameType === "turnbased") {
+        window.location.href = `games/play.html?room=${encodeURIComponent(code)}&join=1`;
+      }
+
+      // QUIZFRUIT
+      else if (room.gameType === "quizfruit") {
+        window.location.href = `games/play_quizfruit.html?room=${encodeURIComponent(code)}&join=1`;
+      }
+
+      // MEMORY
+      else if (room.gameType === "memory") {
+        window.location.href = `games/play_memory.html?room=${encodeURIComponent(code)}&join=1`;
+      }
+
+      // DRAGONBOAT
+      else if (room.gameType === "dragonboat") {
+        window.location.href = `games/play_dragonboat.html?room=${encodeURIComponent(code)}&join=1`;
+      }
+
+      // UNKNOWN
+      else {
+        showToast("❌ Không xác định loại game!", "error");
+      }
     }, 500);
+  } catch (err) {
+    console.error("JOIN ROOM ERROR:", err);
 
-    return;
+    showToast("❌ Lỗi kết nối server!", "error");
   }
-
-  // ==================================================
-  // QUIZFRUIT
-  // ==================================================
-  const fruitRooms = JSON.parse(localStorage.getItem("fruit_rooms")) || [];
-
-  console.log("FRUIT ROOMS:", fruitRooms);
-
-  const fruitRoom = fruitRooms.find(
-    (r) => String(r.roomCode).trim().toUpperCase() === code,
-  );
-
-  console.log("FOUND FRUIT ROOM:", fruitRoom);
-
-  if (fruitRoom) {
-    sessionStorage.setItem("joined_room", JSON.stringify(fruitRoom));
-
-    showToast("Vào phòng thành công!", "success");
-
-    setTimeout(() => {
-      window.location.href = `games/play_quizfruit.html?room=${encodeURIComponent(code)}&join=1`;
-    }, 500);
-
-    return;
-  }
-
-  // ==================================================
-  // MEMORY
-  // ==================================================
-  const memoryRooms = JSON.parse(localStorage.getItem("memory_rooms")) || [];
-
-  console.log("MEMORY ROOMS:", memoryRooms);
-
-  const memoryRoom = memoryRooms.find(
-    (r) => String(r.roomCode).trim().toUpperCase() === code,
-  );
-
-  console.log("FOUND MEMORY ROOM:", memoryRoom);
-
-  if (memoryRoom) {
-    sessionStorage.setItem("joined_room", JSON.stringify(memoryRoom));
-
-    showToast("Vào phòng thành công!", "success");
-
-    setTimeout(() => {
-      window.location.href = `games/play_memory.html?room=${encodeURIComponent(code)}&join=1`;
-    }, 500);
-
-    return;
-  }
-
-  // ==================================================
-  // DRAGON BOAT
-  // ==================================================
-  const dragonRooms =
-    JSON.parse(localStorage.getItem("dragonboat_rooms")) || [];
-
-  console.log("DRAGON ROOMS:", dragonRooms);
-
-  const dragonRoom = dragonRooms.find(
-    (r) => String(r.roomCode).trim().toUpperCase() === code,
-  );
-
-  console.log("FOUND DRAGON ROOM:", dragonRoom);
-
-  if (dragonRoom) {
-    sessionStorage.setItem("joined_room", JSON.stringify(dragonRoom));
-
-    showToast("Vào phòng thành công!", "success");
-
-    setTimeout(() => {
-      window.location.href = `games/play_dragonboat.html?room=${encodeURIComponent(code)}&join=1`;
-    }, 500);
-
-    return;
-  }
-  
-  showToast("Không tìm thấy phòng!", "error");
 });

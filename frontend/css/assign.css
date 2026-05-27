@@ -688,7 +688,7 @@ body {
   width: 52px;
   height: 52px;
 
-  border-radius: 18px;
+  border-radius: 28px;
 
   background: linear-gradient(135deg, #8b5cf6, #6366f1);
 
@@ -740,30 +740,6 @@ body {
   color: #2563eb;
 
   font-weight: 800;
-}
-
-.assign-view-btn {
-  width: 52px;
-  height: 52px;
-
-  border-radius: 18px;
-
-  background: linear-gradient(135deg, #8b5cf6, #6366f1);
-
-  color: white;
-
-  font-size: 18px;
-  font-weight: 700;
-
-  box-shadow: 0 10px 24px rgba(99, 102, 241, 0.22);
-
-  transition: 0.2s;
-}
-
-.assign-view-btn:hover {
-  transform: translateY(-2px);
-
-  box-shadow: 0 14px 30px rgba(99, 102, 241, 0.3);
 }
 
 /* ================= DETAIL ================= */
@@ -1011,12 +987,12 @@ body {
   align-items: center;
   justify-content: center;
 
-  width: 100%;
-  max-width: 320px;
+  min-width: 180px;
+  max-width: 240px;
 
-  padding: 0 14px;
+  padding: 0 16px;
 
-  height: 44px;
+  height: 36px;
 
   border-radius: 999px;
 
@@ -1030,9 +1006,9 @@ body {
 
   white-space: nowrap;
 
-  box-shadow: 0 10px 24px rgba(34, 197, 94, 0.2);
+  box-shadow: 0 8px 18px rgba(34, 197, 94, 0.16);
 
-  font-size: clamp(9px, 0.85vw, 15px);
+  font-size: 13px;
 }
 
 .clear-expired-btn {
@@ -1062,17 +1038,9 @@ body {
   background: #ffedd5;
 }
 
-.hidden {
-  display: none;
-}
-
 .assign-expire.expired {
   background: #ef4444;
   color: white;
-}
-
-.assign-page i.bi {
-  line-height: 1;
 }
 
 .submit-group {
@@ -1093,3 +1061,139 @@ body {
   box-shadow: 0 10px 30px rgba(139, 92, 246, 0.12);
 }
 
+.assign-expire.deleted {
+  background: #2b2b2b;
+  color: white;
+}
+
+/* ================= ACTION BUTTON ================= */
+
+.assign-action-btn {
+  position: relative;
+
+  width: 50px;
+  height: 50px;
+
+  border-radius: 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  border: 1px solid rgba(255, 255, 255, 0.3);
+
+  backdrop-filter: blur(14px);
+
+  transition:
+    transform 0.28s ease,
+    box-shadow 0.28s ease;
+}
+
+/* ===== SHINE ===== */
+
+.assign-action-btn::before {
+  content: "";
+
+  position: absolute;
+
+  top: -140%;
+  left: -45%;
+
+  width: 60%;
+  height: 320%;
+
+  background: rgba(255, 255, 255, 0.22);
+
+  transform: rotate(24deg);
+
+  transition: 0.65s;
+}
+
+.assign-action-btn:hover::before {
+  left: 140%;
+}
+
+/* ===== HOVER ===== */
+
+.assign-action-btn:hover {
+  transform: translateY(-4px) scale(1.06);
+}
+
+/* ===== ICON ===== */
+
+.assign-action-btn i {
+  position: relative;
+
+  z-index: 2;
+
+  font-size: 24px;
+}
+
+/* ================= VIEW ================= */
+
+.assign-view-btn {
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.95),
+    rgba(99, 102, 241, 0.95)
+  );
+
+  color: white;
+
+  box-shadow:
+    0 14px 34px rgba(99, 102, 241, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.assign-view-btn:hover {
+  box-shadow:
+    0 22px 42px rgba(99, 102, 241, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+/* ================= DELETE ================= */
+
+.assign-delete-btn {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 90, 90, 0.96),
+    rgba(239, 68, 68, 0.96)
+  );
+
+  color: white;
+
+  box-shadow:
+    0 14px 34px rgba(239, 68, 68, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.assign-delete-btn:hover {
+  box-shadow:
+    0 22px 42px rgba(239, 68, 68, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.assign-loading {
+  padding: 90px 20px;
+  text-align: center;
+  color: #666;
+}
+
+.assign-loading-spinner {
+  width: 42px;
+  height: 42px;
+  border: 4px solid #ddd;
+  border-top-color: #7c4dff;
+  border-radius: 50%;
+  margin: 0 auto 16px;
+
+  animation: assignSpin 0.8s linear infinite;
+}
+
+@keyframes assignSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
