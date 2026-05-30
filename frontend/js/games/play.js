@@ -272,7 +272,10 @@ function setupRoomPlayers(gameData) {
 
   inputsWrap.innerHTML = "";
 
-  const totalPlayers = 1;
+  const totalPlayers =
+    Array.isArray(gameData.players) && gameData.players.length > 0
+      ? gameData.players.length
+      : 2;
 
   for (let i = 0; i < totalPlayers; i++) {
     const input = document.createElement("input");
@@ -847,51 +850,39 @@ async function saveAllTurnResults(winnerName) {
       return;
     }
 
-    // ===== CHECK ĐÃ SAVE CHƯA =====
-    const oldRes = await fetch(`http://127.0.0.1:5000/api/results/${room.id}`);
+    const matchId = Date.now();
 
-    const oldResults = await oldRes.json();
+    // ===== SAVE ALL PLAYER =====
+    for (const player of game.players) {
+      await fetch("http://127.0.0.1:5000/api/results", {
+        method: "POST",
 
-    const existed = oldResults.find(
-      (r) => r.game_type === "turnbased" && r.match_id,
-    );
-
-    if (existed) {
-      console.log("TURN RESULT ALREADY SAVED");
-      return;
-    }
-
-    // ===== SAVE 1 RECORD ONLY =====
-    await fetch("http://127.0.0.1:5000/api/results", {
-      method: "POST",
-
-      headers: {
-        "Content-Type": "application/json",
-      },
-
-      body: JSON.stringify({
-        room_id: room.id,
-
-        game_type: "turnbased",
-
-        // chỉ lưu người thắng
-        player_name: winnerName,
-
-        // lưu info trận
-        extra_data: {
-          players: game.players,
-          winner: winnerName,
+        headers: {
+          "Content-Type": "application/json",
         },
 
-        team_name: "TEAM",
+        body: JSON.stringify({
+          room_id: room.id,
 
-        score: null,
+          game_type: "turnbased",
 
-        result_text: "WIN",
+          player_name: player,
 
-        match_id: Date.now(),
-      }),
-    });
+          extra_data: {
+            players: game.players,
+            winner: winnerName,
+          },
+
+          team_name: "TEAM",
+
+          score: null,
+
+          result_text: player === winnerName ? "WIN" : "LOSE",
+
+          match_id: matchId,
+        }),
+      });
+    }
 
     console.log("TURN RESULT SAVED");
   } catch (err) {

@@ -311,6 +311,44 @@ function startLoadedGame() {
     });
   }
 
+  // ===== KEYBOARD CONTROL =====
+  document.addEventListener("keydown", (e) => {
+    const gameControlMode = game.controlMode || "screen";
+
+    // chỉ hoạt động ở mode bàn phím
+    if (gameControlMode !== "keyboard") return;
+
+    if (gameEnded) return;
+
+    const key = e.key.toLowerCase();
+
+    // ===== ĐỘI XANH =====
+    // W A S D = A B C D
+    if (["w", "a", "s", "d"].includes(key)) {
+      const map = {
+        w: 0,
+        a: 1,
+        s: 2,
+        d: 3,
+      };
+
+      chooseAnswer(map[key], "blue");
+    }
+
+    // ===== ĐỘI ĐỎ =====
+    // O P K L = A B C D
+    if (["o", "p", "k", "l"].includes(key)) {
+      const map = {
+        o: 0,
+        p: 1,
+        k: 2,
+        l: 3,
+      };
+
+      chooseAnswer(map[key], "red");
+    }
+  });
+
   // ===== MOVE =====
 
   let bluePos = 0;

@@ -733,7 +733,6 @@ ${
 
     list.innerHTML = html;
     list.style.display = "flex";
-    list.style.flexDirection = "column-reverse";
   }
 
   overlay.classList.remove("hidden");

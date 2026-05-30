@@ -1,5 +1,6 @@
 from database.db import get_connection
 
+
 # ================= REGISTER =================
 def create_user(full_name, email, password):
 
@@ -9,22 +10,26 @@ def create_user(full_name, email, password):
 
     try:
 
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT INTO users
             (
                 full_name,
                 email,
                 password,
+                avatar,
                 login_type
             )
-            VALUES (?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?)
         """,
-        (
-            full_name,
-            email,
-            password,
-            "normal"
-        ))
+            (
+                full_name,
+                email,
+                password,
+                None,
+                "normal"
+            ),
+        )
 
         conn.commit()
 
@@ -40,6 +45,7 @@ def create_user(full_name, email, password):
 
         conn.close()
 
+
 # ================= LOGIN =================
 def get_user(email, password):
 
@@ -49,7 +55,8 @@ def get_user(email, password):
 
     try:
 
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT
                 id,
                 full_name,
@@ -59,10 +66,11 @@ def get_user(email, password):
             FROM users
             WHERE email=? AND password=?
         """,
-        (
-            email,
-            password
-        ))
+            (
+                email,
+                password
+            ),
+        )
 
         return cursor.fetchone()
 
@@ -76,12 +84,9 @@ def get_user(email, password):
 
         conn.close()
 
+
 # ================= GOOGLE LOGIN =================
-def get_or_create_google_user(
-    full_name,
-    email,
-    avatar
-):
+def get_or_create_google_user(full_name, email, avatar):
 
     conn = get_connection()
 
@@ -90,45 +95,56 @@ def get_or_create_google_user(
     try:
 
         # ===== CHECK EXIST =====
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT id
             FROM users
             WHERE email = ?
         """,
-        (email,))
+            (email,),
+        )
 
         user = cursor.fetchone()
 
         # ===== CREATE =====
         if not user:
 
-            cursor.execute("""
+            cursor.execute(
+                """
                 INSERT INTO users
                 (
                     full_name,
                     email,
+                    password,
                     avatar,
                     login_type
                 )
-                OUTPUT INSERTED.id
-                VALUES (?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?)
             """,
-            (
-                full_name,
-                email,
-                avatar,
-                "google"
-            ))
-
-            user_id = cursor.fetchone()[0]
+                (
+                    full_name,
+                    email,
+                    None,
+                    avatar,
+                    "google"
+                ),
+            )
 
             conn.commit()
 
-        else:
+            # ===== GET NEW USER =====
+            cursor.execute(
+                """
+                SELECT id
+                FROM users
+                WHERE email = ?
+            """,
+                (email,),
+            )
 
-            user_id = user[0]
+            user = cursor.fetchone()
 
-        return user_id
+        return user[0]
 
     except Exception as e:
 
