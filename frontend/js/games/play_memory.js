@@ -198,10 +198,12 @@ function startPuzzleTimer() {
 
   puzzleRemain = timerDuration;
 
-  const box = document.getElementById("puzzleTimerBox");
-  const text = document.getElementById("puzzleTimerText");
+  const wrap = document.getElementById("guessCountdown");
+  const text = document.getElementById("guessCountdownText");
+  const ring = document.querySelector(".guess-ring");
 
-  box.classList.remove("hidden");
+  wrap.classList.remove("hidden");
+  ring.classList.remove("low");
 
   text.innerText = puzzleRemain;
 
@@ -213,13 +215,15 @@ function startPuzzleTimer() {
     text.innerText = puzzleRemain;
 
     if (puzzleRemain <= 10) {
-      box.classList.add("low");
+      ring.classList.add("low");
     }
 
     if (puzzleRemain <= 0) {
       clearInterval(puzzleTimer);
 
       if (doneCount < total) {
+        wrap.classList.add("hidden");
+
         closeModal();
         closeGuess();
 
@@ -421,7 +425,6 @@ function openTile(index) {
 
   if (doneCount === total) {
     clearInterval(puzzleTimer);
-    document.getElementById("puzzleTimerBox")?.classList.add("hidden");
 
     startGuessCountdown();
   }
@@ -476,6 +479,7 @@ function startGuessCountdown() {
   const ring = document.querySelector(".guess-ring");
 
   wrap.classList.remove("hidden");
+  ring.classList.remove("low");
 
   text.innerText = guessRemain;
 
