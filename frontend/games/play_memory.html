@@ -78,7 +78,12 @@
       </div>
 
       <div class="progress-wrap">
+        <div id="puzzleTimerBox" class="puzzle-timer hidden">
+          ⏳ <span id="puzzleTimerText">0</span>s
+        </div>
+
         <div class="progress-bar" id="progressBar"></div>
+
         <span id="progressText">0%</span>
       </div>
     </div>
@@ -132,6 +137,22 @@
       </div>
     </div>
 
+    <div id="confirmGuessModal" class="modal hidden">
+      <div class="modal-box">
+        <h3>⚠️ Xác nhận đáp án</h3>
+
+        <p>
+          Bạn chỉ có <b>1 lần đoán</b>. Nếu sai, bạn sẽ thua ngay lập tức. Bạn
+          chắc chắn muốn chọn đáp án này?
+        </p>
+
+        <div class="modal-actions">
+          <button onclick="closeConfirmGuess()">❌ Suy nghĩ lại</button>
+          <button onclick="confirmSubmitGuess()">✅ Chốt đáp án</button>
+        </div>
+      </div>
+    </div>
+
     <!-- ===== RESULT POPUP ===== -->
     <div id="resultBox" class="result-popup hidden">
       <div class="result-card">
@@ -141,7 +162,7 @@
 
         <h2 id="resultTitle">CHIẾN THẮNG</h2>
 
-        <p class="result-label">Đáp án:</p>
+        <p class="result-label">KẾT QUẢ:</p>
 
         <div id="finalAnswer" class="result-answer">...</div>
 

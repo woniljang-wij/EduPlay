@@ -969,14 +969,7 @@ function showEndScene(correct, total) {
   const finalScore = (correct / total) * 10;
 
   if (finalScore >= 9) {
-    const victoryVideos = [
-      "../assets/videos/Victory.mp4",
-      "../assets/videos/Victory1.mp4",
-    ];
-
-    const randomIndex = Math.floor(Math.random() * victoryVideos.length);
-
-    video.src = victoryVideos[randomIndex];
+    video.src = "../assets/videos/Victory.mp4";
 
     title.innerText = finalScore === 10 ? "PERFECT!" : "VICTORY!";
   } else {

@@ -145,6 +145,10 @@ let guessRemain = 0;
 
 let guessTimer = null;
 
+let puzzleTimer = null;
+
+let puzzleRemain = 0;
+
 function startGame() {
   gridSize = parseInt(game.grid);
 
@@ -181,9 +185,49 @@ function startGame() {
   renderGrid();
 
   updateProgress();
+
+  lockGuessButton();
+
+  startPuzzleTimer();
 }
 
 loadGame();
+
+function startPuzzleTimer() {
+  if (timerDuration <= 0) return;
+
+  puzzleRemain = timerDuration;
+
+  const box = document.getElementById("puzzleTimerBox");
+  const text = document.getElementById("puzzleTimerText");
+
+  box.classList.remove("hidden");
+
+  text.innerText = puzzleRemain;
+
+  clearInterval(puzzleTimer);
+
+  puzzleTimer = setInterval(() => {
+    puzzleRemain--;
+
+    text.innerText = puzzleRemain;
+
+    if (puzzleRemain <= 10) {
+      box.classList.add("low");
+    }
+
+    if (puzzleRemain <= 0) {
+      clearInterval(puzzleTimer);
+
+      if (doneCount < total) {
+        closeModal();
+        closeGuess();
+
+        showLose("puzzle-timeout");
+      }
+    }
+  }, 1000);
+}
 
 // ===== GRID =====
 function renderGrid() {
@@ -281,14 +325,10 @@ function showQuestion(index) {
     answersBox.appendChild(btn);
   });
 
-  // ===== TIMER UI =====
   const timerWrap = document.querySelector(".timer-wrap");
 
-  if (timerDuration <= 0) {
+  if (timerWrap) {
     timerWrap.style.display = "none";
-  } else {
-    timerWrap.style.display = "block";
-    startQuestionTimer();
   }
 
   document.getElementById("questionModal").classList.remove("hidden");
@@ -296,8 +336,6 @@ function showQuestion(index) {
 
 // ===== SUBMIT =====
 function submitAnswer() {
-  cancelAnimationFrame(timerRAF);
-
   if (selectedAnswer === null) {
     showToast("Chọn đáp án!", "warning");
     return;
@@ -379,7 +417,12 @@ function openTile(index) {
 
   updateProgress();
 
+  unlockGuessButton();
+
   if (doneCount === total) {
+    clearInterval(puzzleTimer);
+    document.getElementById("puzzleTimerBox")?.classList.add("hidden");
+
     startGuessCountdown();
   }
 }
@@ -391,6 +434,28 @@ function updateProgress() {
   document.getElementById("progressText").innerText = percent + "%";
 
   document.getElementById("progressBar").style.width = percent + "%";
+}
+
+function lockGuessButton() {
+  const btn = document.querySelector(".top-actions .btn-red");
+
+  if (!btn) return;
+
+  btn.disabled = true;
+  btn.style.opacity = "0.45";
+  btn.style.cursor = "not-allowed";
+  btn.title = "Cần mở ít nhất 1 mảnh trước khi giải mã";
+}
+
+function unlockGuessButton() {
+  const btn = document.querySelector(".top-actions .btn-red");
+
+  if (!btn) return;
+
+  btn.disabled = false;
+  btn.style.opacity = "1";
+  btn.style.cursor = "pointer";
+  btn.title = "";
 }
 
 // ===== START FINAL GUESS =====
@@ -437,16 +502,16 @@ function startGuessCountdown() {
 
       wrap.classList.add("hidden");
 
-      showLose();
+      showLose("timeout");
     }
   }, 1000);
 }
 
 // ===== LOSE =====
-function showLose() {
+function showLose(reason = "wrong") {
   closeGuess();
 
-  showToast("❌ Hết thời gian giải mã!", "error");
+  closeConfirmGuess?.();
 
   const audio = new Audio("../assets/sounds/lose.mp3");
 
@@ -465,8 +530,12 @@ function showLose() {
 
   document.getElementById("resultTitle").innerText = "THẤT BẠI";
 
-  document.getElementById("finalAnswer").innerText = answer;
-
+  document.getElementById("finalAnswer").innerText =
+    reason === "puzzle-timeout"
+      ? "Bạn chưa mở hết các mảnh trong thời gian quy định. Đáp án không được tiết lộ."
+      : reason === "timeout"
+        ? "Bạn đã hết thời gian giải mã tên ảnh. Đáp án không được tiết lộ."
+        : "Bạn đã đoán sai. Đáp án không được tiết lộ.";
   box.classList.remove("hidden");
 }
 
@@ -566,12 +635,19 @@ async function saveMemoryResult() {
 
 // ===== GUESS =====
 function openGuess() {
+  if (doneCount <= 0) {
+    showToast("Bạn cần mở ít nhất 1 mảnh trước khi giải mã!", "warning");
+    return;
+  }
+
   document.getElementById("guessModal").classList.remove("hidden");
 }
 
 function closeGuess() {
   document.getElementById("guessModal").classList.add("hidden");
 }
+
+let pendingGuess = "";
 
 function submitGuess() {
   const input = document
@@ -584,24 +660,34 @@ function submitGuess() {
     return;
   }
 
-  const correct = answer.toLowerCase();
+  pendingGuess = input;
 
-  if (input === correct) {
-    showToast("🎉 Chính xác!", "success");
+  document.getElementById("confirmGuessModal").classList.remove("hidden");
+}
 
-    // stop countdown
-    clearInterval(guessTimer);
+function closeConfirmGuess() {
+  document.getElementById("confirmGuessModal").classList.add("hidden");
+}
 
-    // hide timer UI
-    document.getElementById("guessCountdown")?.classList.add("hidden");
+function confirmSubmitGuess() {
+  closeConfirmGuess();
 
+  const correct = answer.trim().toLowerCase();
+
+  clearInterval(guessTimer);
+
+  document.getElementById("guessCountdown")?.classList.add("hidden");
+
+  if (pendingGuess === correct) {
     revealAll();
 
     closeGuess();
 
     showWin();
   } else {
-    showToast("Sai rồi!", "error");
+    closeGuess();
+
+    showLose();
   }
 }
 

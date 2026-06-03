@@ -123,12 +123,6 @@ const roomCode = urlParams.get("room");
 
 const autoPlay = urlParams.get("autoplay");
 
-if (autoPlay || roomCode) {
-  setTimeout(() => {
-    startGameMusic();
-  }, 300);
-}
-
 let game = null;
 
 const isStudentJoin = urlParams.get("join");
@@ -176,7 +170,7 @@ async function loadGame() {
 
         title: g.title,
         subject: g.subject,
-        music: g.music,
+        music: g.music || parsed.music || "../assets/sounds/bai1.mp3",
         game_type: g.game_type,
       };
     });
@@ -327,7 +321,22 @@ function setupRoomPlayers(gameData) {
 function startNormalGame() {
   if (!game) return;
 
-  // fallback nếu players lỗi
+  const music = document.getElementById("bgMusic");
+
+  if (music) {
+    music.pause();
+    music.currentTime = 0;
+
+    music.src = game.music || "../assets/sounds/bai1.mp3";
+    music.load();
+
+    updateMusicUI();
+
+    if (autoPlay || roomCode) {
+      startGameMusic();
+    }
+  }
+
   if (!Array.isArray(game.players) || game.players.length === 0) {
     game.players = ["Người chơi"];
   }
@@ -720,13 +729,9 @@ window.addEventListener("resize", () => {
 const music = document.getElementById("bgMusic");
 const musicButtons = document.querySelectorAll(".music-btn");
 
-if (game && game.music) {
-  music.src = game.music;
-} else {
-  music.src = "../assets/sounds/bai1.mp3";
-}
-
 function updateMusicUI() {
+  if (!music || !music.src) return;
+
   const currentFile = music.src.split("/").pop();
 
   musicButtons.forEach((btn) => {
@@ -739,8 +744,6 @@ function updateMusicUI() {
     }
   });
 }
-
-setTimeout(updateMusicUI, 100);
 
 musicButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
