@@ -1207,6 +1207,9 @@ function deleteQuestion(index) {
   showToast("🗑 Đã xóa câu hỏi " + (index + 1));
 }
 
+// Lưu video vừa phát để tránh trùng liên tiếp
+let lastVideo = -1;
+
 function playGame(id) {
   const screen = document.getElementById("introScreen");
   const video = document.getElementById("introVideo");
@@ -1216,23 +1219,48 @@ function playGame(id) {
     createMusic.currentTime = 0;
   }
 
+  // Danh sách video
+  const videos = [
+  "../assets/videos/Lauriel.mp4",
+  "../assets/videos/DoliaNKTY.mp4",
+  "../assets/videos/DoliaHCGN.mp4",
+  "../assets/videos/Dolia.mp4",
+  "../assets/videos/Sephera.mp4",
+  "../assets/videos/Paine.mp4",
+  "../assets/videos/Tulen.mp4",
+  "../assets/videos/Edras.mp4",
+  "../assets/videos/Maloch.mp4",
+  "../assets/videos/Bijan.mp4",
+  "../assets/videos/Murad.mp4",
+  "../assets/videos/Yorn.mp4",
+  ];
+
+  // Random không trùng video trước
+  let index;
+  do {
+    index = Math.floor(Math.random() * videos.length);
+  } while (videos.length > 1 && index === lastVideo);
+
+  lastVideo = index;
+
   screen.classList.remove("hidden");
   screen.classList.add("flex");
 
-  video.src = "../assets/videos/Lauriel.mp4";
+  video.src = videos[index];
   video.currentTime = 0;
 
   video.play().catch(() => {
-    document.body.addEventListener("click", () => video.play(), {
+    document.body.addEventListener(() => video.play(), {
       once: true,
     });
   });
 
-  // 🎬 END VIDEO → CHUYỂN TRANG
+  // Hết video
   video.onended = () => {
     window.location.href = `/games/play.html?id=${id}&autoplay=1`;
   };
 
+  // Bấm để bỏ qua video
   screen.onclick = () => {
     video.pause();
     video.currentTime = 0;

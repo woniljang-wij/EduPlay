@@ -98,9 +98,17 @@ let isGameOver = false;
 
 const victoryVideos = [
   "../assets/videos/Lauriel.mp4",
-  "../assets/videos/DoliaHGN.mp4",
+  "../assets/videos/DoliaNKTY.mp4",
+  "../assets/videos/DoliaHCGN.mp4",
+  "../assets/videos/Dolia.mp4",
+  "../assets/videos/Sephera.mp4",
+  "../assets/videos/Paine.mp4",
+  "../assets/videos/Tulen.mp4",
   "../assets/videos/Edras.mp4",
-  "../assets/videos/DoliaNKRD.mp4",
+  "../assets/videos/Maloch.mp4",
+  "../assets/videos/Bijan.mp4",
+  "../assets/videos/Murad.mp4",
+  "../assets/videos/Yorn.mp4",
   "../assets/videos/Win.mp4",
 ];
 

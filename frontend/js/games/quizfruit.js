@@ -379,13 +379,6 @@ class="text-red-500 hover:underline">
     .join("");
 }
 
-// ===== PLAY =====
-function playGame(id) {
-  sessionStorage.setItem("playMusic", "true");
-
-  window.location.href = `play_quizfruit.html?id=${id}`;
-}
-
 // ===== SHARE =====
 function shareGame(id) {
   const link = `${window.location.origin}/games/play_quizfruit.html?id=${id}`;
@@ -630,6 +623,57 @@ window.addEventListener("load", () => {
     startCreateMusic();
   }, 300);
 });
+
+// Lưu video vừa phát để tránh trùng liên tiếp
+let lastVideo = -1;
+
+function playGame(id) {
+  const screen = document.getElementById("introScreen");
+  const video = document.getElementById("introVideo");
+
+  if (createMusic) {
+    createMusic.pause();
+    createMusic.currentTime = 0;
+  }
+
+  // Danh sách video
+  const videos = [
+    "../assets/videos/Natalya.mp4",
+  ];
+
+  // Random không trùng video trước
+  let index;
+  do {
+    index = Math.floor(Math.random() * videos.length);
+  } while (videos.length > 1 && index === lastVideo);
+
+  lastVideo = index;
+
+  screen.classList.remove("hidden");
+  screen.classList.add("flex");
+
+  video.src = videos[index];
+  video.currentTime = 0;
+
+  video.play().catch(() => {
+    document.body.addEventListener(() => video.play(), {
+      once: true,
+    });
+  });
+
+  // Hết video
+  video.onended = () => {
+    window.location.href = `/games/play_quizfruit.html?id=${id}&autoplay=1`;
+  };
+
+  // Bấm để bỏ qua video
+  screen.onclick = () => {
+    video.pause();
+    video.currentTime = 0;
+
+    window.location.href = `/games/play_quizfruit.html?id=${id}&autoplay=1`;
+  };
+}
 
 function goAssignments() {
   window.location.href = "assign.html";

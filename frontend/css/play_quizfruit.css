@@ -30,7 +30,7 @@ body {
 
 .fruit {
   position: absolute;
-  width: 250px;
+  width: 350px;
   transform: translate(-50%, -50%);
   pointer-events: none;
 }
@@ -41,7 +41,7 @@ body {
 
 .half {
   position: absolute;
-  width: 250px;
+  width: 350px;
 
   pointer-events: none;
 
@@ -685,7 +685,7 @@ img {
   left: 50%;
   transform: translateX(-50%);
   width: 90%;
-  max-width: 1100px;
+  max-width: 1900px;
 
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(6px);
@@ -717,14 +717,14 @@ img {
 }
 
 .q-top {
-  font-size: 13px;
+  font-size: 15px;
   color: #ddd;
   opacity: 0.8;
 }
 
 .q-text {
-  font-size: 22px;
-  font-weight: 800;
+  font-size: 30px;
+  font-weight: 900;
   margin: 10px 0 15px;
 
   text-shadow: 2px 2px 0 #000;
@@ -737,12 +737,12 @@ img {
 
 .ans {
   flex: 1;
-  padding: 14px;
+  padding: 20px;
   border-radius: 14px;
   text-align: center;
 
   font-weight: 800;
-  font-size: 18px;
+  font-size: 25px;
 
   cursor: pointer;
 
@@ -2756,4 +2756,82 @@ img::selection {
   to {
     opacity: 1;
   }
+}
+
+.correct-answer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0, 0, 0, 0.82);
+
+  opacity: 0;
+  visibility: hidden;
+
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
+}
+
+.correct-answer-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.correct-answer-content {
+  width: min(90vw, 1000px);
+
+  text-align: center;
+
+  padding: 60px 50px;
+
+  border-radius: 30px;
+
+  background: linear-gradient(145deg, #fff8e7, #ffe9b0);
+
+  border: 6px solid #f5b400;
+
+  box-shadow:
+    0 0 30px rgba(255, 190, 0, 0.8),
+    0 0 80px rgba(255, 190, 0, 0.4);
+
+  transform: scale(0.7);
+
+  transition: transform 0.35s ease;
+}
+
+.correct-answer-overlay.show .correct-answer-content {
+  transform: scale(1);
+}
+
+.correct-answer-title {
+  font-size: clamp(32px, 5vw, 70px);
+
+  font-weight: 900;
+
+  color: #d62828;
+
+  margin-bottom: 25px;
+
+  text-transform: uppercase;
+
+  text-shadow:
+    2px 2px 0 #fff,
+    4px 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+.correct-answer-text {
+  font-size: clamp(45px, 8vw, 110px);
+
+  font-weight: 900;
+
+  color: #222;
+
+  line-height: 1.15;
+
+  word-break: break-word;
 }

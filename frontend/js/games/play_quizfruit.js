@@ -16,7 +16,6 @@ const slashSound = new Audio("../assets/sounds/slash.mp3");
 slashSound.volume = 0.5;
 
 let fruits = [];
-let mouseTrail = [];
 let currentIndex = 0;
 let score = 0;
 let timeLeft = 0;
@@ -61,7 +60,7 @@ let speedConfig = {
 
 let speedMultiplier = 1;
 
-const bgm = new Audio("../assets/sounds/bai9.mp3");
+const bgm = new Audio("../assets/sounds/bai6.mp3");
 bgm.loop = true;
 bgm.volume = 0.4;
 
@@ -414,57 +413,53 @@ function updateTimerSmooth(percent) {
 }
 
 function spawnAnswers(q) {
+  clearFruits();
+
   const fruitTypes = ["watermelon.png", "tomato.png", "pear.png", "grape.png"];
 
-  q.answers.forEach((answer, i) => {
-    const fruitType = fruitTypes[i];
+  // vị trí 4 đáp án A B C D
+  const positions = [0.09, 0.3, 0.53, 0.76];
 
+  q.answers.forEach((answer, i) => {
     const fruit = document.createElement("div");
 
     fruit.className = "fruit";
 
     fruit.innerHTML = `
       <img
-        src="../assets/images/${fruitType}"
-        draggable="false"
-      >
+        src="../assets/images/${fruitTypes[i]}"
+        draggable="false">
     `;
 
-    const img = fruit.querySelector("img");
-
-    img.draggable = false;
+    fruit.querySelector("img").draggable = false;
 
     gameArea.appendChild(fruit);
-
-    const x = Math.random() * window.innerWidth;
-
-    const y = window.innerHeight + 50;
-
-    const vx = (Math.random() - 0.5) * 8 * speedMultiplier;
-
-    const vy = (-20 - Math.random() * 10) * speedMultiplier;
 
     const obj = {
       el: fruit,
 
-      x,
-      y,
+      x: window.innerWidth * positions[i] - 45,
 
-      vx,
-      vy,
+      y: window.innerHeight * 0.52,
 
       alive: true,
 
-      answer: answer,
+      answer,
 
       isCorrect: q.correct === i,
 
-      type: fruitType,
+      type: fruitTypes[i],
+    };
+
+    fruit.style.transform = `translate(${obj.x}px, ${obj.y}px)`;
+
+    fruit.onclick = () => {
+      if (!obj.alive) return;
+
+      sliceFruit(obj);
     };
 
     fruits.push(obj);
-
-    animateFruit(obj);
   });
 }
 
@@ -528,18 +523,18 @@ document.addEventListener("mousemove", (e) => {
     return;
   }
 
-  const current = { x: e.clientX, y: e.clientY };
+  const current = {
+    x: e.clientX,
+    y: e.clientY,
+  };
 
   if (lastPoint) {
     createSlashLine(lastPoint, current);
+
+    checkSlice(lastPoint, current);
   }
 
   lastPoint = current;
-
-  mouseTrail.push(current);
-  if (mouseTrail.length > 5) mouseTrail.shift();
-
-  checkSlice();
 });
 
 function createSlashLine(p1, p2) {
@@ -681,25 +676,65 @@ function createGroundSplash(x, y, color) {
 }
 
 // 🎯 check chém
-function checkSlice() {
-  for (let fruit of fruits) {
+function checkSlice(start, end) {
+  for (const fruit of fruits) {
     if (!fruit.alive) continue;
 
     const rect = fruit.el.getBoundingClientRect();
 
-    for (let p of mouseTrail) {
-      if (
-        p.x > rect.left &&
-        p.x < rect.right &&
-        p.y > rect.top &&
-        p.y < rect.bottom
-      ) {
-        sliceFruit(fruit);
-        mouseTrail = [];
-        return;
-      }
+    const expand = Math.min(rect.width, rect.height) * 0.25;
+
+    const hitbox = {
+      left: rect.left - expand,
+      right: rect.right + expand,
+      top: rect.top - expand,
+      bottom: rect.bottom + expand,
+    };
+
+    if (lineIntersectsRect(start.x, start.y, end.x, end.y, hitbox)) {
+      sliceFruit(fruit);
+      return;
     }
   }
+}
+
+function lineIntersectsRect(x1, y1, x2, y2, rect) {
+  // đầu hoặc cuối nằm trong hitbox
+  if (
+    x1 >= rect.left &&
+    x1 <= rect.right &&
+    y1 >= rect.top &&
+    y1 <= rect.bottom
+  )
+    return true;
+
+  if (
+    x2 >= rect.left &&
+    x2 <= rect.right &&
+    y2 >= rect.top &&
+    y2 <= rect.bottom
+  )
+    return true;
+
+  // kiểm tra cắt 4 cạnh
+  return (
+    lineLine(x1, y1, x2, y2, rect.left, rect.top, rect.right, rect.top) ||
+    lineLine(x1, y1, x2, y2, rect.right, rect.top, rect.right, rect.bottom) ||
+    lineLine(x1, y1, x2, y2, rect.right, rect.bottom, rect.left, rect.bottom) ||
+    lineLine(x1, y1, x2, y2, rect.left, rect.bottom, rect.left, rect.top)
+  );
+}
+
+function lineLine(x1, y1, x2, y2, x3, y3, x4, y4) {
+  const den = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+
+  if (den === 0) return false;
+
+  const t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / den;
+
+  const u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / den;
+
+  return t >= 0 && t <= 1 && u >= 0 && u <= 1;
 }
 
 // 🔥 chém trái
@@ -711,15 +746,9 @@ function sliceFruit(fruit) {
   fruit.alive = false;
   fruit.el.remove();
 
+  fruits = fruits.filter((f) => f !== fruit);
+
   playSlash();
-
-  if (fruit.isCorrect) {
-    score++;
-
-    showEffect("good");
-  } else {
-    showEffect("bad");
-  }
 
   createHalf(fruit, -5);
   createHalf(fruit, 5);
@@ -742,20 +771,90 @@ function sliceFruit(fruit) {
 
   clearInterval(spawnLoop);
   cancelAnimationFrame(rafTimer);
-  mouseTrail = [];
+
+  // =========================
+  // ✅ CHÉM ĐÚNG
+  // =========================
+  if (fruit.isCorrect) {
+    score++;
+
+    showEffect("good");
+
+    setTimeout(() => {
+      clearFruits();
+      isProcessing = false;
+
+      currentIndex++;
+
+      if (currentIndex >= game.questions.length) {
+        endGame();
+      } else {
+        startQuestion();
+      }
+    }, 800);
+
+    // =========================
+    // ❌ CHÉM SAI
+    // =========================
+  } else {
+    showEffect("bad");
+
+    // Hiện đáp án đúng đã cài trong trang tạo game
+    showCorrectAnswer();
+
+    setTimeout(() => {
+      clearFruits();
+      isProcessing = false;
+
+      // Sai vẫn qua câu tiếp theo
+      // nhưng KHÔNG cộng điểm
+      currentIndex++;
+
+      if (currentIndex >= game.questions.length) {
+        endGame();
+      } else {
+        startQuestion();
+      }
+    }, 4000);
+  }
+}
+
+function showCorrectAnswer() {
+  const question = game.questions[currentIndex];
+
+  // Lấy đúng đáp án mà giáo viên đã chọn ở trang tạo game
+  const correctIndex = question.correct;
+  const correctAnswer = question.answers[correctIndex];
+
+  const answerBox = document.createElement("div");
+
+  answerBox.className = "correct-answer-overlay";
+
+  answerBox.innerHTML = `
+    <div class="correct-answer-content">
+      <div class="correct-answer-title">
+        ĐÁP ÁN ĐÚNG
+      </div>
+
+      <div class="correct-answer-text">
+        ${correctAnswer}
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(answerBox);
+
+  requestAnimationFrame(() => {
+    answerBox.classList.add("show");
+  });
 
   setTimeout(() => {
-    clearFruits();
-    isProcessing = false;
+    answerBox.classList.remove("show");
 
-    currentIndex++;
-
-    if (currentIndex >= game.questions.length) {
-      endGame();
-    } else {
-      startQuestion();
-    }
-  }, 800);
+    setTimeout(() => {
+      answerBox.remove();
+    }, 300);
+  }, 4000);
 }
 
 function showEffect(type) {
